@@ -2,10 +2,9 @@
 <p> This is a filler paragraph inside the template</p>
 <h2>Query IP:</h2>
 <form action="/ip" method="POST">
-    <input type="text" name="ip" placeholder="127.0.0.1">
+    <input type="text" name="ip" placeholder="127.0.0.1" required>
     <input type="submit">
 </form>
 <hr>
-<h2>History:</h2>
-{{ template "history" . }}
+
 {{ end }}
