@@ -4,7 +4,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"time"
 )
 
 func HandleIPPost(w http.ResponseWriter, r *http.Request) {
@@ -30,19 +29,10 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := Result{
-		IP:              parsedIP,
-		IsPub:           true, // example
-		AbuseConfidence: 42,
-		Country:         "US",
-		UsageType:       "Residential",
-		ISP:             "MockISP",
-		Domain:          "mock.domain",
-		TotalReports:    7,
-		Users:           3,
-		LastReported:    time.Now().Add(-24 * time.Hour),
-		ThreatRisk:      "Medium",
-		ParsedRes:       "is vpn",
+	// Fire abuseipdb query
+	result, err := checkAbuseIPDB(ip)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	Results = append(Results, result)
