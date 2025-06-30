@@ -86,6 +86,6 @@ func checkAbuseIPDB(ip string) (Result, error) {
 		Users:           raw.Data.NumDistinctUsers,
 		LastReported:    lastReported,
 		ThreatRisk:      risk, // Optional logic can go here
-		ParsedRes:       "unknown! spur was not queried!",
+		ParsedRes:       "Not Anonymous",
 	}, nil
 }
