@@ -1,5 +1,5 @@
 # ipcheq2
 
-Requires .env in project root w/:
+Requires .env in same dir as bin with:
 `ABIPDBKEY=<your key here>`
 
