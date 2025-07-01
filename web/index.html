@@ -1,10 +1,32 @@
-{{ define "content" }}
-<p> This is a filler paragraph inside the template</p>
-<h2>Query IP:</h2>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ipcheq2</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+</head>
+
+<body>
+<h1 class="site_title">ipcheq2</h1>
 <form action="/ip" method="POST">
-    <input type="text" name="ip" placeholder="127.0.0.1" required>
+    <label>
+        <input type="text" name="ip" placeholder="127.0.0.1" required>
+    </label>
     <input type="submit">
 </form>
 <hr>
+<h2>Results:</h2>
+{{ template "history" . }}
+</body>
+<footer>
+    <hr>
+    IP reputation data provided by
+    <a href="https://www.abuseipdb.com" target="_blank" rel="noopener">AbuseIPDB</a>
+    and
+    <a href="https://spur.us" target="_blank" rel="noopener">Spur.us</a>. <br>
+    &copy; 2025 Troy Lopez. All rights reserved.
+</footer>
 
-{{ end }}
+</html>

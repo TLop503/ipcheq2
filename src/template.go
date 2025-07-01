@@ -8,20 +8,17 @@ import (
 )
 
 func RenderTemplate(w http.ResponseWriter, pagePath string, data any) {
-	templates := []string{
-		filepath.Join("web/templates", "layout.html"),
-		filepath.Join("web/templates", "history.html"),
-		filepath.Join("web", pagePath),
-	}
+	templatePath := filepath.Join("web", pagePath)
+	historyPath := filepath.Join("web/templates", "history.html")
 
-	t, err := template.ParseFiles(templates...)
+	t, err := template.ParseFiles(templatePath, historyPath)
 	if err != nil {
 		log.Printf("Template parsing error: %v", err)
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
 
-	err = t.ExecuteTemplate(w, "layout", data)
+	err = t.Execute(w, data)
 	if err != nil {
 		log.Printf("Template execution error: %v", err)
 		http.Error(w, "Template Error", 500)

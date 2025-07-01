@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'eightgon';
+    src: url('/assets/Eightgon-Regular.woff2') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+body {
+    background-color: #fff6e7;
+    font-family: Calibri, sans-serif;
+}
+
+.site_title {
+    color: black;
+    font-family: 'eightgon', sans-serif;
+    font-size: xxx-large;
+}

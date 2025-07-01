@@ -36,14 +36,17 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	if strings.Contains(result.UsageType, "Data Center") {
-		spur_results, err := checkSpur(ip)
+		spurResults, err := checkSpur(ip)
 		if err != nil {
 			log.Fatal(err)
 		} else {
-			result.ParsedRes = spur_results
+			result.ParsedRes = spurResults
 		}
 	}
 
-	Results = append(Results, result)
+	Results = append([]Result{result}, Results...)
+	if len(Results) > 5 {
+		Results = Results[:5] // truncate for prettiness on screen.
+	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
