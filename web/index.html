@@ -9,19 +9,19 @@
 </head>
 
 <body>
-<h1 class="site_title">ipcheq2</h1>
-<form action="/ip" method="POST">
-    <label>
+<div class="header">
+    <h1 class="logo">ipcheq<span class="logo_2">2</span></h1>
+    <form action="/ip" method="POST" class="search-form">
         <input type="text" name="ip" placeholder="127.0.0.1" required>
-    </label>
-    <input type="submit">
-</form>
+        <input type="submit" value="Go!">
+    </form>
+</div>
+
 <hr>
 <h2>Results:</h2>
 {{ template "history" . }}
 </body>
 <footer>
-    <hr>
     IP reputation data provided by
     <a href="https://www.abuseipdb.com" target="_blank" rel="noopener">AbuseIPDB</a>
     and

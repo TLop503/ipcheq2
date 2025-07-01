@@ -5,14 +5,77 @@
     font-style: normal;
 }
 
-
-body {
-    background-color: #fff6e7;
-    font-family: Calibri, sans-serif;
+:root {
+    --back-color: #fffbf6;
+    --lime: #b8ff1f;
+    --limon: #818c1f;
 }
 
-.site_title {
+body {
+    background-color: var(--back-color);
+    font-family: Calibri, sans-serif;
+    width: 100%;
+    max-width: 75vw;
+    margin: 0 auto;           /* horizontally center */
+    box-sizing: border-box;   /* so padding doesn't exceed width */
+}
+
+.header {
+    display: flex;
+    align-items: center;      /* Vertically align items */
+    justify-content: space-between; /* Optional: space them out */
+    gap: 1rem;                /* Space between logo and form */
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    min-width: 0;
+}
+
+.search-form {
+    display: flex;
+    flex-grow: 1;
+    gap: 0.5rem;
+}
+
+.search-form input[type="text"] {
+    flex-grow: 1;
+    padding: 0.5em;
+    font-size: 1em;
+    font-family: monospace , sans-serif;
+    min-width: 0; /* prevents overflow */
+    position: relative;
+    border: 3px inset black;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.search-form input[type="submit"] {
+    border: 3px inset var(--lime) ;
+    border-top-left-radius: 5px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding-left : 1rem;
+    padding-right: 1rem;
+    font-size: large;
+    font-family: eightgon, sans-serif;
+    font-weight: bold;
+}
+
+.logo{
     color: black;
     font-family: 'eightgon', sans-serif;
     font-size: xxx-large;
+}
+
+.logo_2 {
+    color: var(--lime);
+    font-family: 'eightgon', sans-serif;
+    font-style: italic;
+    font-size: xxx-large;
+}
+a {
+    color: var(--limon);
 }
