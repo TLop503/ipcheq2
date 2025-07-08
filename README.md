@@ -2,6 +2,8 @@
 
 Aggregate data from AbuseIPDB and Spur to investigate IPs!
 
+![ipcheq2 homescreen with search bar](image.png)
+
 ## Features
 - Search results history!
 - IPv4 and IPv6 support!
