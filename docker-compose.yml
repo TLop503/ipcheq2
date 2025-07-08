@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ipcheq2:
+    image: ghcr.io/TLop503/ipcheq2:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ABIPDBKEY=${ABIPDBKEY}
+    restart: unless-stopped
+    # Uncomment the following lines if you want to use a .env file locally
+    # env_file:
+    #   - .env
