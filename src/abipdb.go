@@ -3,6 +3,7 @@ package src
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"net"
 	"net/http"
@@ -62,15 +63,15 @@ func checkAbuseIPDB(ip string) (Result, error) {
 	}
 
 	confidence := raw.Data.AbuseConfidenceScore
-	risk := ""
+	var risk template.HTML
 	if confidence == 0 {
-		risk = "Clean"
+		risk = template.HTML(`<span style="background-color:lightgreen; padding:1px 2px; border-radius:2px;">Clean</span>`)
 	} else if confidence < 26 {
-		risk = "Low Risk"
+		risk = template.HTML(`<span style="background-color:yellow; padding:1px 2px; border-radius:2px;">Low Risk</span>`)
 	} else if confidence < 51 {
-		risk = "Medium Risk"
+		risk = template.HTML(`<span style="background-color:orange; padding:1px 2px; border-radius:2px;">Medium Risk</span>`)
 	} else {
-		risk = "High Risk"
+		risk = template.HTML(`<span style="background-color:red; padding:1px 2px; border-radius:2px;">High Risk</span>`)
 	}
 
 	// Populate Result
