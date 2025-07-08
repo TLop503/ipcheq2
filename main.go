@@ -11,9 +11,10 @@ import (
 
 func main() {
 
+	// Try to load .env file (optional for container deployment)
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Warning: .env file not found, using environment variables directly")
 	}
 
 	// Initialize API key in src package
