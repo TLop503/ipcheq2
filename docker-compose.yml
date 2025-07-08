@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   ipcheq2:
-    image: ghcr.io/TLop503/ipcheq2:latest
+    image: ghcr.io/tlop503/ipcheq2:latest
     ports:
       - "8080:8080"
     environment:

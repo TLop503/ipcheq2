@@ -13,7 +13,7 @@ Aggregate data from AbuseIPDB and Spur to investigate IPs!
 ### Using Docker Run
 ```bash
 # supply an abuseipdb api key
-docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ghcr.io/TLop503/ipcheq2:latest
+docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest
 ```
 
 ### Using Docker Compose
@@ -22,7 +22,7 @@ docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ghcr.io/TLop503/ipcheq2:l
 version: '3.8'
 services:
   ipcheq2:
-    image: ghcr.io/TLop503/ipcheq2:latest
+    image: ghcr.io/tlop503/ipcheq2:latest
     ports:
       - "8080:8080"
     environment:
@@ -36,7 +36,7 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/TLop503/ipcheq2/releases/latest).
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest).
 2. Create a .env file with an AbuseIPDB API Key (see `.env.example`).
 3. Place the binary and .env in the same directory and run! ipcheq2 will serve on localhost:8080.
 
@@ -49,7 +49,7 @@ docker-compose up -d
 ### Local Development
 1. Clone the repository:
 ```bash
-git clone https://github.com/TLop503/ipcheq2.git
+git clone https://github.com/tlop503/ipcheq2.git
 cd ipcheq2
 ```
 
