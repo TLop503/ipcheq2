@@ -1,6 +1,7 @@
 package src
 
 import (
+	"html/template"
 	"net"
 	"os"
 	"time"
@@ -18,7 +19,7 @@ type Result struct {
 	TotalReports    int
 	Users           int
 	LastReported    time.Time
-	ThreatRisk      string
+	ThreatRisk      template.HTML
 
 	//spur
 	ParsedRes string // is / is not vpn
