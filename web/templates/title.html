@@ -1,6 +1,8 @@
 {{ define "title" }}
 {{ if . }}
-{{ index . 0 }} |   
+{{ with $n := index . 0 }}
+{{ $n.IP }}
+{{ end }} |   
 
 {{ end }}
 ipcheq2
