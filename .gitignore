@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-ipcheq2
+ipcheq2*
 
 # Test binary, built with `go test -c`
 *.test
