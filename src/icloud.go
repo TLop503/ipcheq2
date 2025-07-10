@@ -45,7 +45,21 @@ func loadPrefixFile(filename string) []netip.Prefix {
 func LoadICloudPrefixes() {
 	ipV4Prefixes = loadPrefixFile("ipv4.txt")
 	ipV6Prefixes = loadPrefixFile("ipv6.txt")
+}
 
-	log.Printf("ipv4: %d\n", len(ipV4Prefixes))
-	log.Printf("ipv6: %d\n", len(ipV6Prefixes))
+func CheckICloudIP(address netip.Addr) bool {
+	var checkList []netip.Prefix
+	if address.Is4() {
+		checkList = ipV4Prefixes
+	} else {
+		checkList = ipV6Prefixes
+	}
+
+	for _, prefix := range checkList {
+		if prefix.Contains(address) {
+			return true
+		}
+	}
+
+	return false
 }

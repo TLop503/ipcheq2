@@ -2,8 +2,8 @@ package src
 
 import (
 	"log"
-	"net"
 	"net/http"
+	"net/netip"
 	"strings"
 )
 
@@ -24,8 +24,8 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing IP address", 500)
 		return
 	}
-	parsedIP := net.ParseIP(ip)
-	if parsedIP == nil {
+	parsedIP, err := netip.ParseAddr(ip)
+	if err != nil {
 		http.Error(w, "Invalid IP address", 500)
 		return
 	}
@@ -39,6 +39,8 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		spurResults, err := checkSpur(ip)
 		if err != nil {
 			log.Fatal(err)
+		} else if !strings.Contains(spurResults, "VPN") && CheckICloudIP(parsedIP) {
+			result.ParsedRes = "iCloud Private Relay"
 		} else {
 			result.ParsedRes = spurResults
 		}
