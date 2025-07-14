@@ -7,7 +7,14 @@
   <li>Domain: {{ .Domain }}</li>
   <li>Country: {{ .Country }} ({{ .CountryCode }})</li>
   <li>Usage Type: {{ .UsageType }}</li>
-  <li>VPN Status: {{ .ParsedRes }}</li>
+  <li>VPN Status: {{ .ParsedRes }}
+    {{ if eq .ParsedRes "Not Anonymous" }}
+    <form action="/spur" method="POST" style="display: inline; margin-left: 10px;">
+      <input type="hidden" name="ip" value="{{ .IP }}">
+      <input type="submit" value="Query Spur" style="font-size: 12px; padding: 2px 6px;">
+    </form>
+    {{ end }}
+  </li>
   <li>Total Reports: {{ .TotalReports }}</li>
   <li>- Last Reported: {{ .LastReported }}</li>
   <li>Abuse Confidence: {{ .AbuseConfidence }}%</li>
