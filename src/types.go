@@ -13,6 +13,7 @@ type Result struct {
 	IsPub           bool
 	AbuseConfidence int
 	Country         string
+	CountryCode     string
 	UsageType       string
 	ISP             string
 	Domain          string
@@ -41,7 +42,8 @@ type abuseIPDBResponse struct {
 		IPAddress            string `json:"ipAddress"`
 		IsPublic             bool   `json:"isPublic"`
 		AbuseConfidenceScore int    `json:"abuseConfidenceScore"`
-		CountryCode          string `json:"countryCode"`
+		CountryName          string `json:"countryName"`
+		CountryCode	     string `json:"countryCode"`
 		UsageType            string `json:"usageType"`
 		ISP                  string `json:"isp"`
 		Domain               string `json:"domain"`
