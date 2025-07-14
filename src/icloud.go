@@ -22,6 +22,7 @@ func loadPrefixFile(filename string) []netip.Prefix {
 	scanner := bufio.NewScanner(prefixFile)
 	scanner.Scan()
 
+	// first line of file is number of prefixes
 	ipCount, err := strconv.Atoi(scanner.Text())
 	if err != nil {
 		log.Fatalf("Couldn't read count: %s", err)
@@ -29,6 +30,7 @@ func loadPrefixFile(filename string) []netip.Prefix {
 
 	prefixes := make([]netip.Prefix, 0, ipCount)
 
+	// parse prefixes on remaining lines
 	for scanner.Scan() {
 		prefixStr := scanner.Text()
 		prefix, err := netip.ParsePrefix(prefixStr)
@@ -48,6 +50,7 @@ func LoadICloudPrefixes() {
 }
 
 func CheckICloudIP(address netip.Addr) bool {
+	// determine proper prefix list to use (IPv4/6)
 	var checkList []netip.Prefix
 	if address.Is4() {
 		checkList = ipV4Prefixes
