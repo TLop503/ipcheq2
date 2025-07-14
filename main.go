@@ -25,6 +25,7 @@ func main() {
 		src.RenderTemplate(w, "index.html", src.Results)
 	})
 	http.HandleFunc("/ip", src.HandleIPPost)
+	http.HandleFunc("/spur", src.HandleSpurPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
 
 	log.Println("Starting server on :8080")

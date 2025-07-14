@@ -50,3 +50,46 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// HandleSpurPost is used to directly query Spur without going through the regular IP check flow.
+// This is intended for use when double-checking a fixed line IP that didn't
+// trigger the regular spur query.
+func HandleSpurPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// read IP
+	if err := r.ParseForm(); err != nil {
+		log.Printf("ParseForm error: %v", err)
+		http.Error(w, "Missing IP addr", 500)
+		return
+	}
+	ip := r.Form.Get("ip")
+	if ip == "" {
+		http.Error(w, "Missing IP address", 500)
+		return
+	}
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		http.Error(w, "Invalid IP address", 500)
+		return
+	}
+
+	// Find the result in the Results slice and update it
+	for i := range Results {
+		if Results[i].IP.String() == parsedIP.String() {
+			spurResults, err := checkSpur(ip)
+			if err != nil {
+				log.Printf("Spur query error: %v", err)
+				http.Error(w, "Spur query failed", 500)
+				return
+			}
+			Results[i].ParsedRes = spurResults
+			break
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
