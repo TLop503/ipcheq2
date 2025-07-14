@@ -43,8 +43,8 @@ func loadPrefixFile(filename string) []netip.Prefix {
 }
 
 func LoadICloudPrefixes() {
-	ipV4Prefixes = loadPrefixFile("ipv4.txt")
-	ipV6Prefixes = loadPrefixFile("ipv6.txt")
+	ipV4Prefixes = loadPrefixFile("prefixes/ipv4.txt")
+	ipV6Prefixes = loadPrefixFile("prefixes/ipv6.txt")
 }
 
 func CheckICloudIP(address netip.Addr) bool {
