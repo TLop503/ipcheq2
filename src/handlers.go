@@ -51,6 +51,9 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// HandleSpurPost is used to directly query Spur without going through the regular IP check flow.
+// This is intended for use when double-checking a fixed line IP that didn't
+// trigger the regular spur query.
 func HandleSpurPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
