@@ -20,11 +20,15 @@ func main() {
 	// Initialize API key in src package
 	src.InitializeAPIKey()
 
+	// load iCloud private relay IPs
+	src.LoadICloudPrefixes()
+
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		src.RenderTemplate(w, "index.html", src.Results)
 	})
 	http.HandleFunc("/ip", src.HandleIPPost)
+	http.HandleFunc("/spur", src.HandleSpurPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
 
 	log.Println("Starting server on :8080")

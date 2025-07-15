@@ -71,6 +71,10 @@ go build . # inside project
 
 4. Open your browser to `http://localhost:8080`
 
+#### Updating iCloud Private Relay prefixes
+
+[A script is provided](prefixes/update_prefixes.py) to update the iCloud Private Relay prefixes within the repo.
+Before running it, make sure that you're inside the `prefixes/` directory.
 
 ## Deployment
 

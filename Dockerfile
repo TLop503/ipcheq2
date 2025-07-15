@@ -33,6 +33,9 @@ COPY --from=builder /app/ipcheq2 .
 # Copy web assets
 COPY --from=builder /app/web ./web
 
+# Copy iCloud private relay prefix files in
+COPY prefixes/*.txt ./prefixes/
+
 # Change ownership to app user
 RUN chown -R appuser:appuser /app
 
