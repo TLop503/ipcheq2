@@ -20,6 +20,9 @@ func main() {
 	// Initialize API key in src package
 	src.InitializeAPIKey()
 
+	// load iCloud private relay IPs
+	src.LoadICloudPrefixes()
+
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		src.RenderTemplate(w, "index.html", src.Results)
