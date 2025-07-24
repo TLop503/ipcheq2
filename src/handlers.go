@@ -25,6 +25,7 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing IP address", 500)
 		return
 	}
+	ip = strings.TrimSpace(ip)
 	parsedIP, err := netip.ParseAddr(ip)
 	if err != nil {
 		http.Error(w, "Invalid IP address", 500)
