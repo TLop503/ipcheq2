@@ -38,9 +38,18 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest).
-2. Create a .env file with an AbuseIPDB API Key (see `.env.example`).
-3. Place the binary and .env in the same directory and run! ipcheq2 will serve on localhost:8080.
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the prefixes as well.
+```
+├── ipcheq2 or ipcheq2.exe
+└── prefixes
+        ├── ipv4.txt
+        ├── ipv6.txt
+        ├── update_prefixes.py
+        └── upstream-list.hash
+```
+1. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
+1. Update the icloud prefixes if desired with the bundled Python script.
+1. Run the executable! ipcheq2 will serve on localhost:8080.
 
 ## Development Setup
 
@@ -59,6 +68,7 @@ cd ipcheq2
 ```bash
 cp .env.example .env
 # Edit .env and add your ABIPDBKEY
+# Alternatively, enviornment variables can be used.
 ```
 
 3. Run the application:
