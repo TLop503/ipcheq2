@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @font-face {
     font-family: 'eightgon';
     src: url('/assets/Eightgon-Regular.woff2') format('woff');
@@ -78,4 +79,141 @@ body {
 }
 a {
     color: var(--limon);
+=======
+@font-face {
+    font-family: 'eightgon';
+    src: url('/assets/Eightgon-Regular.woff2') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --back-color: #fffbf6;
+    --lime: #b8ff1f;
+    --limon: #818c1f;
+}
+
+body {
+    background-color: var(--back-color);
+    font-family: Calibri, sans-serif;
+    width: 100%;
+    max-width: 75vw;
+    margin: 0 auto;           /* horizontally center */
+    box-sizing: border-box;   /* so padding doesn't exceed width */
+}
+
+.header {
+    display: flex;
+    align-items: center;      /* Vertically align items */
+    justify-content: space-between; /* Optional: space them out */
+    gap: 1rem;                /* Space between logo and form */
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    min-width: 0;
+}
+
+.search-form {
+    display: flex;
+    flex-grow: 1;
+    gap: 0.5rem;
+}
+
+.search-form input[type="text"] {
+    flex-grow: 1;
+    padding: 0.5em;
+    font-size: 1em;
+    font-family: monospace , sans-serif;
+    min-width: 0; /* prevents overflow */
+    position: relative;
+    border: 3px inset black;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.search-form input[type="submit"] {
+    border: 3px inset var(--lime) ;
+    border-top-left-radius: 5px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding-left : 1rem;
+    padding-right: 1rem;
+    font-size: large;
+    font-family: eightgon, sans-serif;
+    font-weight: bold;
+}
+
+.logo{
+    color: black;
+    font-family: 'eightgon', sans-serif;
+    font-size: xxx-large;
+}
+
+.logo_2 {
+    color: var(--lime);
+    font-family: 'eightgon', sans-serif;
+    font-style: italic;
+    font-size: xxx-large;
+}
+
+a {
+    color: var(--limon);
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+ul ul {
+    padding-left: 20px;
+}
+
+#result-container {
+    background: #e1e1e1;
+    border-radius: 3%;
+    padding: 3px;
+}
+
+#result-container h3 {
+    margin: 20px;
+    line-height: 0.6;
+}
+
+/* Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+    body {
+        color: #eee;
+        background: #121212;
+    }
+
+    body a {
+        color: #809fff;
+    }
+
+    .logo{
+        color: white;
+    }
+
+    #result-container {
+        background: #1E1E1E;
+    }
+
+     .search-form input[type="submit"] {
+         color: #eee;
+         background: #121212;
+    }
+
+    #result-container input[type="submit"] {
+        color: #eee;
+        background: #1E1E1E;
+    }
+
+    input[type="submit"]:hover {
+        background: #333333 !important;
+    }
+
+>>>>>>> ec03423 (dark mode and styling updates)
 }
