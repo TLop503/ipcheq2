@@ -2,7 +2,6 @@ package src
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -40,20 +39,50 @@ func checkSpur(ip string) (string, error) {
 		meta_pattern = r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']+)["\']'
 		match = re.search(meta_pattern, html_content, re.IGNORECASE)
 	*/
+	// First, try to extract the human-friendly paragraph that contains the summary
+	// e.g. <p data-slot="text">192.145.119.7 belongs to the Nord VPN anonymization network. ...</p>
+	pRe := regexp.MustCompile(`(?si)<p[^>]*data-slot=["']text["'][^>]*>(.*?)</p>`)
+	if pm := pRe.FindStringSubmatch(string(content)); len(pm) > 1 {
+		// strip any HTML tags inside the paragraph
+		stripRe := regexp.MustCompile(`<[^>]+>`)
+		text := stripRe.ReplaceAllString(pm[1], "")
+		text = strings.TrimSpace(text)
+		if text != "" {
+			return text, nil
+		}
+	}
+
+	// fallback: parse meta description (older behavior)
 	pattern := `<meta\s+name=["']description["']\s+content=["']([^"']+)["']`
 	re := regexp.MustCompile(pattern)
-	fmt.Println(string(content))
 
 	match := re.FindStringSubmatch(string(content))
 	if len(match) > 0 {
-		// truncate for readability first
-		if i := strings.Index(match[1], "VPN."); i != -1 {
-			return match[1][:i+len("VPN.")], nil
-		} else if i := strings.Index(match[1], "activity."); i != -1 {
-			return match[1][:i+len("activity.")], nil
-		} else {
-			return match[1], nil
+		meta := match[1]
+		// Try to find a provider name that ends with 'VPN', e.g. 'Nord VPN'
+		providerRe := regexp.MustCompile(`(?i)([A-Za-z0-9&\-_ ]+VPN)\b`)
+		if p := providerRe.FindStringSubmatch(meta); len(p) > 1 {
+			prov := strings.TrimSpace(p[1])
+			return "VPN: " + prov, nil
 		}
+
+		// Explicit negative indicators
+		notRe := regexp.MustCompile(`(?i)\b(not (a )?vpn|no vpn|not vpn)\b`)
+		if notRe.MatchString(meta) {
+			return "Not VPN", nil
+		}
+
+		// If the meta mentions VPN but no provider parsed, return generic VPN
+		if strings.Contains(strings.ToLower(meta), "vpn") {
+			return "VPN", nil
+		}
+
+		// fallback to previous activity truncation
+		if i := strings.Index(meta, "activity."); i != -1 {
+			return meta[:i+len("activity.")], nil
+		}
+
+		return meta, nil
 	}
 
 	return "Spur query failed!", nil

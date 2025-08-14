@@ -31,7 +31,7 @@ services:
       - "8080:8080"
     environment:
   - ABIPDBKEY=your_api_key_here
-  - SPUR_SESSION_COOKIE=your_spur_session_cookie_here
+  - SPUR_SESSION_COOKIE="__session=your_spur_session_cookie_here"
     restart: unless-stopped
 ```
 
