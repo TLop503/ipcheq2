@@ -20,6 +20,9 @@ func main() {
 	// Initialize API key in src package
 	src.InitializeAPIKey()
 
+	// Initialize Spur session cookie (mandatory)
+	src.InitializeSpurCookie()
+
 	// load iCloud private relay IPs
 	src.LoadICloudPrefixes()
 
