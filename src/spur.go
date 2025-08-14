@@ -1,6 +1,8 @@
 package src
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -10,15 +12,28 @@ import (
 
 func checkSpur(ip string) (string, error) {
 	url := "https://spur.us/context/" + ip
-
-	res, err := http.Get(url)
+	// Create a request so we can attach the session cookie header
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", err
 	}
-	content, err := io.ReadAll(res.Body)
-	res.Body.Close()
+	// Attach mandatory Spur session cookie
+	if SpurCookie == "" {
+		log.Printf("spur session cookie not initialized")
+		return "", errors.New("spur session cookie not initialized")
+	}
+	req.Header.Set("Cookie", SpurCookie)
+
+	client := &http.Client{}
+	res, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
+	}
+	defer res.Body.Close()
+
+	content, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
 	}
 	/*
 		parse out meta description from the HTML
@@ -27,6 +42,7 @@ func checkSpur(ip string) (string, error) {
 	*/
 	pattern := `<meta\s+name=["']description["']\s+content=["']([^"']+)["']`
 	re := regexp.MustCompile(pattern)
+	fmt.Println(string(content))
 
 	match := re.FindStringSubmatch(string(content))
 	if len(match) > 0 {

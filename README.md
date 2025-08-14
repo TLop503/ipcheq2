@@ -18,6 +18,8 @@ Aggregate data from AbuseIPDB and Spur to investigate IPs!
 docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest
 ```
 
+Note: As of this release, `spur.us` queries require a valid session cookie. You must supply a `SPUR_SESSION_COOKIE` environment variable containing your session cookie (for example: `session=abcdef...`). The container will refuse to start without it.
+
 ### Using Docker Compose
 1. Create a `docker-compose.yml` file:
 ```yaml
@@ -28,7 +30,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - ABIPDBKEY=your_api_key_here
+  - ABIPDBKEY=your_api_key_here
+  - SPUR_SESSION_COOKIE=your_spur_session_cookie_here
     restart: unless-stopped
 ```
 
@@ -48,6 +51,12 @@ docker-compose up -d
         └── upstream-list.hash
 ```
 1. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
+1. Add your Spur session cookie to the `.env` file as `SPUR_SESSION_COOKIE` (mandatory). The value should match the Cookie header value your browser sends to spur.us for an authenticated session. Example:
+
+```env
+ABIPDBKEY=your_abuseipdb_key_here
+SPUR_SESSION_COOKIE=session=abcdef0123456789
+```
 1. Update the icloud prefixes if desired with the bundled Python script.
 1. Run the executable! ipcheq2 will serve on localhost:8080.
 
