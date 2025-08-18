@@ -44,7 +44,7 @@ func TestQueryIPs(t *testing.T) {
 		{"1.1.1.1", "cyberghost.txt"},
 		{"2.2.2.5", "cyberghost.txt"}, // within 2.2.2.0/24
 		{"3.3.3.3", "express.txt"},
-		{"4.4.4.2", "nord.txt"}, // within 4.4.4.4/30
+		{"4.4.4.5", "nord.txt"}, // within 4.4.4.4/30 (range is 4.4.4.4-4.4.4.7)
 		{"5.5.5.5", ""},         // not in any file
 	}
 
@@ -58,7 +58,7 @@ func TestQueryIPs(t *testing.T) {
 
 		if tt.expected != "" && !containsProvider(result, tt.expected) {
 			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in ranger", addr.IP) {
+		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr.IP) {
 			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
 		}
 	}

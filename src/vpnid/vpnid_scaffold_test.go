@@ -1,6 +1,7 @@
 package vpnid
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -70,7 +71,12 @@ func TestValidateConfig(t *testing.T) {
 func TestInitialize(t *testing.T) {
 	t.Run("no error expected", func(t *testing.T) {
 		tmp := t.TempDir()
-		config := "foo : bar\n"
+
+		// Create a data file first
+		dataFile := makeTempFile(t, tmp, "data.txt", "1.1.1.1\n2.2.2.0/24\n")
+
+		// Create config that references the actual data file
+		config := fmt.Sprintf("provider1 : %s\n", dataFile)
 		configPath := makeTempFile(t, tmp, "config.txt", config)
 
 		if _, err := Initialize(configPath); err != nil {
