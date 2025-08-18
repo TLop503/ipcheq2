@@ -20,7 +20,7 @@ func TestValidateConfig(t *testing.T) {
 	t.Run("valid config", func(t *testing.T) {
 		tmp := t.TempDir()
 
-		// file with content
+		// files with content
 		file1 := makeTempFile(t, tmp, "f1.txt", "foo")
 		file2 := makeTempFile(t, tmp, "f2.txt", "bar")
 
@@ -28,8 +28,21 @@ func TestValidateConfig(t *testing.T) {
 		config := `foo : ` + file1 + "\nbar : " + file2 + "\n"
 		configPath := makeTempFile(t, tmp, "config.txt", config)
 
-		if err := validateConfig(configPath); err != nil {
+		entries, err := validateConfig(configPath)
+		if err != nil {
 			t.Errorf("expected valid config, got error: %v", err)
+		}
+
+		// optional: check parsed entries
+		if len(entries) != 2 {
+			t.Errorf("expected 2 entries, got %d", len(entries))
+		} else {
+			if entries[0].Name != "foo" || entries[0].Path != file1 {
+				t.Errorf("first entry mismatch: %+v", entries[0])
+			}
+			if entries[1].Name != "bar" || entries[1].Path != file2 {
+				t.Errorf("second entry mismatch: %+v", entries[1])
+			}
 		}
 	})
 
@@ -38,7 +51,7 @@ func TestValidateConfig(t *testing.T) {
 		config := "this-is-wrong\n"
 		configPath := makeTempFile(t, tmp, "config.txt", config)
 
-		if err := validateConfig(configPath); err == nil {
+		if _, err := validateConfig(configPath); err == nil {
 			t.Errorf("expected error for bad format line, got nil")
 		}
 	})
@@ -48,7 +61,7 @@ func TestValidateConfig(t *testing.T) {
 		config := "foo : /nonexistent/path\n"
 		configPath := makeTempFile(t, tmp, "config.txt", config)
 
-		if err := validateConfig(configPath); err == nil {
+		if _, err := validateConfig(configPath); err == nil {
 			t.Errorf("expected error for missing file, got nil")
 		}
 	})
