@@ -1,26 +1,28 @@
 {{ define "history" }}
 {{ if . }}
 {{ range . }}
-<h3>IP: {{ .IP }}</h3>
-<ul>
-  <li>ISP: {{ .ISP }}</li>
-  <li>Domain: {{ .Domain }}</li>
-  <li>Country: {{ .Country }} ({{ .CountryCode }})</li>
-  <li>Usage Type: {{ .UsageType }}</li>
-  <li>VPN Status: {{ .ParsedRes }}
-    {{ if eq .ParsedRes "Not Anonymous" }}
-    <form action="/spur" method="POST" style="display: inline; margin-left: 10px;" class="search-form">
-      <input type="hidden" name="ip" value="{{ .IP }}">
-      <input type="submit" value="Query Spur" style="font-size: 12px; padding: 2px 6px;">
-    </form>
-    {{ end }}
-  </li>
-  <li>Total Reports: {{ .TotalReports }}</li>
-  <li>- Last Reported: {{ .LastReported }}</li>
-  <li>Abuse Confidence: {{ .AbuseConfidence }}%</li>
-  <li>Risk Level: {{ .ThreatRisk }}</li>
-  <li>Number of Distinct Users: {{ .Users }}</li>
-</ul>
+<div id="result-container">
+  <h3>IP: {{ .IP }}</h3>
+  <ul>
+    <li>ISP: {{ .ISP }}</li>
+    <li>Domain: {{ .Domain }}</li>
+    <li>Country: {{ .Country }} ({{ .CountryCode }})</li>
+    <li>Usage Type: {{ .UsageType }}</li>
+    <li>VPN Status: {{ .ParsedRes }}
+      {{ if eq .ParsedRes "Not Anonymous" }}
+      <form action="/spur" method="POST" style="display: inline; margin-left: 10px;" class="search-form">
+        <input type="hidden" name="ip" value="{{ .IP }}">
+        <input type="submit" value="Query Spur" class="invert-dark" style="font-size: 12px; padding: 2px 6px;">
+      </form>
+      {{ end }}
+    </li>
+    <li>Total Reports: {{ .TotalReports }}</li>
+      <ul><li>Last Reported: {{ .LastReported }}</li></ul>
+    <li>Abuse Confidence: {{ .AbuseConfidence }}%</li>
+    <li>Risk Level: {{ .ThreatRisk }}</li>
+    <li>Number of Distinct Users: {{ .Users }}</li>
+  </ul>
+</div>
 <hr>
 {{ end }}
 {{ else }}
