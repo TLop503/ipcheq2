@@ -38,13 +38,13 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	if strings.Contains(result.UsageType, "Data Center") {
-		spurResults, err := checkSpur(ip)
+		vpnResults, err := checkVPN(ip)
 		if err != nil {
 			log.Fatal(err)
-		} else if !strings.Contains(spurResults, "VPN") && CheckICloudIP(parsedIP) {
+		} else if !strings.Contains(vpnResults, "VPN") && CheckICloudIP(parsedIP) {
 			result.ParsedRes = "iCloud Private Relay"
 		} else {
-			result.ParsedRes = spurResults
+			result.ParsedRes = vpnResults
 		}
 	}
 
@@ -55,10 +55,10 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// HandleSpurPost is used to directly query Spur without going through the regular IP check flow.
-// This is intended for use when double-checking a fixed line IP that didn't
-// trigger the regular spur query.
-func HandleSpurPost(w http.ResponseWriter, r *http.Request) {
+// HandleVPNPost is used to directly query VPN information without going through the regular IP check flow.
+// This is useful when an IP was already checked but didn't trigger the regular VPN query.
+// The user can then manually query VPN information for that IP.
+func HandleVPNPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -84,13 +84,13 @@ func HandleSpurPost(w http.ResponseWriter, r *http.Request) {
 	// Find the result in the Results slice and update it
 	for i := range Results {
 		if Results[i].IP.String() == parsedIP.String() {
-			spurResults, err := checkSpur(ip)
+			vpnResults, err := checkVPN(ip)
 			if err != nil {
-				log.Printf("Spur query error: %v", err)
-				http.Error(w, "Spur query failed", 500)
+				log.Printf("VPN query error: %v", err)
+				http.Error(w, "VPN query failed", 500)
 				return
 			}
-			Results[i].ParsedRes = spurResults
+			Results[i].ParsedRes = vpnResults
 			break
 		}
 	}

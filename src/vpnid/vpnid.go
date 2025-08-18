@@ -3,11 +3,13 @@ package vpnid
 import (
 	"bufio"
 	"fmt"
-	"github.com/yl2chen/cidranger"
 	"net"
 	"net/netip"
 	"os"
+	"sort"
 	"strings"
+
+	"github.com/yl2chen/cidranger"
 )
 
 // ConfigEntry represents one line in the config file: name → path
@@ -102,14 +104,17 @@ func Initialize(path string) (cidranger.Ranger, error) {
 	return ranger, nil
 }
 
-// addToTree reads every line from a file at 'path' and inserts it into the cidranger tree
-// using the given provider/source name.
+// addToTree reads every line from a file at 'path', collapses IPs into CIDR ranges,
+// and inserts them into the cidranger tree using the given provider/source name.
 func addToTree(tree cidranger.Ranger, path string, provider string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open file %q: %w", path, err)
 	}
 	defer file.Close()
+
+	var ipv4s []net.IP
+	var prefixes []netip.Prefix
 
 	scanner := bufio.NewScanner(file)
 	lineNum := 0
@@ -121,16 +126,23 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 			continue
 		}
 
-		// Try parse as CIDR
+		// Try parse as CIDR first
 		if p, err := netip.ParsePrefix(line); err == nil {
-			tree.Insert(TreeEntry{Prefix: p, Provider: provider})
+			prefixes = append(prefixes, p)
 			continue
 		}
 
 		// Try parse as single IP
 		if ip, err := netip.ParseAddr(line); err == nil {
-			p := netip.PrefixFrom(ip, ip.BitLen()) // /32 or /128
-			tree.Insert(TreeEntry{Prefix: p, Provider: provider})
+			// Convert to net.IP for collapse function
+			netIP := ip.AsSlice()
+			if ip.Is4() {
+				ipv4s = append(ipv4s, netIP)
+			} else {
+				// For IPv6, just add as individual /128 prefix for now
+				p := netip.PrefixFrom(ip, ip.BitLen())
+				prefixes = append(prefixes, p)
+			}
 			continue
 		}
 
@@ -139,6 +151,30 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("error reading file %q: %w", path, err)
+	}
+
+	// Insert any CIDR prefixes directly
+	for _, p := range prefixes {
+		tree.Insert(TreeEntry{Prefix: p, Provider: provider})
+	}
+
+	// Collapse IPv4 IPs into ranges (IPv6 already handled above)
+	if len(ipv4s) > 0 {
+		// Sort IPv4 IPs for collapse function
+		sortIPs(ipv4s)
+
+		// Collapse into CIDR ranges
+		cidrs := Collapse(ipv4s)
+
+		// Insert collapsed ranges
+		for _, cidr := range cidrs {
+			// Convert net.IPNet back to netip.Prefix
+			prefix, err := netipFromIPNet(cidr)
+			if err != nil {
+				return fmt.Errorf("failed to convert CIDR %s: %w", cidr, err)
+			}
+			tree.Insert(TreeEntry{Prefix: prefix, Provider: provider})
+		}
 	}
 
 	return nil
@@ -170,4 +206,37 @@ func Query(addr net.IPAddr, ranger cidranger.Ranger) (string, error) {
 	}
 
 	return fmt.Sprintf("%s is owned by %v", ip, providers), nil
+}
+
+// sortIPs sorts a slice of net.IP addresses
+func sortIPs(ips []net.IP) {
+	sort.Slice(ips, func(i, j int) bool {
+		return ipLess(ips[i], ips[j])
+	})
+}
+
+// ipLess compares two IP addresses
+func ipLess(a, b net.IP) bool {
+	// Ensure both are same format
+	a = a.To16()
+	b = b.To16()
+	for i := 0; i < len(a); i++ {
+		if a[i] < b[i] {
+			return true
+		} else if a[i] > b[i] {
+			return false
+		}
+	}
+	return false // they're equal
+}
+
+// netipFromIPNet converts net.IPNet to netip.Prefix
+func netipFromIPNet(ipnet *net.IPNet) (netip.Prefix, error) {
+	addr, ok := netip.AddrFromSlice(ipnet.IP)
+	if !ok {
+		return netip.Prefix{}, fmt.Errorf("invalid IP address")
+	}
+
+	ones, _ := ipnet.Mask.Size()
+	return netip.PrefixFrom(addr, ones), nil
 }

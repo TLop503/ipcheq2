@@ -95,6 +95,10 @@ func ipIncrementN(ip net.IP, n int) net.IP {
 
 func ipToUint32(ip net.IP) uint32 {
 	ip = ip.To4()
+	if ip == nil {
+		// This should not happen in our IPv4-only processing
+		panic("ipToUint32: got nil IP after To4() conversion - this indicates an IPv6 address in IPv4 processing")
+	}
 	return uint32(ip[0])<<24 | uint32(ip[1])<<16 | uint32(ip[2])<<8 | uint32(ip[3])
 }
 

@@ -1,0 +1,9 @@
+cyberghost : data/cyberghost.txt
+express : data/express.txt
+mullvad : data/mullvad.txt
+nord : data/nord.txt
+pia : data/pia.txt
+proton : data/proton.txt
+surfshark : data/surfshark.txt
+torguard : data/torguard.txt
+tunnelbear : data/tunnelbear.txt

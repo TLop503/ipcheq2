@@ -20,6 +20,9 @@ func main() {
 	// Initialize API key in src package
 	src.InitializeAPIKey()
 
+	// Initialize VPN ID ranger
+	src.InitializeVpnID()
+
 	// load iCloud private relay IPs
 	src.LoadICloudPrefixes()
 
@@ -28,7 +31,7 @@ func main() {
 		src.RenderTemplate(w, "index.html", src.Results)
 	})
 	http.HandleFunc("/ip", src.HandleIPPost)
-	http.HandleFunc("/spur", src.HandleSpurPost)
+	http.HandleFunc("/vpn", src.HandleVPNPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
 
 	log.Println("Starting server on :8080")
