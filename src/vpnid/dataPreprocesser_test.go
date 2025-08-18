@@ -37,7 +37,7 @@ func TestCollapse(t *testing.T) {
 		},
 		{
 			name: "four consecutive IPs form /30",
-			ips:  []string{"192.168.0.1", "192.168.0.2", "192.168.0.3", "192.168.0.4"},
+			ips:  []string{"192.168.0.0", "192.168.0.1", "192.168.0.2", "192.168.0.3"},
 			want: []string{"192.168.0.0/30"},
 		},
 		{
