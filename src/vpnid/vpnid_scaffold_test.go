@@ -73,7 +73,7 @@ func TestInitialize(t *testing.T) {
 		config := "foo : bar\n"
 		configPath := makeTempFile(t, tmp, "config.txt", config)
 
-		if err := Initialize(configPath); err != nil {
+		if _, err := Initialize(configPath); err != nil {
 			t.Errorf("expected no error, got %v", err)
 		}
 	})
