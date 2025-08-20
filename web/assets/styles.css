@@ -31,6 +31,83 @@ body {
     min-width: 0;
 }
 
+.slider {
+    cursor: pointer;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    background-color: #5B5B66;
+    width: 60px;
+    height: 34px;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fffbf6;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+#dark{
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 7.5px;
+    bottom: 7px;
+}
+
+#light{
+    position: absolute;
+    height: 26px;
+    width: 26px;
+    left: 30px;
+    bottom: 4px;
+}
+
+input:not(:checked) + .slider #dark {
+    opacity: 100;
+    transition: .6s;
+}
+
+input:checked + .slider #dark {
+    opacity: 0;
+    transition: 0s;
+}
+
+input:not(:checked) + .slider #light {
+    opacity: 0;
+    transition: 0s;
+}
+
+input:checked + .slider #light {
+    opacity: 100;
+    transition: .6s;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
 .search-form {
     display: flex;
     flex-grow: 1;
@@ -76,6 +153,76 @@ body {
     font-style: italic;
     font-size: xxx-large;
 }
+
 a {
     color: var(--limon);
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+ul ul {
+    padding-left: 20px;
+}
+
+#result-container {
+    background: #e1e1e1;
+    border-radius: 3%;
+    padding: 3px;
+}
+
+#result-container h3 {
+    margin: 20px;
+    line-height: 0.6;
+}
+
+/* Dark Mode Toggle */
+.dark-mode {
+    --back-color: #000409;
+    --lime: #8aff00;
+    --limon: #ccd400;
+    --text-color: #eee;
+    --header-bg: #1e1e1e;
+    --submit-bg: #000409;
+    --submit-color: #eee;
+}
+
+.dark-mode {
+  color: #eee;
+}
+
+.dark-mode body {
+    background-color: var(--back-color);
+    color: white;
+}
+
+.dark-mode .logo {
+    color: white;
+}
+
+.dark-mode #result-container {
+    background: #1E1E1E;
+}
+
+.dark-mode .search-form input[type="submit"] {
+    color: var(--submit-color);
+    background: var(--submit-bg);
+}
+
+.dark-mode #result-container input[type="submit"] {
+    color: var(--submit-color);
+    background: var(--submit-bg);
+}
+
+.dark-mode input[type="submit"]:hover {
+    background: #333333 !important;
+}
+
+.dark-mode .switch {
+    background-color: #a4a499;
+}
+
+.dark-mode .slider:before {
+    background-color: #000409;
 }
