@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"net"
 	"net/http"
+	"net/netip"
 	"time"
 )
 
@@ -74,9 +74,15 @@ func checkAbuseIPDB(ip string) (Result, error) {
 		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>`) // test with 111.26.184.29
 	}
 
+	// Parse IP
+	parsedIp, err := netip.ParseAddr(raw.Data.IPAddress)
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to parse IP address: %v", err)
+	}
+
 	// Populate Result
 	return Result{
-		IP:              net.ParseIP(raw.Data.IPAddress),
+		IP:              parsedIp,
 		IsPub:           raw.Data.IsPublic,
 		AbuseConfidence: raw.Data.AbuseConfidenceScore,
 		Country:         raw.Data.CountryName,

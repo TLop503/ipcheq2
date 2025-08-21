@@ -1,14 +1,19 @@
 package src
 
 import (
+	"fmt"
 	"html/template"
-	"net"
+	"net/netip"
 	"os"
 	"time"
+
+	"ipcheq2/src/vpnid"
+
+	"github.com/yl2chen/cidranger"
 )
 
 type Result struct {
-	IP net.IP
+	IP netip.Addr
 	// abuseipdb data
 	IsPub           bool
 	AbuseConfidence int
@@ -22,12 +27,13 @@ type Result struct {
 	LastReported    time.Time
 	ThreatRisk      template.HTML
 
-	//spur
-	ParsedRes string // is / is not vpn
+	//vpn status
+	ParsedRes string // vpn provider or "not vpn"
 }
 
 var Results []Result
 var AbIPDBKey string
+var VpnIDRanger cidranger.Ranger
 
 // InitializeAPIKey sets the AbuseIPDB API key from environment
 func InitializeAPIKey() {
@@ -37,13 +43,23 @@ func InitializeAPIKey() {
 	}
 }
 
+// InitializeVpnID initializes the VPN identification ranger from config file
+func InitializeVpnID() {
+	ranger, err := vpnid.Initialize("vpnid_config.txt")
+	if err != nil {
+		panic("Failed to initialize VPN ID: " + err.Error())
+	}
+	VpnIDRanger = ranger
+	fmt.Println("VPN ID ranger initialized successfully")
+}
+
 type abuseIPDBResponse struct {
 	Data struct {
 		IPAddress            string `json:"ipAddress"`
 		IsPublic             bool   `json:"isPublic"`
 		AbuseConfidenceScore int    `json:"abuseConfidenceScore"`
 		CountryName          string `json:"countryName"`
-		CountryCode	     string `json:"countryCode"`
+		CountryCode          string `json:"countryCode"`
 		UsageType            string `json:"usageType"`
 		ISP                  string `json:"isp"`
 		Domain               string `json:"domain"`
