@@ -16,7 +16,7 @@ func Collapse(ips []net.IP) []*net.IPNet {
 
 	for i := 1; i < len(ips); i++ {
 		// If current is exactly one greater than end, extend range
-		if ipIncrement(end).Equal(ips[i]) {
+		if ipIncrementN(end, 1).Equal(ips[i]) {
 			end = ips[i]
 		} else {
 			// finalize current block
@@ -80,10 +80,6 @@ func rangeToCIDRs(start, end net.IP) []*net.IPNet {
 	}
 
 	return nets
-}
-
-func ipIncrement(ip net.IP) net.IP {
-	return ipIncrementN(ip, 1)
 }
 
 func ipIncrementN(ip net.IP, n int) net.IP {
