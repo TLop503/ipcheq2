@@ -2,7 +2,7 @@ package vpnid
 
 import (
 	"fmt"
-	"net"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,8 +51,12 @@ func TestQueryIPs(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		addr := net.IPAddr{IP: net.ParseIP(tt.ip)}
-		result, err := Query(addr, ranger)
+		addr, err := netip.ParseAddr(tt.ip)
+		if err != nil {
+			t.Errorf("ParseAddr(%s) failed: %v", tt.ip, err)
+			continue
+		}
+		result, _, err := Query(addr, ranger)
 		if err != nil {
 			t.Errorf("Query(%s) returned error: %v", tt.ip, err)
 			continue
@@ -60,7 +64,7 @@ func TestQueryIPs(t *testing.T) {
 
 		if tt.expected != "" && !containsProvider(result, tt.expected) {
 			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr.IP) {
+		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr) {
 			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
 		}
 	}
@@ -106,10 +110,14 @@ func TestWithProdData(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		addr := net.IPAddr{IP: net.ParseIP(tt.ip)}
+		addr, err := netip.ParseAddr(tt.ip)
+		if err != nil {
+			t.Errorf("ParseAddr(%s) failed: %v", tt.ip, err)
+			continue
+		}
 
 		start := time.Now() // ⏱ start timing
-		result, err := Query(addr, ranger)
+		result, _, err := Query(addr, ranger)
 		duration := time.Since(start)
 
 		t.Logf("Query(%s) took %d ns", tt.ip, duration.Nanoseconds())
@@ -121,7 +129,7 @@ func TestWithProdData(t *testing.T) {
 
 		if tt.expected != "" && !containsProvider(result, tt.expected) {
 			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr.IP) {
+		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr) {
 			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
 		}
 	}
