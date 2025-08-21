@@ -180,21 +180,19 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 	return nil
 }
 
-func Query(addr net.IPAddr, ranger cidranger.Ranger) (string, error) {
-	ip := addr.IP
-
-	if ip.To4() == nil { // IPv6
-		return "IPv6 Support Coming Soon", nil
+func Query(ip netip.Addr, ranger cidranger.Ranger) (string, bool, error) {
+	if !ip.Is4() { // IPv6
+		return "IPv6 Support Coming Soon", false, nil
 	}
 
 	// Lookup all prefixes containing this IP
-	entries, err := ranger.ContainingNetworks(ip)
+	entries, err := ranger.ContainingNetworks(ip.AsSlice())
 	if err != nil {
-		return "", err
+		return "Query Error!", false, err
 	}
 
 	if len(entries) == 0 {
-		return fmt.Sprintf("%s not found in dataset", ip), nil
+		return fmt.Sprintf("%s not found in dataset", ip), false, nil
 	}
 
 	// Collect provider names (in case of overlap)
@@ -205,7 +203,7 @@ func Query(addr net.IPAddr, ranger cidranger.Ranger) (string, error) {
 		}
 	}
 
-	return fmt.Sprintf("%s is owned by %v", ip, providers), nil
+	return fmt.Sprintf("%s is owned by %v", ip, providers), true, nil
 }
 
 // sortIPs sorts a slice of net.IP addresses

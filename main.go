@@ -30,7 +30,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		src.RenderTemplate(w, "index.html", src.Results)
 	})
-	http.HandleFunc("/ip", src.HandleIPPost)
+	http.HandleFunc("/ip", src.HandleIPPost2)
 	http.HandleFunc("/vpn", src.HandleVPNPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
 

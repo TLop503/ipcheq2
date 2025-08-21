@@ -3,7 +3,7 @@ package src
 import (
 	"fmt"
 	"html/template"
-	"net"
+	"net/netip"
 	"os"
 	"time"
 
@@ -13,7 +13,7 @@ import (
 )
 
 type Result struct {
-	IP net.IP
+	IP netip.Addr
 	// abuseipdb data
 	IsPub           bool
 	AbuseConfidence int
