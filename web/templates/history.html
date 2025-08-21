@@ -9,12 +9,6 @@
     <li>Country: {{ .Country }} ({{ .CountryCode }})</li>
     <li>Usage Type: {{ .UsageType }}</li>
     <li>VPN Status: {{ .ParsedRes }}
-      {{ if eq .ParsedRes "Not Anonymous" }}
-      <form action="/vpn" method="POST" style="display: inline; margin-left: 10px;" class="search-form">
-        <input type="hidden" name="ip" value="{{ .IP }}">
-        <input type="submit" value="Query VPNDB" class="invert-dark" style="font-size: 12px; padding: 2px 6px;">
-      </form>
-      {{ end }}
     </li>
     <li>Total Reports: {{ .TotalReports }}</li>
     <ul><li>Last Reported: {{ .LastReported }}</li></ul>
