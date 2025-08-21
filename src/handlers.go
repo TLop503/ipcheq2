@@ -50,7 +50,7 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 
 	// result.ParsedRes now stores vpn/etc status
 
-	Results = append([]Result{result}, result)
+	Results = append([]Result{result}, Results...)
 	if len(Results) > 5 {
 		Results = Results[:5] // truncate for prettiness on screen.
 	}
