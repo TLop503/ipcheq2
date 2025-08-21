@@ -202,7 +202,7 @@ func Query(ip netip.Addr, ranger cidranger.Ranger) (string, bool, error) {
 		}
 	}
 
-	return fmt.Sprintf("%s is owned by %v", ip, providers), true, nil
+	return fmt.Sprintf("%s is used by %v", ip, providers), true, nil
 }
 
 // sortIPs sorts a slice of net.IP addresses
