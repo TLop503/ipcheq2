@@ -36,6 +36,12 @@ COPY --from=builder /app/web ./web
 # Copy iCloud private relay prefix files in
 COPY prefixes/*.txt ./prefixes/
 
+# Copy Data Files In
+COPY data/*.txt ./data/
+
+# Copy in config for data
+COPY vpnid_config.txt ./vpnid_config.txt
+
 # Change ownership to app user
 RUN chown -R appuser:appuser /app
 
