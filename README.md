@@ -1,14 +1,30 @@
 # ipcheq2
 
-Aggregate data from AbuseIPDB and Spur to investigate IPs!
+Aggregate data from AbuseIPDB and VPNID to investigate IPs!
 
 ![ipcheq2 homescreen with search bar](image.png)
 
 ## Features
 - Search results history!
-- IPv4 and IPv6 support!
+- Full IPv4 Support, with v6 coverage coming soon!
+- Extendable data-- bring your own sources to supplement ours!
 - Concise, distraction-free results without any marketing!
 - Linux and Windows both supported!
+
+### IP Data Sources:
+- AbuseIPDB
+- iCloud Private Relays
+- Cyberghost
+- Express VPN
+- Mullvad VPN
+- Nord VPN
+- PIA
+- Proton VPN
+- Surfshark VPN
+- Tor Exit Nodes
+- Tunnelbear VPN
+
+Want to see another source here? Open a PR with a file or an issue with a link!
 
 ## Quick Start with Docker
 
@@ -38,7 +54,8 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the prefixes as well.
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the ip data as well.
+  1. Alternatively clone the repo and build from source to skip arranging files (see below)
 ```
 ├── ipcheq2 or ipcheq2.exe
 └── prefixes
@@ -46,9 +63,14 @@ docker-compose up -d
         ├── ipv6.txt
         ├── update_prefixes.py
         └── upstream-list.hash
+└── data
+        ├── source1.txt
+        ├── ...
+└── vpnid_config.txt
 ```
 1. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
 1. Update the icloud prefixes if desired with the bundled Python script.
+1. Optionally add IP lists to data/ and update the config file to match
 1. Run the executable! ipcheq2 will serve on localhost:8080.
 
 ## Development Setup

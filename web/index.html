@@ -21,6 +21,13 @@
         <input type="text" name="ip" placeholder="127.0.0.1" required>
         <input type="submit" value="Go!">
     </form>
+    <label class="switch">
+        <input onchange="changeMode(this)" id="modeToggle" type="checkbox">
+        <span class="slider">
+            <img id="dark" style="vertical-align: middle;" src="assets/icons8-do-not-disturb-ios-51.png" alt="Dark"/>
+            <img id="light" style="vertical-align: middle;" src="assets/icons8-light-mode-78.png" alt="Light"/>
+        </span>
+    </label>
 </div>
 
 <hr>
@@ -29,10 +36,49 @@
 </body>
 <footer>
     IP reputation data provided by
-    <a href="https://www.abuseipdb.com" target="_blank" rel="noopener">AbuseIPDB</a>
-    and
-    <a href="https://spur.us" target="_blank" rel="noopener">Spur.us</a>. <br>
+    <a href="https://www.abuseipdb.com" target="_blank" rel="noopener">AbuseIPDB</a>.<br>
     &copy; 2025 Troy Lopez. All rights reserved.
 </footer>
+
+<script>
+    // Apply system color theme
+    function applyDefault(){
+        const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+        if (darkThemeMq.matches){
+            localStorage.setItem('color-mode', 'dark')
+        } else{
+            localStorage.setItem('color-mode', 'light')
+        }
+    }
+
+    // Apply color theme
+    function applyMode(){
+        const savedMode = localStorage.getItem('color-mode')
+        if (savedMode === 'dark'){
+            document.body.classList.add('dark-mode')
+            document.getElementById('modeToggle').checked = true
+        } else{
+            document.body.classList.remove('dark-mode')
+            document.getElementById('modeToggle').checked = false
+        }
+    }
+
+    // Update mode when the user toggles checkbox
+    function changeMode(t){
+        if (t.checked){
+            document.body.classList.add('dark-mode')
+            localStorage.setItem('color-mode', 'dark')
+        } else{
+            document.body.classList.remove('dark-mode')
+            localStorage.setItem('color-mode', 'light')
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyDefault());
+    document.getElementById('modeToggle').addEventListener('change', function(){
+        changeMode(this)
+    })
+    applyMode()
+</script>
 
 </html>

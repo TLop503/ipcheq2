@@ -1,0 +1,10 @@
+Cyberghost : data/cyberghost.txt
+Express VPN : data/express.txt
+Mullvad : data/mullvad.txt
+Nord VPN : data/nord.txt
+PIA : data/pia.txt
+Proton VPN : data/proton.txt
+Surfshark : data/surfshark.txt
+Torguard : data/torguard.txt
+Tunnelbear : data/tunnelbear.txt
+Tor Exit Nodes: data/torbulkexitlist.txt

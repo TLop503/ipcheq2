@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"net"
 	"net/http"
+	"net/netip"
 	"time"
 )
 
@@ -65,18 +65,24 @@ func checkAbuseIPDB(ip string) (Result, error) {
 	confidence := raw.Data.AbuseConfidenceScore
 	var risk template.HTML
 	if confidence == 0 {
-		risk = template.HTML(`<span style="background-color:lightgreen; padding:1px 2px; border-radius:2px;">Clean</span>`)
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Clean</span> <img style="vertical-align: middle;" src="../assets/icons8-checkmark-50.png" alt="Green Checkmark" width="20" height="20"/>`) // test with 212.102.51.57
 	} else if confidence < 26 {
-		risk = template.HTML(`<span style="background-color:yellow; padding:1px 2px; border-radius:2px;">Low Risk</span>`)
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Low Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-yield-sign-50.png" alt="Yellow Yield" width="17" height="17"/>`) // test with 54.204.34.130
 	} else if confidence < 51 {
-		risk = template.HTML(`<span style="background-color:orange; padding:1px 2px; border-radius:2px;">Medium Risk</span>`)
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>`) // test with 209.85.221.176
 	} else {
-		risk = template.HTML(`<span style="background-color:red; padding:1px 2px; border-radius:2px;">High Risk</span>`)
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>`) // test with 111.26.184.29
+	}
+
+	// Parse IP
+	parsedIp, err := netip.ParseAddr(raw.Data.IPAddress)
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to parse IP address: %v", err)
 	}
 
 	// Populate Result
 	return Result{
-		IP:              net.ParseIP(raw.Data.IPAddress),
+		IP:              parsedIp,
 		IsPub:           raw.Data.IsPublic,
 		AbuseConfidence: raw.Data.AbuseConfidenceScore,
 		Country:         raw.Data.CountryName,
