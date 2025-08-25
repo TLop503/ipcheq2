@@ -44,6 +44,14 @@
     // Apply system color theme
     function applyDefault(){
         const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+
+	// Check for local storage first
+	let chosen_color_scheme = localStorage.getItem('color-mode')
+	if (chosen_color_scheme){
+		// Skip system check if storage contains the color scheme
+		return
+	}
+
         if (darkThemeMq.matches){
             localStorage.setItem('color-mode', 'dark')
         } else{
