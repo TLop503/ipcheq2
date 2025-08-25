@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/netip"
+	"strings"
 )
 
 func HandleIPPost(w http.ResponseWriter, r *http.Request) {
@@ -20,6 +21,8 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rawIP := r.Form.Get("ip")
+
+	rawIP = strings.TrimSpace(rawIP)
 
 	// Parse string -> netip.Addr
 	ip, err := netip.ParseAddr(rawIP)
