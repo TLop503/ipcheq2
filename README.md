@@ -54,8 +54,8 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the ip data as well.
-  1. Alternatively clone the repo and build from source to skip arranging files (see below)
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the ip data as well and arrange to match tree:
+   	Alternatively clone the repo and build from source to skip arranging files (see "Local Development" below)
 ```
 ├── ipcheq2 or ipcheq2.exe
 └── prefixes
@@ -68,10 +68,10 @@ docker-compose up -d
         ├── ...
 └── vpnid_config.txt
 ```
-1. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
-1. Update the icloud prefixes if desired with the bundled Python script.
-1. Optionally add IP lists to data/ and update the config file to match
-1. Run the executable! ipcheq2 will serve on localhost:8080.
+2. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
+3. Update the icloud prefixes if desired with the bundled Python script.
+4. Optionally add IP lists to data/ and update the config file to match
+5. Run the executable! ipcheq2 will serve on localhost:8080.
 
 ## Development Setup
 
