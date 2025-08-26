@@ -122,18 +122,12 @@ input:checked + .slider:before {
     min-width: 0; /* prevents overflow */
     position: relative;
     border: 3px inset black;
-    border-top-left-radius: 15px;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-radius: 15px 5px 5px 5px;
 }
 
 .search-form input[type="submit"] {
     border: 3px inset var(--lime) ;
-    border-top-left-radius: 5px;
-    border-bottom-right-radius: 15px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-radius: 5px 5px 15px 5px;
     padding-left : 1rem;
     padding-right: 1rem;
     font-size: large;
@@ -168,7 +162,7 @@ ul ul {
 
 #result-container {
     background: #e1e1e1;
-    border-radius: 3%;
+    border-radius: 15px 5px 15px 5px;
     padding: 3px;
 }
 
