@@ -12,25 +12,6 @@ import (
 	"github.com/yl2chen/cidranger"
 )
 
-// ConfigEntry represents one line in the config file: name → path
-type ConfigEntry struct {
-	Name string
-	Path string
-}
-
-type TreeEntry struct {
-	Prefix   netip.Prefix
-	Provider string
-}
-
-// Network implements RangerEntry using net.IPNet
-func (t TreeEntry) Network() net.IPNet {
-	return net.IPNet{
-		IP:   t.Prefix.Addr().AsSlice(),                               // starting IP
-		Mask: net.CIDRMask(t.Prefix.Bits(), t.Prefix.Addr().BitLen()), // mask
-	}
-}
-
 // validateConfig reads the config file, parses it into entries, and returns them.
 // Returns an error if the file cannot be read or any line is invalid.
 func validateConfig(path string) ([]ConfigEntry, error) {

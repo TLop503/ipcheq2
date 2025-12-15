@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"ipcheq2/src/vpnid"
+	"github.com/tlop503/ipcheq2/src/vpnid"
 
 	"github.com/yl2chen/cidranger"
 )

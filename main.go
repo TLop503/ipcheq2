@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"ipcheq2/src"
+	"github.com/tlop503/ipcheq2/src"
 
 	"github.com/joho/godotenv"
 )

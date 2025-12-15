@@ -1,7 +1,7 @@
 package src
 
 import (
-	"ipcheq2/src/vpnid"
+	"github.com/tlop503/ipcheq2/src/vpnid"
 	"log"
 	"net/http"
 	"net/netip"
@@ -20,6 +20,7 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing IP addr", 500)
 		return
 	}
+
 	rawIP := r.Form.Get("ip")
 
 	rawIP = strings.TrimSpace(rawIP)
@@ -42,11 +43,9 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 
 	// Check for VPN, iCloud, etc.
 
-	queryRes, found, err := vpnid.Query(ip, VpnIDRanger)
+	queryRes, _, err := vpnid.Query(ip, VpnIDRanger)
 	if err != nil {
 		log.Fatal(err)
-	} else if !found && CheckICloudIP(ip) {
-		result.ParsedRes = "iCloud Private Relay"
 	} else {
 		result.ParsedRes = queryRes
 	}

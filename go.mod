@@ -1,4 +1,4 @@
-module ipcheq2
+module github.com/tlop503/ipcheq2
 
 go 1.23.4
 
