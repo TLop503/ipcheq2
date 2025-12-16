@@ -33,7 +33,7 @@ func TestQueryIPs(t *testing.T) {
 	configPath := makeTempFile(t, tmp, "config.txt", configContent)
 
 	// Initialize ranger
-	ranger, err := Initialize(configPath)
+	ranger, err := initialize(configPath)
 	if err != nil {
 		t.Fatalf("Initialize failed: %v", err)
 	}
@@ -90,7 +90,7 @@ func TestWithProdData(t *testing.T) {
 	}
 
 	start := time.Now() // ⏱ start timing
-	ranger, err := Initialize(configPath)
+	ranger, err := initialize(configPath)
 	duration := time.Since(start)
 	t.Logf("Init took %s", duration.String())
 
