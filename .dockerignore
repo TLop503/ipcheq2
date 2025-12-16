@@ -31,8 +31,8 @@ tests/
 .github/
 
 # Docker
-dockerfiles/Dockerfile
-dockerfiles/docker-compose.yml
+Dockerfile
+docker-compose.yml
 .dockerignore
 
 # Logs
