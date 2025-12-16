@@ -2,7 +2,6 @@ name: Build and Push to GHCR
 
 on:
   push:
-    branches: [ main ]
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
@@ -39,10 +38,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            # Branch pushes
+            type=ref,event=branch,enable={{is_branch}}
+            type=ref,event=pr,enable={{is_pr}}
+            # Tag pushes (semver)
+            type=semver,pattern={{version}},enable={{is_tag}}
+            type=semver,pattern={{major}}.{{minor}},enable={{is_tag}}
+            # Latest for default branch only
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Build Docker image (no push on PR)
         uses: docker/build-push-action@v5
