@@ -22,17 +22,23 @@ jobs:
 
       - name: Build binaries
         run: |
-          # Build agent for amd64 Linux
+          # Build for amd64 Linux
           GOOS=linux GOARCH=amd64 go build -o ipcheq2_linux_amd64 .
           
-          # Build agent for arm64 Linux
+          # Build for arm64 Linux
           GOOS=linux GOARCH=arm64 go build -o ipcheq2_linux_arm64 .
           
-          # Build agent for amd64 Windows
+          # Build for amd64 Windows
           GOOS=windows GOARCH=amd64 go build -o ipcheq2_windows_amd64.exe .
           
-          # Build agent for arm64 Windows
+          # Build for arm64 Windows
           GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe .
+
+      - name: Create release archive
+        run: |
+          # Create a tar.gz archive with binaries and additional files
+          tar -czf data.tar.gz \
+            data/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -43,6 +49,8 @@ jobs:
             ipcheq2_linux_arm64
             ipcheq2_windows_amd64.exe
             ipcheq2_windows_arm64.exe
+            data.tar.gz
+            vpnid_config.txt
 
   release:
     needs: build-and-test
@@ -62,6 +70,8 @@ jobs:
             ipcheq2_linux_arm64
             ipcheq2_windows_amd64.exe
             ipcheq2_windows_arm64.exe
+            data.tar.gz
+            vpnid_config.txt
 
         env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
