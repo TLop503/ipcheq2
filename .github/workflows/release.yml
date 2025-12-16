@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - [ 'v*' ]
+      - 'v*'
 
 jobs:
   build-and-test:
@@ -39,12 +39,10 @@ jobs:
         with:
           name: release-artifacts
           path: |
-            files: |
-              ipcheq2_linux_amd64
-              ipcheq2_linux_arm64
-              ipcheq2_windows_amd64.exe
-              ipcheq2_windows_arm64.exe
-
+            ipcheq2_linux_amd64
+            ipcheq2_linux_arm64
+            ipcheq2_windows_amd64.exe
+            ipcheq2_windows_arm64.exe
 
   release:
     needs: build-and-test
@@ -60,11 +58,10 @@ jobs:
         with:
           draft: true
           files: |
-            files: |
-              ipcheq2_linux_amd64
-              ipcheq2_linux_arm64
-              ipcheq2_windows_amd64.exe
-              ipcheq2_windows_arm64.exe
+            ipcheq2_linux_amd64
+            ipcheq2_linux_arm64
+            ipcheq2_windows_amd64.exe
+            ipcheq2_windows_arm64.exe
 
-  env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
