@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/tlop503/ipcheq2/internal/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/api"
+	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"log"
 	"net/http"
-
-	"ipcheq2/src"
 
 	"github.com/joho/godotenv"
 )
@@ -17,20 +18,17 @@ func main() {
 		log.Println("Warning: .env file not found, using environment variables directly")
 	}
 
-	// Initialize API key in src package
-	src.InitializeAPIKey()
+	// Initialize API key in internal package
+	abuseipdb.InitializeAPIKey()
 
 	// Initialize VPN ID ranger
-	src.InitializeVpnID()
-
-	// load iCloud private relay IPs
-	src.LoadICloudPrefixes()
+	vpnid.InitializeVpnID()
 
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		src.RenderTemplate(w, "index.html", src.Results)
+		api.RenderTemplate(w, "index.html", abuseipdb.Results)
 	})
-	http.HandleFunc("/ip", src.HandleIPPost)
+	http.HandleFunc("/ip", api.HandleIPPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
 
 	log.Println("Starting server on :8080")

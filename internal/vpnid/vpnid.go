@@ -12,35 +12,16 @@ import (
 	"github.com/yl2chen/cidranger"
 )
 
-// ConfigEntry represents one line in the config file: name → path
-type ConfigEntry struct {
-	Name string
-	Path string
-}
-
-type TreeEntry struct {
-	Prefix   netip.Prefix
-	Provider string
-}
-
-// Network implements RangerEntry using net.IPNet
-func (t TreeEntry) Network() net.IPNet {
-	return net.IPNet{
-		IP:   t.Prefix.Addr().AsSlice(),                               // starting IP
-		Mask: net.CIDRMask(t.Prefix.Bits(), t.Prefix.Addr().BitLen()), // mask
-	}
-}
-
 // validateConfig reads the config file, parses it into entries, and returns them.
 // Returns an error if the file cannot be read or any line is invalid.
-func validateConfig(path string) ([]ConfigEntry, error) {
+func validateConfig(path string) ([]configEntry, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open config file: %w", err)
 	}
 	defer file.Close()
 
-	var entries []ConfigEntry
+	var entries []configEntry
 	scanner := bufio.NewScanner(file)
 	lineNum := 0
 	for scanner.Scan() {
@@ -72,7 +53,7 @@ func validateConfig(path string) ([]ConfigEntry, error) {
 			return nil, fmt.Errorf("file %q is a directory", filePath)
 		}
 
-		entries = append(entries, ConfigEntry{
+		entries = append(entries, configEntry{
 			Name: name,
 			Path: filePath,
 		})
@@ -85,7 +66,7 @@ func validateConfig(path string) ([]ConfigEntry, error) {
 	return entries, nil
 }
 
-func Initialize(path string) (cidranger.Ranger, error) {
+func initialize(path string) (cidranger.Ranger, error) {
 	configEntries, err := validateConfig(path)
 	if err != nil {
 		return nil, fmt.Errorf("config validation error: %w", err)
@@ -154,16 +135,16 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 
 	// Insert any CIDR prefixes directly
 	for _, p := range prefixes {
-		tree.Insert(TreeEntry{Prefix: p, Provider: provider})
+		tree.Insert(treeEntry{Prefix: p, Provider: provider})
 	}
 
-	// Collapse IPv4 IPs into ranges (IPv6 already handled above)
+	// collapse IPv4 IPs into ranges (IPv6 already handled above)
 	if len(ipv4s) > 0 {
 		// Sort IPv4 IPs for collapse function
 		sortIPs(ipv4s)
 
-		// Collapse into CIDR ranges
-		cidrs := Collapse(ipv4s)
+		// collapse into CIDR ranges
+		cidrs := collapse(ipv4s)
 
 		// Insert collapsed ranges
 		for _, cidr := range cidrs {
@@ -172,37 +153,36 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 			if err != nil {
 				return fmt.Errorf("failed to convert CIDR %s: %w", cidr, err)
 			}
-			tree.Insert(TreeEntry{Prefix: prefix, Provider: provider})
+			tree.Insert(treeEntry{Prefix: prefix, Provider: provider})
 		}
 	}
 
 	return nil
 }
 
-func Query(ip netip.Addr, ranger cidranger.Ranger) (string, bool, error) {
+func Query(ip netip.Addr, ranger cidranger.Ranger) (string, error) {
 	if !ip.Is4() { // IPv6
-		return "IPv6 Support Coming Soon", false, nil
+		return "IPv6 Support Coming Soon", nil
 	}
 
 	// Lookup all prefixes containing this IP
 	entries, err := ranger.ContainingNetworks(ip.AsSlice())
 	if err != nil {
-		return "Query Error!", false, err
+		return "Query Error!", err
 	}
-
 	if len(entries) == 0 {
-		return fmt.Sprintf("%s not found in dataset", ip), false, nil
+		return fmt.Sprintf("%s not found in dataset", ip), nil
 	}
 
 	// Collect provider names (in case of overlap)
 	providers := []string{}
 	for _, e := range entries {
-		if te, ok := e.(TreeEntry); ok {
+		if te, ok := e.(treeEntry); ok {
 			providers = append(providers, te.Provider)
 		}
 	}
 
-	return fmt.Sprintf("%s is used by %v", ip, providers), true, nil
+	return fmt.Sprintf("%s is used by %v", ip, providers), nil
 }
 
 // sortIPs sorts a slice of net.IP addresses

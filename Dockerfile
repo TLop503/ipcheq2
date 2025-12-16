@@ -1,55 +1,37 @@
-# Build stage
+# --------------------
+# Builder stage
+# --------------------
 FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Copy go mod files
-COPY go.mod go.sum ./
+# Native python for data generation (no QEMU)
+RUN apk --no-cache add python3
 
-# Download dependencies
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy source code
-COPY . .
+COPY .. .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ipcheq2 .
+WORKDIR /app/data
+RUN python3 update_icloud_relays.py
 
-# Final stage
-FROM alpine:latest
+WORKDIR /app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o ipcheq2 .
 
-# Install ca-certificates for HTTPS requests
-RUN apk --no-cache add ca-certificates
+# --------------------
+# Final stage (NO apk, NO shell)
+# --------------------
+FROM gcr.io/distroless/base-debian12
 
-# Create a non-root user first
-RUN adduser -D -s /bin/sh appuser
-
-# Set working directory for the app user
 WORKDIR /app
 
-# Copy the binary from builder stage
 COPY --from=builder /app/ipcheq2 .
-
-# Copy web assets
 COPY --from=builder /app/web ./web
-
-# Copy iCloud private relay prefix files in
-COPY prefixes/*.txt ./prefixes/
-
-# Copy Data Files In
-COPY data/*.txt ./data/
-
-# Copy in config for data
+COPY --from=builder /app/data ./data
 COPY vpnid_config.txt ./vpnid_config.txt
 
-# Change ownership to app user
-RUN chown -R appuser:appuser /app
-
-# Switch to non-root user
-USER appuser
-
-# Expose port
 EXPOSE 8080
+USER nonroot:nonroot
 
-# Run the application
-CMD ["./ipcheq2"]
+ENTRYPOINT ["/app/ipcheq2"]

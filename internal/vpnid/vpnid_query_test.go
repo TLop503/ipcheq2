@@ -33,7 +33,7 @@ func TestQueryIPs(t *testing.T) {
 	configPath := makeTempFile(t, tmp, "config.txt", configContent)
 
 	// Initialize ranger
-	ranger, err := Initialize(configPath)
+	ranger, err := initialize(configPath)
 	if err != nil {
 		t.Fatalf("Initialize failed: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestQueryIPs(t *testing.T) {
 			t.Errorf("ParseAddr(%s) failed: %v", tt.ip, err)
 			continue
 		}
-		result, _, err := Query(addr, ranger)
+		result, err := Query(addr, ranger)
 		if err != nil {
 			t.Errorf("Query(%s) returned error: %v", tt.ip, err)
 			continue
@@ -90,7 +90,7 @@ func TestWithProdData(t *testing.T) {
 	}
 
 	start := time.Now() // ⏱ start timing
-	ranger, err := Initialize(configPath)
+	ranger, err := initialize(configPath)
 	duration := time.Since(start)
 	t.Logf("Init took %s", duration.String())
 
@@ -117,7 +117,7 @@ func TestWithProdData(t *testing.T) {
 		}
 
 		start := time.Now() // ⏱ start timing
-		result, _, err := Query(addr, ranger)
+		result, err := Query(addr, ranger)
 		duration := time.Since(start)
 
 		t.Logf("Query(%s) took %d ns", tt.ip, duration.Nanoseconds())

@@ -1,16 +1,14 @@
-package src
+package abuseipdb
 
 import (
-	"fmt"
 	"html/template"
 	"net/netip"
 	"os"
 	"time"
-
-	"ipcheq2/src/vpnid"
-
-	"github.com/yl2chen/cidranger"
 )
+
+var abIPDBKey string
+var Results []Result
 
 type Result struct {
 	IP netip.Addr
@@ -31,26 +29,12 @@ type Result struct {
 	ParsedRes string // vpn provider or "not vpn"
 }
 
-var Results []Result
-var AbIPDBKey string
-var VpnIDRanger cidranger.Ranger
-
 // InitializeAPIKey sets the AbuseIPDB API key from environment
 func InitializeAPIKey() {
-	AbIPDBKey = os.Getenv("ABIPDBKEY")
-	if AbIPDBKey == "" {
+	abIPDBKey = os.Getenv("ABIPDBKEY")
+	if abIPDBKey == "" {
 		panic("ABIPDBKEY environment variable is not set")
 	}
-}
-
-// InitializeVpnID initializes the VPN identification ranger from config file
-func InitializeVpnID() {
-	ranger, err := vpnid.Initialize("vpnid_config.txt")
-	if err != nil {
-		panic("Failed to initialize VPN ID: " + err.Error())
-	}
-	VpnIDRanger = ranger
-	fmt.Println("VPN ID ranger initialized successfully")
 }
 
 type abuseIPDBResponse struct {

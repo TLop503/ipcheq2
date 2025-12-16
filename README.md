@@ -58,18 +58,16 @@ docker-compose up -d
    	Alternatively clone the repo and build from source to skip arranging files (see "Local Development" below)
 ```
 ├── ipcheq2 or ipcheq2.exe
-└── prefixes
-        ├── ipv4.txt
-        ├── ipv6.txt
-        ├── update_prefixes.py
-        └── upstream-list.hash
 └── data
         ├── source1.txt
         ├── ...
+        ├── update_icloud_relays.py
+        └── upstream-icloud-list.hash
 └── vpnid_config.txt
 ```
 2. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
 3. Update the icloud prefixes if desired with the bundled Python script.
+	1. Note- this must be ran from wihtin the `data/` directory!
 4. Optionally add IP lists to data/ and update the config file to match
 5. Run the executable! ipcheq2 will serve on localhost:8080.
 
@@ -105,8 +103,8 @@ go build . # inside project
 
 #### Updating iCloud Private Relay prefixes
 
-[A script is provided](prefixes/update_prefixes.py) to update the iCloud Private Relay prefixes within the repo.
-Before running it, make sure that you're inside the `prefixes/` directory.
+[A script is provided](data/update_icloud_relays.py) to update the iCloud Private Relay prefixes within the repo.
+Before running it, make sure that you're inside the `data/` directory.
 
 ## Deployment
 
@@ -115,6 +113,6 @@ This project is automatically built and published to GitHub Container Registry v
 
 ### Manual Build
 ```bash
-docker build -t ipcheq2 .
+docker build -t ipcheq2 ./dockerfiles
 docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ipcheq2
 ```

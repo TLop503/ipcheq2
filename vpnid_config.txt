@@ -8,3 +8,5 @@ Surfshark : data/surfshark.txt
 Torguard : data/torguard.txt
 Tunnelbear : data/tunnelbear.txt
 Tor Exit Nodes: data/torbulkexitlist.txt
+iCloud Private Relay (v4): data/icloud_ipv4.txt
+iCloud Private Relay (v6): data/icloud_ipv6.txt

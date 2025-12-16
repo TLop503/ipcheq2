@@ -79,7 +79,7 @@ func TestInitialize(t *testing.T) {
 		config := fmt.Sprintf("provider1 : %s\n", dataFile)
 		configPath := makeTempFile(t, tmp, "config.txt", config)
 
-		if _, err := Initialize(configPath); err != nil {
+		if _, err := initialize(configPath); err != nil {
 			t.Errorf("expected no error, got %v", err)
 		}
 	})

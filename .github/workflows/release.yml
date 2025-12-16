@@ -1,0 +1,60 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build binaries
+        run: |
+          # Build agent for amd64 Linux
+          GOOS=linux GOARCH=amd64 go build -o ipcheq2_linux_amd64 .
+          
+          # Build agent for arm64 Linux
+          GOOS=linux GOARCH=arm64 go build -o ipcheq2_linux_arm64 .
+          
+          # Build agent for amd64 Windows
+          GOOS=windows GOARCH=amd64 go build -o ipcheq2_windows_amd64.exe .
+          
+          # Build agent for arm64 Windows
+          GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            ipcheq_*
+
+  release:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            ipcheq_*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

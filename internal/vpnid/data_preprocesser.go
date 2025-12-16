@@ -4,8 +4,8 @@ import (
 	"net"
 )
 
-// Collapse takes a sorted list of IPs and returns minimal CIDR subnets
-func Collapse(ips []net.IP) []*net.IPNet {
+// collapse takes a sorted list of IPs and returns minimal CIDR subnets
+func collapse(ips []net.IP) []*net.IPNet {
 	var results []*net.IPNet
 	if len(ips) == 0 {
 		return results

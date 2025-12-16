@@ -5,7 +5,7 @@ import ipaddress
 from urllib.request import urlopen
 
 PREFIXES_URL = "https://mask-api.icloud.com/egress-ip-ranges.csv"
-HASH_FILE = "upstream-list.hash"
+HASH_FILE = "upstream-icloud-list.hash"
 
 if __name__ == "__main__":
     response = urlopen(PREFIXES_URL)
@@ -37,10 +37,8 @@ if __name__ == "__main__":
         ipv6 = list(ipaddress.collapse_addresses(ipv6_raw))
 
         # write out to file, with first line being number of collapsed prefixes
-        for file, prefixes in (("ipv4.txt", ipv4), ("ipv6.txt", ipv6)):
+        for file, prefixes in (("icloud_ipv4.txt", ipv4), ("icloud_ipv6.txt", ipv6)):
             with open(file, "w") as out:
-                out.write(f"{len(prefixes)}\n")
-
                 for prefix in prefixes:
                     out.write(f"{prefix}\n")
 
@@ -50,4 +48,3 @@ if __name__ == "__main__":
 
     else:
         print("skipping update since list hasn't changed")
-
