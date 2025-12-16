@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/tlop503/ipcheq2/internal/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/api"
+	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"log"
 	"net/http"
 
@@ -21,7 +22,7 @@ func main() {
 	abuseipdb.InitializeAPIKey()
 
 	// Initialize VPN ID ranger
-	api.InitializeVpnID()
+	vpnid.InitializeVpnID()
 
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

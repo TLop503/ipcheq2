@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// RenderTemplate executes templates into a single HTML to serve to the client
 func RenderTemplate(w http.ResponseWriter, pagePath string, data any) {
 	templatePath := filepath.Join("web", pagePath)
 	historyPath := filepath.Join("web/templates", "history.html")

@@ -37,7 +37,7 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for VPN, iCloud, etc.
-	result.ParsedRes, err = vpnid.Query(ip, VpnIDRanger)
+	result.ParsedRes, err = vpnid.Query(ip, vpnid.VpnIDRanger)
 	if err != nil {
 		log.Print(err)
 	}

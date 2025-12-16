@@ -66,7 +66,7 @@ func validateConfig(path string) ([]ConfigEntry, error) {
 	return entries, nil
 }
 
-func Initialize(path string) (cidranger.Ranger, error) {
+func initialize(path string) (cidranger.Ranger, error) {
 	configEntries, err := validateConfig(path)
 	if err != nil {
 		return nil, fmt.Errorf("config validation error: %w", err)
