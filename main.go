@@ -1,11 +1,10 @@
 package main
 
 import (
+	"github.com/tlop503/ipcheq2/internal/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/api"
 	"log"
 	"net/http"
-
-	"github.com/tlop503/ipcheq2/internal"
 
 	"github.com/joho/godotenv"
 )
@@ -19,14 +18,14 @@ func main() {
 	}
 
 	// Initialize API key in internal package
-	internal.InitializeAPIKey()
+	abuseipdb.InitializeAPIKey()
 
 	// Initialize VPN ID ranger
-	internal.InitializeVpnID()
+	api.InitializeVpnID()
 
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		api.RenderTemplate(w, "index.html", internal.Results)
+		api.RenderTemplate(w, "index.html", abuseipdb.Results)
 	})
 	http.HandleFunc("/ip", api.HandleIPPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))

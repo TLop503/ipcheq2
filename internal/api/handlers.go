@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/tlop503/ipcheq2/internal"
 	"github.com/tlop503/ipcheq2/internal/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"log"
@@ -39,14 +38,14 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for VPN, iCloud, etc.
-	result.ParsedRes, err = vpnid.Query(ip, internal.VpnIDRanger)
+	result.ParsedRes, err = vpnid.Query(ip, VpnIDRanger)
 	if err != nil {
 		log.Print(err)
 	}
 
-	internal.Results = append([]internal.Result{result}, internal.Results...)
-	if len(internal.Results) > 5 {
-		internal.Results = internal.Results[:5] // truncate for prettiness on screen.
+	abuseipdb.Results = append([]abuseipdb.Result{result}, abuseipdb.Results...)
+	if len(abuseipdb.Results) > 5 {
+		abuseipdb.Results = abuseipdb.Results[:5] // truncate for prettiness on screen.
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

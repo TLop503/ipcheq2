@@ -3,7 +3,6 @@ package abuseipdb
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tlop503/ipcheq2/internal"
 	"html/template"
 	"io"
 	"net/http"
@@ -12,12 +11,12 @@ import (
 )
 
 // Fetch and parse the AbuseIPDB result
-func CheckAbuseIPDB(ip string) (internal.Result, error) {
+func CheckAbuseIPDB(ip string) (Result, error) {
 	url := "https://api.abuseipdb.com/api/v2/check"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return internal.Result{}, fmt.Errorf("failed to create request: %v", err)
+		return Result{}, fmt.Errorf("failed to create request: %v", err)
 	}
 
 	// Add query parameters
@@ -28,30 +27,30 @@ func CheckAbuseIPDB(ip string) (internal.Result, error) {
 	req.URL.RawQuery = query.Encode()
 
 	// Add headers
-	req.Header.Set("Key", internal.AbIPDBKey)
+	req.Header.Set("Key", AbIPDBKey)
 	req.Header.Set("Accept", "application/json")
 
 	// Execute request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return internal.Result{}, fmt.Errorf("request error for IP %s: %v", ip, err)
+		return Result{}, fmt.Errorf("request error for IP %s: %v", ip, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return internal.Result{}, fmt.Errorf("non-200 status code for IP %s: %s", ip, resp.Status)
+		return Result{}, fmt.Errorf("non-200 status code for IP %s: %s", ip, resp.Status)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return internal.Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
+		return Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
 	}
 
 	// Parse response into intermediate struct
-	var raw internal.AbuseIPDBResponse
+	var raw AbuseIPDBResponse
 	if err := json.Unmarshal(body, &raw); err != nil {
-		return internal.Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
+		return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
 	}
 
 	// Convert timestamp
@@ -59,7 +58,7 @@ func CheckAbuseIPDB(ip string) (internal.Result, error) {
 	if raw.Data.LastReportedAt != "" {
 		lastReported, err = time.Parse(time.RFC3339, raw.Data.LastReportedAt)
 		if err != nil {
-			return internal.Result{}, fmt.Errorf("invalid time format: %v", err)
+			return Result{}, fmt.Errorf("invalid time format: %v", err)
 		}
 	}
 
@@ -78,11 +77,11 @@ func CheckAbuseIPDB(ip string) (internal.Result, error) {
 	// Parse IP
 	parsedIp, err := netip.ParseAddr(raw.Data.IPAddress)
 	if err != nil {
-		return internal.Result{}, fmt.Errorf("failed to parse IP address: %v", err)
+		return Result{}, fmt.Errorf("failed to parse IP address: %v", err)
 	}
 
 	// Populate Result
-	return internal.Result{
+	return Result{
 		IP:              parsedIp,
 		IsPub:           raw.Data.IsPublic,
 		AbuseConfidence: raw.Data.AbuseConfidenceScore,
