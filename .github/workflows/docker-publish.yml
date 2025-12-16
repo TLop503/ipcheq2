@@ -44,14 +44,13 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-
       - name: Build Docker image (no push on PR)
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'push' }} # only push on main/tag push
-          tags: ${{ steps.meta.outputs.tags || env.IMAGE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
