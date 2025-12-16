@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var AbIPDBKey string
+var abIPDBKey string
 var Results []Result
 
 type Result struct {
@@ -31,13 +31,13 @@ type Result struct {
 
 // InitializeAPIKey sets the AbuseIPDB API key from environment
 func InitializeAPIKey() {
-	AbIPDBKey = os.Getenv("ABIPDBKEY")
-	if AbIPDBKey == "" {
+	abIPDBKey = os.Getenv("ABIPDBKEY")
+	if abIPDBKey == "" {
 		panic("ABIPDBKEY environment variable is not set")
 	}
 }
 
-type AbuseIPDBResponse struct {
+type abuseIPDBResponse struct {
 	Data struct {
 		IPAddress            string `json:"ipAddress"`
 		IsPublic             bool   `json:"isPublic"`

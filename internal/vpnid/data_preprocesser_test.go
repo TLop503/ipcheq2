@@ -68,7 +68,7 @@ func TestCollapse(t *testing.T) {
 				ips = append(ips, mustIP(ip))
 			}
 
-			gotNets := Collapse(ips)
+			gotNets := collapse(ips)
 
 			// normalize both got/want to []string to cover empty return case
 			var got []string

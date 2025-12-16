@@ -3,9 +3,11 @@ package api
 import (
 	"github.com/tlop503/ipcheq2/internal/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/vpnid"
+	"html/template"
 	"log"
 	"net/http"
 	"net/netip"
+	"path/filepath"
 	"strings"
 )
 
@@ -47,4 +49,23 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		abuseipdb.Results = abuseipdb.Results[:5] // truncate for prettiness on screen.
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// RenderTemplate executes templates into a single HTML to serve to the client
+func RenderTemplate(w http.ResponseWriter, pagePath string, data any) {
+	templatePath := filepath.Join("web", pagePath)
+	historyPath := filepath.Join("web/templates", "history.html")
+	titlePath := filepath.Join("web/templates", "title.html")
+	t, err := template.ParseFiles(templatePath, historyPath, titlePath)
+	if err != nil {
+		log.Printf("Template parsing error: %v", err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	err = t.Execute(w, data)
+	if err != nil {
+		log.Printf("Template execution error: %v", err)
+		http.Error(w, "Template Error", 500)
+	}
 }

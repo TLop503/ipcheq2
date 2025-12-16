@@ -24,7 +24,7 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 	}
 
 	// Parse response into intermediate struct
-	var raw AbuseIPDBResponse
+	var raw abuseIPDBResponse
 	if err := json.Unmarshal(body, &raw); err != nil {
 		return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
 	}
@@ -87,7 +87,7 @@ func queryHelper(ip string) (*http.Response, error) {
 	req.URL.RawQuery = query.Encode()
 
 	// Add headers
-	req.Header.Set("Key", AbIPDBKey)
+	req.Header.Set("Key", abIPDBKey)
 	req.Header.Set("Accept", "application/json")
 
 	// Execute request
