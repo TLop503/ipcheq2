@@ -39,7 +39,12 @@ jobs:
         with:
           name: release-artifacts
           path: |
-            ipcheq_*
+            files: |
+              ipcheq2_linux_amd64
+              ipcheq2_linux_arm64
+              ipcheq2_windows_amd64.exe
+              ipcheq2_windows_arm64.exe
+
 
   release:
     needs: build-and-test
@@ -55,6 +60,11 @@ jobs:
         with:
           draft: true
           files: |
-            ipcheq_*
-        env:
+            files: |
+              ipcheq2_linux_amd64
+              ipcheq2_linux_arm64
+              ipcheq2_windows_amd64.exe
+              ipcheq2_windows_arm64.exe
+
+  env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
