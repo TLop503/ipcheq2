@@ -1,4 +1,4 @@
-package src
+package internal
 
 import (
 	"fmt"
@@ -7,10 +7,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/tlop503/ipcheq2/src/vpnid"
+	"github.com/tlop503/ipcheq2/internal/vpnid"
 
 	"github.com/yl2chen/cidranger"
 )
+
+var Results []Result
+var AbIPDBKey string
+var VpnIDRanger cidranger.Ranger
 
 type Result struct {
 	IP netip.Addr
@@ -31,10 +35,6 @@ type Result struct {
 	ParsedRes string // vpn provider or "not vpn"
 }
 
-var Results []Result
-var AbIPDBKey string
-var VpnIDRanger cidranger.Ranger
-
 // InitializeAPIKey sets the AbuseIPDB API key from environment
 func InitializeAPIKey() {
 	AbIPDBKey = os.Getenv("ABIPDBKEY")
@@ -53,7 +53,7 @@ func InitializeVpnID() {
 	fmt.Println("VPN ID ranger initialized successfully")
 }
 
-type abuseIPDBResponse struct {
+type AbuseIPDBResponse struct {
 	Data struct {
 		IPAddress            string `json:"ipAddress"`
 		IsPublic             bool   `json:"isPublic"`

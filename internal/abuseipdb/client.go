@@ -1,8 +1,9 @@
-package src
+package abuseipdb
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tlop503/ipcheq2/internal"
 	"html/template"
 	"io"
 	"net/http"
@@ -11,12 +12,12 @@ import (
 )
 
 // Fetch and parse the AbuseIPDB result
-func checkAbuseIPDB(ip string) (Result, error) {
+func CheckAbuseIPDB(ip string) (internal.Result, error) {
 	url := "https://api.abuseipdb.com/api/v2/check"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return Result{}, fmt.Errorf("failed to create request: %v", err)
+		return internal.Result{}, fmt.Errorf("failed to create request: %v", err)
 	}
 
 	// Add query parameters
@@ -27,30 +28,30 @@ func checkAbuseIPDB(ip string) (Result, error) {
 	req.URL.RawQuery = query.Encode()
 
 	// Add headers
-	req.Header.Set("Key", AbIPDBKey)
+	req.Header.Set("Key", internal.AbIPDBKey)
 	req.Header.Set("Accept", "application/json")
 
 	// Execute request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Result{}, fmt.Errorf("request error for IP %s: %v", ip, err)
+		return internal.Result{}, fmt.Errorf("request error for IP %s: %v", ip, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return Result{}, fmt.Errorf("non-200 status code for IP %s: %s", ip, resp.Status)
+		return internal.Result{}, fmt.Errorf("non-200 status code for IP %s: %s", ip, resp.Status)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
+		return internal.Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
 	}
 
 	// Parse response into intermediate struct
-	var raw abuseIPDBResponse
+	var raw internal.AbuseIPDBResponse
 	if err := json.Unmarshal(body, &raw); err != nil {
-		return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
+		return internal.Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
 	}
 
 	// Convert timestamp
@@ -58,30 +59,30 @@ func checkAbuseIPDB(ip string) (Result, error) {
 	if raw.Data.LastReportedAt != "" {
 		lastReported, err = time.Parse(time.RFC3339, raw.Data.LastReportedAt)
 		if err != nil {
-			return Result{}, fmt.Errorf("invalid time format: %v", err)
+			return internal.Result{}, fmt.Errorf("invalid time format: %v", err)
 		}
 	}
 
 	confidence := raw.Data.AbuseConfidenceScore
 	var risk template.HTML
 	if confidence == 0 {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Clean</span> <img style="vertical-align: middle;" src="../assets/icons8-checkmark-50.png" alt="Green Checkmark" width="20" height="20"/>`) // test with 212.102.51.57
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Clean</span> <img style="vertical-align: middle;" internal="../assets/icons8-checkmark-50.png" alt="Green Checkmark" width="20" height="20"/>`) // test with 212.102.51.57
 	} else if confidence < 26 {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Low Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-yield-sign-50.png" alt="Yellow Yield" width="17" height="17"/>`) // test with 54.204.34.130
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Low Risk</span> <img style="vertical-align: middle;" internal="../assets/icons8-yield-sign-50.png" alt="Yellow Yield" width="17" height="17"/>`) // test with 54.204.34.130
 	} else if confidence < 51 {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>`) // test with 209.85.221.176
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" internal="../assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>`) // test with 209.85.221.176
 	} else {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" src="../assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>`) // test with 111.26.184.29
+		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" internal="../assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>`) // test with 111.26.184.29
 	}
 
 	// Parse IP
 	parsedIp, err := netip.ParseAddr(raw.Data.IPAddress)
 	if err != nil {
-		return Result{}, fmt.Errorf("failed to parse IP address: %v", err)
+		return internal.Result{}, fmt.Errorf("failed to parse IP address: %v", err)
 	}
 
 	// Populate Result
-	return Result{
+	return internal.Result{
 		IP:              parsedIp,
 		IsPub:           raw.Data.IsPublic,
 		AbuseConfidence: raw.Data.AbuseConfidenceScore,

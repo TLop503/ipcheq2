@@ -1,31 +1,30 @@
-package src
+package api
 
 import (
-	"github.com/tlop503/ipcheq2/src/vpnid"
+	"github.com/tlop503/ipcheq2/internal"
+	"github.com/tlop503/ipcheq2/internal/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"log"
 	"net/http"
 	"net/netip"
 	"strings"
 )
 
+// HandleIPPost parses out IP and queries abuseipdb and vpnid
 func HandleIPPost(w http.ResponseWriter, r *http.Request) {
+	// verify method, parsability
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	// read IP
 	if err := r.ParseForm(); err != nil {
 		log.Printf("ParseForm error: %v", err)
 		http.Error(w, "Missing IP addr", 500)
 		return
 	}
 
-	rawIP := r.Form.Get("ip")
-
-	rawIP = strings.TrimSpace(rawIP)
-
-	// Parse string -> netip.Addr
+	// Parse IP to netip.addr
+	rawIP := strings.TrimSpace(r.Form.Get("ip"))
 	ip, err := netip.ParseAddr(rawIP)
 	if err != nil {
 		log.Printf("ParseAddr error: %v", err)
@@ -34,27 +33,20 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Abuseipdb query
-	// This code is only reachable if the IP was parsed validly, so we know
-	// we can safely use rawIP here
-	result, err := checkAbuseIPDB(rawIP)
+	result, err := abuseipdb.CheckAbuseIPDB(rawIP)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Check for VPN, iCloud, etc.
-
-	queryRes, _, err := vpnid.Query(ip, VpnIDRanger)
+	result.ParsedRes, err = vpnid.Query(ip, internal.VpnIDRanger)
 	if err != nil {
-		log.Fatal(err)
-	} else {
-		result.ParsedRes = queryRes
+		log.Print(err)
 	}
 
-	// result.ParsedRes now stores vpn/etc status
-
-	Results = append([]Result{result}, Results...)
-	if len(Results) > 5 {
-		Results = Results[:5] // truncate for prettiness on screen.
+	internal.Results = append([]internal.Result{result}, internal.Results...)
+	if len(internal.Results) > 5 {
+		internal.Results = internal.Results[:5] // truncate for prettiness on screen.
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

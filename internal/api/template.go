@@ -1,4 +1,4 @@
-package src
+package api
 
 import (
 	"html/template"
