@@ -22,9 +22,8 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse IP to netip.addr
-	rawIP := strings.TrimSpace(r.Form.Get("ip"))
-	ip, err := netip.ParseAddr(rawIP)
+	// Parse IP to netip.addr after trimming whitespace
+	ip, err := netip.ParseAddr(strings.TrimSpace(r.Form.Get("ip")))
 	if err != nil {
 		log.Printf("ParseAddr error: %v", err)
 		http.Error(w, "Missing or invalid IP addr", 500)
@@ -32,7 +31,7 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Abuseipdb query
-	result, err := abuseipdb.CheckAbuseIPDB(rawIP)
+	result, err := abuseipdb.CheckAbuseIPDB(ip)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -11,12 +11,72 @@ import (
 )
 
 // Fetch and parse the AbuseIPDB result
-func CheckAbuseIPDB(ip string) (Result, error) {
+func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
+	resp, err := queryHelper(ip.String())
+	if err != nil {
+		return Result{}, err
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
+	}
+
+	// Parse response into intermediate struct
+	var raw AbuseIPDBResponse
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
+	}
+
+	// Populate Result
+	return Result{
+		IP:              ip,
+		IsPub:           raw.Data.IsPublic,
+		AbuseConfidence: raw.Data.AbuseConfidenceScore,
+		Country:         raw.Data.CountryName,
+		CountryCode:     raw.Data.CountryCode,
+		UsageType:       raw.Data.UsageType,
+		ISP:             raw.Data.ISP,
+		Domain:          raw.Data.Domain,
+		TotalReports:    raw.Data.TotalReports,
+		Users:           raw.Data.NumDistinctUsers,
+		LastReported:    timeHelper(raw.Data.LastReportedAt),
+		ThreatRisk:      confidenceHelper(raw.Data.AbuseConfidenceScore), // Optional logic can go here
+		ParsedRes:       "Not Anonymous",
+	}, nil
+}
+
+// confidenceHelper is used to map images to confidence levels in the UI
+func confidenceHelper(c int) template.HTML {
+	switch {
+	case c == 0:
+		return `<span style="padding:1px 2px; border-radius:2px;">Clean</span> <img style="vertical-align: middle;" src="/assets/icons8-checkmark-50.png" alt="Green Checkmark" width="20" height="20"/>` // test with 212.102.51.57
+	case c < 26:
+		return `<span style="padding:1px 2px; border-radius:2px;">Low Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-yield-sign-50.png" alt="Yellow Yield" width="17" height="17"/>` // test with 54.204.34.130
+	case c < 51:
+		return `<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>` // test with 209.85.221.176
+	}
+	return `<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>` // test with 111.26.184.29
+}
+
+// timeHelper formats time in a human-readable format, or returns blank conversion fails
+func timeHelper(t string) time.Time {
+	prettyTime, err := time.Parse(time.RFC3339, t)
+	if err != nil {
+		// return dummy if fail
+		return time.Time{}
+	}
+	return prettyTime
+}
+
+// queryHelper queries abuseipdb and returns errors if invalid data is received or query fails
+func queryHelper(ip string) (*http.Response, error) {
 	url := "https://api.abuseipdb.com/api/v2/check"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return Result{}, fmt.Errorf("failed to create request: %v", err)
+		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 
 	// Add query parameters
@@ -34,66 +94,12 @@ func CheckAbuseIPDB(ip string) (Result, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Result{}, fmt.Errorf("request error for IP %s: %v", ip, err)
+		return nil, fmt.Errorf("request error for IP %s: %v", ip, err)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return Result{}, fmt.Errorf("non-200 status code for IP %s: %s", ip, resp.Status)
+		return nil, fmt.Errorf("non-200 status code for IP %s: %s", ip, resp.Status)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
-	}
-
-	// Parse response into intermediate struct
-	var raw AbuseIPDBResponse
-	if err := json.Unmarshal(body, &raw); err != nil {
-		return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
-	}
-
-	// Convert timestamp
-	var lastReported time.Time
-	if raw.Data.LastReportedAt != "" {
-		lastReported, err = time.Parse(time.RFC3339, raw.Data.LastReportedAt)
-		if err != nil {
-			return Result{}, fmt.Errorf("invalid time format: %v", err)
-		}
-	}
-
-	confidence := raw.Data.AbuseConfidenceScore
-	var risk template.HTML
-	if confidence == 0 {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Clean</span> <img style="vertical-align: middle;" internal="../assets/icons8-checkmark-50.png" alt="Green Checkmark" width="20" height="20"/>`) // test with 212.102.51.57
-	} else if confidence < 26 {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Low Risk</span> <img style="vertical-align: middle;" internal="../assets/icons8-yield-sign-50.png" alt="Yellow Yield" width="17" height="17"/>`) // test with 54.204.34.130
-	} else if confidence < 51 {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" internal="../assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>`) // test with 209.85.221.176
-	} else {
-		risk = template.HTML(`<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" internal="../assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>`) // test with 111.26.184.29
-	}
-
-	// Parse IP
-	parsedIp, err := netip.ParseAddr(raw.Data.IPAddress)
-	if err != nil {
-		return Result{}, fmt.Errorf("failed to parse IP address: %v", err)
-	}
-
-	// Populate Result
-	return Result{
-		IP:              parsedIp,
-		IsPub:           raw.Data.IsPublic,
-		AbuseConfidence: raw.Data.AbuseConfidenceScore,
-		Country:         raw.Data.CountryName,
-		CountryCode:     raw.Data.CountryCode,
-		UsageType:       raw.Data.UsageType,
-		ISP:             raw.Data.ISP,
-		Domain:          raw.Data.Domain,
-		TotalReports:    raw.Data.TotalReports,
-		Users:           raw.Data.NumDistinctUsers,
-		LastReported:    lastReported,
-		ThreatRisk:      risk, // Optional logic can go here
-		ParsedRes:       "Not Anonymous",
-	}, nil
+	return resp, nil
 }
