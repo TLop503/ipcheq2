@@ -23,9 +23,6 @@ func main() {
 	// Initialize VPN ID ranger
 	src.InitializeVpnID()
 
-	// load iCloud private relay IPs
-	src.LoadICloudPrefixes()
-
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		src.RenderTemplate(w, "index.html", src.Results)
