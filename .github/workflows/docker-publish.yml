@@ -38,14 +38,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # Branch pushes
-            type=ref,event=branch,enable={{is_branch}}
-            type=ref,event=pr,enable={{is_pr}}
-            # Tag pushes (semver)
-            type=semver,pattern={{version}},enable={{is_tag}}
-            type=semver,pattern={{major}}.{{minor}},enable={{is_tag}}
-            # Latest for default branch only
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=true
       - name: Build Docker image (no push on PR)
         uses: docker/build-push-action@v5
         with:
