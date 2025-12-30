@@ -30,6 +30,7 @@ func main() {
 	})
 	http.HandleFunc("/ip", api.HandleIPPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
+	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("web/js"))))
 
 	log.Println("Starting server on :8080")
 	err = http.ListenAndServe(":8080", nil)

@@ -3,10 +3,10 @@ package abuseipdb
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"net/netip"
+	"strings"
 	"time"
 )
 
@@ -35,30 +35,19 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 		IsPub:           raw.Data.IsPublic,
 		AbuseConfidence: raw.Data.AbuseConfidenceScore,
 		Country:         raw.Data.CountryName,
-		CountryCode:     raw.Data.CountryCode,
+		CountryCode:     strings.ToLower(raw.Data.CountryCode),
 		UsageType:       raw.Data.UsageType,
 		ISP:             raw.Data.ISP,
 		Domain:          raw.Data.Domain,
 		TotalReports:    raw.Data.TotalReports,
 		Users:           raw.Data.NumDistinctUsers,
 		LastReported:    timeHelper(raw.Data.LastReportedAt),
-		ThreatRisk:      confidenceHelper(raw.Data.AbuseConfidenceScore), // Optional logic can go here
-		AbuseLinks: 	 raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
-		ParsedRes:       "Not Anonymous",
+		AbuseLinks:      raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
+		// while AbuseLinks is redundant to manually doing this check in the template, it is being used
+		// for future-proofing incase more logic is used for displaying links, such as
+		// a config or a list of providers.
+		ParsedRes: "Not Anonymous",
 	}, nil
-}
-
-// confidenceHelper is used to map images to confidence levels in the UI
-func confidenceHelper(c int) template.HTML {
-	switch {
-	case c == 0:
-		return `<span style="padding:1px 2px; border-radius:2px;">Clean</span> <img style="vertical-align: middle;" src="/assets/icons8-checkmark-50.png" alt="Green Checkmark" width="20" height="20"/>` // test with 212.102.51.57
-	case c < 26:
-		return `<span style="padding:1px 2px; border-radius:2px;">Low Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-yield-sign-50.png" alt="Yellow Yield" width="17" height="17"/>` // test with 54.204.34.130
-	case c < 51:
-		return `<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>` // test with 209.85.221.176
-	}
-	return `<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>` // test with 111.26.184.29
 }
 
 // timeHelper formats time in a human-readable format, or returns blank conversion fails
