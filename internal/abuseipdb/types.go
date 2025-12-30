@@ -24,7 +24,7 @@ type Result struct {
 	Users           int
 	LastReported    time.Time
 	ThreatRisk      template.HTML
-
+	AbuseLinks		bool
 	//vpn status
 	ParsedRes string // vpn provider or "not vpn"
 }

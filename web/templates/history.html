@@ -13,6 +13,12 @@
     <li>Total Reports: {{ .TotalReports }}</li>
     <ul><li>Last Reported: {{ .LastReported }}</li></ul>
     <li>Abuse Confidence: {{ .AbuseConfidence }}%</li>
+    {{ if .AbuseLinks }}
+    <ul>
+      <li><a href="https://www.abuseipdb.com/check/{{ .IP }}" target="_blank">Abuse IPDB Details</a></li>
+      <li><a href="https://otx.alienvault.com/indicator/ip/{{ .IP }}" target="_blank">OTX Indicator Page</a></li>
+    </ul>
+    {{ end }}
     <li>Risk Level: {{ .ThreatRisk }}</li>
     <li>Number of Distinct Users: {{ .Users }}</li>
   </ul>
