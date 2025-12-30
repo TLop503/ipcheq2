@@ -43,7 +43,7 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 		Users:           raw.Data.NumDistinctUsers,
 		LastReported:    timeHelper(raw.Data.LastReportedAt),
 		ThreatRisk:      confidenceHelper(raw.Data.AbuseConfidenceScore), // Optional logic can go here
-		AbuseLinks: 	abuseLinksHelper(raw.Data.AbuseConfidenceScore), 
+		AbuseLinks: 	 raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
 		ParsedRes:       "Not Anonymous",
 	}, nil
 }
@@ -59,14 +59,6 @@ func confidenceHelper(c int) template.HTML {
 		return `<span style="padding:1px 2px; border-radius:2px;">Medium Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-caution-50.png" alt="Orange Caution" width="18" height="18"/>` // test with 209.85.221.176
 	}
 	return `<span style="padding:1px 2px; border-radius:2px;">High Risk</span> <img style="vertical-align: middle;" src="/assets/icons8-unavailable-48.png" alt="Red Unavailable" width="20" height="20"/>` // test with 111.26.184.29
-}
-
-// abuseLinksHelper determines whether or not to show the abuse IPDB and OTX links
-func abuseLinksHelper(confidence int) bool{
-	if(confidence > 0){
-		return true;
-	}
-	return false
 }
 
 // timeHelper formats time in a human-readable format, or returns blank conversion fails
