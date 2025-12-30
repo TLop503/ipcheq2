@@ -1,6 +1,7 @@
 {{ define "history" }}
 <script src="/js/confidence-colors.js"></script>
 {{ if . }}
+<div class="results-grid">
 {{ range . }}
 <div class="ip-card" data-confidence="{{ .AbuseConfidence }}">
   <div class="card-header">
@@ -25,7 +26,7 @@
       <span class="info-label">Country:</span>
       <span class="info-value">
         <img class="flag-icon" src="https://flagcdn.com/w40/{{ .CountryCode }}.png" alt="{{ .CountryCode }} flag" onerror="this.style.display='none'">
-        {{ .Country }} ({{ .CountryCode }})
+        {{ .Country }}
       </span>
     </div>
 
@@ -54,20 +55,16 @@
       <span class="info-value">{{ .ParsedRes }}</span>
     </div>
 
+    {{ if gt .TotalReports 0 }}
     <div class="info-row">
       <span class="info-label">Total Reports:</span>
       <span class="info-value">{{ .TotalReports }}</span>
     </div>
 
-    {{ if gt .TotalReports 0 }}
+
     <div class="info-row sub-info">
       <span class="info-label">Last Reported:</span>
       <span class="info-value">{{ .LastReported }}</span>
-    </div>
-
-    <div class="info-row">
-      <span class="info-label">Risk Level:</span>
-      <span class="info-value risk-level">{{ .ThreatRisk }}</span>
     </div>
     {{ end }}
 
@@ -80,6 +77,7 @@
   <div class="confidence-bar" data-confidence="{{ .AbuseConfidence }}"></div>
 </div>
 {{ end }}
+</div>
 {{ else }}
 <p class="no-history">No IP queries in history yet.</p>
 {{ end }}
