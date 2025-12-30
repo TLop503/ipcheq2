@@ -42,7 +42,6 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 		TotalReports:    raw.Data.TotalReports,
 		Users:           raw.Data.NumDistinctUsers,
 		LastReported:    timeHelper(raw.Data.LastReportedAt),
-		ThreatRisk:      confidenceHelper(raw.Data.AbuseConfidenceScore), // Optional logic can go here
 		AbuseLinks:      raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
 		// while AbuseLinks is redundant to manually doing this check in the template, it is being used
 		// for future-proofing incase more logic is used for displaying links, such as
