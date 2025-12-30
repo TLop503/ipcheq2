@@ -3,6 +3,7 @@
 {{ if . }}
 <div class="results-grid">
 {{ range . }}
+
 <div class="ip-card" data-confidence="{{ .AbuseConfidence }}">
   <div class="card-header">
     <h3 class="ip-address">{{ .IP }}</h3>
@@ -66,6 +67,14 @@
       <span class="info-label">Last Reported:</span>
       <span class="info-value">{{ .LastReported }}</span>
     </div>
+    
+    {{ end }}
+    
+    {{ if .AbuseLinks }}
+    <ul>
+      <li><a href="https://www.abuseipdb.com/check/{{ .IP }}" target="_blank">Abuse IPDB Details</a></li>
+      <li><a href="https://otx.alienvault.com/indicator/ip/{{ .IP }}" target="_blank">OTX Indicator Page</a></li>
+    </ul>
     {{ end }}
 
     <div class="info-row">

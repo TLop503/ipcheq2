@@ -44,6 +44,7 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 		Users:           raw.Data.NumDistinctUsers,
 		LastReported:    timeHelper(raw.Data.LastReportedAt),
 		ThreatRisk:      confidenceHelper(raw.Data.AbuseConfidenceScore), // Optional logic can go here
+		AbuseLinks: 	 raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
 		ParsedRes:       "Not Anonymous",
 	}, nil
 }
