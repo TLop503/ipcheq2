@@ -1,26 +1,86 @@
 {{ define "history" }}
+<script src="/js/confidence-colors.js"></script>
 {{ if . }}
 {{ range . }}
-<div id="result-container">
-  <h3>IP: {{ .IP }}</h3>
-  <ul>
-    <li>ISP: {{ .ISP }}</li>
-    <li>Domain: {{ .Domain }}</li>
-    <li>Country: {{ .Country }} ({{ .CountryCode }})</li>
-    <li>Usage Type: {{ .UsageType }}</li>
-    <li>VPN Status: {{ .ParsedRes }}
-    </li>
-    <li>Total Reports: {{ .TotalReports }}</li>
-    <ul><li>Last Reported: {{ .LastReported }}</li></ul>
-    <li>Abuse Confidence: {{ .AbuseConfidence }}%</li>
-    <li>Risk Level: {{ .ThreatRisk }}</li>
-    <li>Number of Distinct Users: {{ .Users }}</li>
-  </ul>
+<div class="ip-card" data-confidence="{{ .AbuseConfidence }}">
+  <div class="card-header">
+    <h3 class="ip-address">{{ .IP }}</h3>
+    <div class="confidence-badge" data-confidence="{{ .AbuseConfidence }}">
+      <p>Abuse Confidence: {{ .AbuseConfidence }}% </p>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="info-row">
+      <span class="info-label">ISP:</span>
+      <span class="info-value">{{ .ISP }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Domain:</span>
+      <span class="info-value">{{ .Domain }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Country:</span>
+      <span class="info-value">
+        <img class="flag-icon" src="https://flagcdn.com/w40/{{ .CountryCode }}.png" alt="{{ .CountryCode }} flag" onerror="this.style.display='none'">
+        {{ .Country }} ({{ .CountryCode }})
+      </span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Usage Type:</span>
+      <span class="info-value">
+        {{ if or (eq .UsageType "Data Center/Web Hosting/Transit") (eq .UsageType "Data Center") }}
+          <svg class="usage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6" y2="6"></line>
+            <line x1="6" y1="18" x2="6" y2="18"></line>
+          </svg>
+        {{ else }}
+          <svg class="usage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        {{ end }}
+        {{ .UsageType }}
+      </span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">VPN Status:</span>
+      <span class="info-value">{{ .ParsedRes }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Total Reports:</span>
+      <span class="info-value">{{ .TotalReports }}</span>
+    </div>
+
+    {{ if gt .TotalReports 0 }}
+    <div class="info-row sub-info">
+      <span class="info-label">Last Reported:</span>
+      <span class="info-value">{{ .LastReported }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Risk Level:</span>
+      <span class="info-value risk-level">{{ .ThreatRisk }}</span>
+    </div>
+    {{ end }}
+
+    <div class="info-row">
+      <span class="info-label">Distinct Users:</span>
+      <span class="info-value">{{ .Users }}</span>
+    </div>
+  </div>
+
+  <div class="confidence-bar" data-confidence="{{ .AbuseConfidence }}"></div>
 </div>
-<hr>
 {{ end }}
 {{ else }}
-<p>No IP queries in history yet.</p>
-<hr>
+<p class="no-history">No IP queries in history yet.</p>
 {{ end }}
 {{ end }}

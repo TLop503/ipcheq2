@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/netip"
+	"strings"
 	"time"
 )
 
@@ -35,7 +36,7 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 		IsPub:           raw.Data.IsPublic,
 		AbuseConfidence: raw.Data.AbuseConfidenceScore,
 		Country:         raw.Data.CountryName,
-		CountryCode:     raw.Data.CountryCode,
+		CountryCode:     strings.ToLower(raw.Data.CountryCode),
 		UsageType:       raw.Data.UsageType,
 		ISP:             raw.Data.ISP,
 		Domain:          raw.Data.Domain,
