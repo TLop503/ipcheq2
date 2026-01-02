@@ -1,5 +1,6 @@
 {{ define "history" }}
 <script src="/js/confidence-colors.js"></script>
+<script src="/js/wrap-ips.js" defer></script> <!--  "defer" runs the script after the DOM is fully parsed -->
 {{ if . }}
 <div class="results-grid">
 {{ range . }}

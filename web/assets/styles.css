@@ -192,6 +192,7 @@ a {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1rem 0.75rem 1rem;
+    gap: 1rem;
 }
 
 .header-badges {
@@ -206,6 +207,8 @@ a {
     font-weight: bold;
     font-family: monospace, sans-serif;
     color: var(--text-color);
+    word-break: keep-all;     /* won't break words, will only break at invisible space characters inserted before colons & periods */
+    overflow-wrap: normal;
 }
 
 .threat-icon {
@@ -235,6 +238,8 @@ a {
     text-align: center;
     line-height: 1;
     display: inline-block;
+    flex-shrink: 0;
+
 }
 
 /* Confidence badge colors */
