@@ -64,7 +64,7 @@ func TestQueryIPs(t *testing.T) {
 
 		if tt.expected != "" && !containsProvider(result, tt.expected) {
 			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr) {
+		} else if tt.expected == "" && result != fmt.Sprintf("Not found in dataset") {
 			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
 		}
 	}
@@ -129,7 +129,7 @@ func TestWithProdData(t *testing.T) {
 
 		if tt.expected != "" && !containsProvider(result, tt.expected) {
 			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("%s not found in dataset", addr) {
+		} else if tt.expected == "" && result != fmt.Sprintf("Not found in dataset") {
 			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
 		}
 	}
