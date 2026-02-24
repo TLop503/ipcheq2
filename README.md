@@ -116,3 +116,7 @@ This project is automatically built and published to GitHub Container Registry v
 docker build -t ipcheq2 ./dockerfiles
 docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ipcheq2
 ```
+
+Data Sources:  
+vpn_by_asn retrieved from https://github.com/X4BNet/lists_vpn. Copyright (c) 2024 X4B (Mathew Heard).
+Supplemented with https://github.com/NazgulCoder/IPLists?tab=readme-ov-file. Copyright (c) 2025 Nazgul.
