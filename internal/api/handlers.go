@@ -47,7 +47,7 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// VirusTotal query
-	result.VtDetections, err = virustotal.VTQuery(ip)
+	result.VtDetections, result.VtNumEngines, err = virustotal.VTQuery(ip)
 	if err != nil {
 		log.Print(err)
 	}

@@ -1,7 +1,6 @@
 package virustotal
 
 import (
-	"fmt"
 	"net/netip"
 	"os"
 
@@ -21,14 +20,14 @@ func InitializeVTAPIKey() {
 	}
 }
 
-// Queries VirusTotal for an IP and returns "malicious_count/total_engines"
-func VTQuery(ip netip.Addr) (string, error) {
+// Queries VirusTotal for an IP and returns number of malicious detections + total num of engines
+func VTQuery(ip netip.Addr) (int, int, error) {
 
 	client := vt.NewClient(VTKey)
 
 	result, err := client.GetObject(vt.URL("ip_addresses/%s", ip.String()))
 	if err != nil {
-		return "", err
+		return 0, 0, err
 	}
 
 	// fields in the VT IP scan result
@@ -46,5 +45,5 @@ func VTQuery(ip netip.Addr) (string, error) {
 		total += int(fieldValue)
 	}
 
-	return fmt.Sprintf("%d/%d", malicious, total), nil
+	return malicious, total, nil
 }

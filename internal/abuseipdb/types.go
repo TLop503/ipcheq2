@@ -28,7 +28,8 @@ type Result struct {
 	// vpn status
 	ParsedRes string // vpn provider or "not vpn"
 	// VT detections and flagged engines
-	VtDetections string
+	VtDetections int
+	VtNumEngines int
 }
 
 // InitializeAPIKey sets the AbuseIPDB API key from environment
