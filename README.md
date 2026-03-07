@@ -1,6 +1,6 @@
 # ipcheq2
 
-Aggregate data from AbuseIPDB and VPNID to investigate IPs!
+Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 
 ![ipcheq2 homescreen with search bar](image.png)
 
@@ -13,6 +13,7 @@ Aggregate data from AbuseIPDB and VPNID to investigate IPs!
 
 ### IP Data Sources:
 - AbuseIPDB
+- VirusTotal
 - iCloud Private Relays
 - Cyberghost
 - Express VPN
@@ -30,8 +31,8 @@ Want to see another source here? Open a PR with a file or an issue with a link!
 
 ### Using Docker Run
 ```bash
-# supply an abuseipdb api key
-docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest
+# supply api keys
+docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here VTKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest
 ```
 
 ### Using Docker Compose
@@ -45,6 +46,7 @@ services:
       - "8080:8080"
     environment:
       - ABIPDBKEY=your_api_key_here
+      - VTKEY=your_api_key_here
     restart: unless-stopped
 ```
 
@@ -65,7 +67,7 @@ docker-compose up -d
         └── upstream-icloud-list.hash
 └── vpnid_config.txt
 ```
-2. Create a .env file with an AbuseIPDB API Key (see `.env.example`) in the same directory, or set an enviornment variable.
+2. Create a .env file with AbuseIPDB and VirusTotal API Keys (see `.env.example`) in the same directory, or set an enviornment variable.
 3. Update the icloud prefixes if desired with the bundled Python script.
 	1. Note- this must be ran from wihtin the `data/` directory!
 4. Optionally add IP lists to data/ and update the config file to match
@@ -76,6 +78,7 @@ docker-compose up -d
 ### Prerequisites
 - Go 1.23+
 - AbuseIPDB API key
+- VirusTotal API key
 
 ### Local Development
 1. Clone the repository:
@@ -87,7 +90,7 @@ cd ipcheq2
 2. Create a `.env` file:
 ```bash
 cp .env.example .env
-# Edit .env and add your ABIPDBKEY
+# Edit .env and add your ABIPDBKEY, VTKEY
 # Alternatively, enviornment variables can be used.
 ```
 
@@ -114,7 +117,7 @@ This project is automatically built and published to GitHub Container Registry v
 ### Manual Build
 ```bash
 docker build -t ipcheq2 ./dockerfiles
-docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here ipcheq2
+docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here VTKEY=your_api_key_here ipcheq2
 ```
 
 Data Sources:  
