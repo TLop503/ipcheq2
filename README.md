@@ -78,7 +78,7 @@ docker-compose up -d
 ### Prerequisites
 - Go 1.23+
 - AbuseIPDB API key
-- VirusTotal API key
+- VirusTotal API key (optional)
 
 ### Local Development
 1. Clone the repository:
