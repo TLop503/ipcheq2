@@ -1,6 +1,7 @@
 package virustotal
 
 import (
+	"log"
 	"net/netip"
 	"os"
 
@@ -13,37 +14,44 @@ import (
 var VTKey string
 
 // InitializeAPIKey sets the VirusTotal API key from environment
-func InitializeVTAPIKey() {
+func InitializeVTAPIKey() int {
 	VTKey = os.Getenv("VTKEY")
+	var status int = 0
 	if VTKey == "" {
-		panic("VTKEY environment variable is not set")
+		log.Println("Warning: VTKEY environment variable is not set")
+		status = 1
 	}
+	return status
 }
 
 // Queries VirusTotal for an IP and returns number of malicious detections + total num of engines
-func VTQuery(ip netip.Addr) (int, int, error) {
+func CheckVirusTotal(ip netip.Addr) (int, int, error) {
+	if VTKey != "" {
+		client := vt.NewClient(VTKey)
 
-	client := vt.NewClient(VTKey)
-
-	result, err := client.GetObject(vt.URL("ip_addresses/%s", ip.String()))
-	if err != nil {
-		return 0, 0, err
-	}
-
-	// fields in the VT IP scan result
-	fields := []string{"harmless", "malicious", "suspicious", "undetected", "timeout"}
-	var total, malicious int
-
-	for _, field := range fields {
-		fieldValue, err := result.GetInt64("last_analysis_stats." + field)
+		result, err := client.GetObject(vt.URL("ip_addresses/%s", ip.String()))
 		if err != nil {
-			continue // if there's any missing fields, skip it
+			return 0, 0, err
 		}
-		if field == "malicious" {
-			malicious = int(fieldValue)
+
+		// fields in the VT IP scan result
+		fields := []string{"harmless", "malicious", "suspicious", "undetected", "timeout"}
+		var total, malicious int
+
+		for _, field := range fields {
+			fieldValue, err := result.GetInt64("last_analysis_stats." + field)
+			if err != nil {
+				continue // if there's any missing fields, skip it
+			}
+			if field == "malicious" {
+				malicious = int(fieldValue)
+			}
+			total += int(fieldValue)
 		}
-		total += int(fieldValue)
+
+		return malicious, total, nil
 	}
 
-	return malicious, total, nil
+	// no key, return nothing
+	return 0, 0, nil
 }

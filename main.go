@@ -20,7 +20,7 @@ func main() {
 		log.Println("Warning: .env file not found, using environment variables directly")
 	}
 
-	// Initialize API keys in internal package
+	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
 	abuseipdb.InitializeAPIKey()
 	virustotal.InitializeVTAPIKey()
 

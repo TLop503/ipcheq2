@@ -86,10 +86,12 @@
       <span class="info-value">{{ .Users }}</span>
     </div>
 
+    {{ if gt .VtNumEngines 0 }}
     <div class="info-row">
       <span class="info-label">VT Detections:</span>
       <span class="info-value">{{ .VtDetections }}/{{ .VtNumEngines }}</span>
     </div>
+    {{ end }}
   </div>
 
   <div class="confidence-bar" data-confidence="{{ .AbuseConfidence }}"></div>
