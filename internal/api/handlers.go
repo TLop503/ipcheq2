@@ -1,17 +1,19 @@
 package api
 
 import (
-	"github.com/tlop503/ipcheq2/internal/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"html/template"
 	"log"
 	"net/http"
 	"net/netip"
 	"path/filepath"
 	"strings"
+
+	"github.com/tlop503/ipcheq2/internal/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/virustotal"
+	"github.com/tlop503/ipcheq2/internal/vpnid"
 )
 
-// HandleIPPost parses out IP and queries abuseipdb and vpnid
+// HandleIPPost parses out IP and queries abuseipdb, vpnid, and virustotal
 func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	// verify method, parsability
 	if r.Method != http.MethodPost {
@@ -38,16 +40,26 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// Check for VPN, iCloud, etc.
+	// vpnID query - Check for VPN, iCloud, etc.
 	result.ParsedRes, err = vpnid.Query(ip, vpnid.VpnIDRanger)
 	if err != nil {
 		log.Print(err)
+	}
+
+	// VirusTotal query
+	log.Printf("vt key status: %t", virustotal.VTKeyPresent)
+	if virustotal.VTKeyPresent {
+		result.VtDetections, result.VtNumEngines, err = virustotal.CheckVirusTotal(ip)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 
 	abuseipdb.Results = append([]abuseipdb.Result{result}, abuseipdb.Results...)
 	if len(abuseipdb.Results) > 5 {
 		abuseipdb.Results = abuseipdb.Results[:5] // truncate for prettiness on screen.
 	}
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 

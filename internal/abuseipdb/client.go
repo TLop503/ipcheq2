@@ -12,42 +12,47 @@ import (
 
 // Fetch and parse the AbuseIPDB result
 func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
-	resp, err := queryHelper(ip.String())
-	if err != nil {
-		return Result{}, err
+	if abIPDBKey != "" {
+		resp, err := queryHelper(ip.String())
+		if err != nil {
+			return Result{}, err
+		}
+
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
+		}
+
+		// Parse response into intermediate struct
+		var raw abuseIPDBResponse
+		if err := json.Unmarshal(body, &raw); err != nil {
+			return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
+		}
+
+		// Populate Result
+		return Result{
+			IP:              ip,
+			IsPub:           raw.Data.IsPublic,
+			AbuseConfidence: raw.Data.AbuseConfidenceScore,
+			Country:         raw.Data.CountryName,
+			CountryCode:     strings.ToLower(raw.Data.CountryCode),
+			UsageType:       raw.Data.UsageType,
+			ISP:             raw.Data.ISP,
+			Domain:          raw.Data.Domain,
+			TotalReports:    raw.Data.TotalReports,
+			Users:           raw.Data.NumDistinctUsers,
+			LastReported:    timeHelper(raw.Data.LastReportedAt),
+			AbuseLinks:      raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
+			// while AbuseLinks is redundant to manually doing this check in the template, it is being used
+			// for future-proofing incase more logic is used for displaying links, such as
+			// a config or a list of providers.
+			ParsedRes: "Not Anonymous",
+		}, nil
 	}
 
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Result{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
-	}
-
-	// Parse response into intermediate struct
-	var raw abuseIPDBResponse
-	if err := json.Unmarshal(body, &raw); err != nil {
-		return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
-	}
-
-	// Populate Result
-	return Result{
-		IP:              ip,
-		IsPub:           raw.Data.IsPublic,
-		AbuseConfidence: raw.Data.AbuseConfidenceScore,
-		Country:         raw.Data.CountryName,
-		CountryCode:     strings.ToLower(raw.Data.CountryCode),
-		UsageType:       raw.Data.UsageType,
-		ISP:             raw.Data.ISP,
-		Domain:          raw.Data.Domain,
-		TotalReports:    raw.Data.TotalReports,
-		Users:           raw.Data.NumDistinctUsers,
-		LastReported:    timeHelper(raw.Data.LastReportedAt),
-		AbuseLinks:      raw.Data.AbuseConfidenceScore > 0, // whether or not to show ABIPDP and OTX links
-		// while AbuseLinks is redundant to manually doing this check in the template, it is being used
-		// for future-proofing incase more logic is used for displaying links, such as
-		// a config or a list of providers.
-		ParsedRes: "Not Anonymous",
-	}, nil
+	// no key, return nothing
+	return Result{}, nil
 }
 
 // timeHelper formats time in a human-readable format, or returns blank conversion fails

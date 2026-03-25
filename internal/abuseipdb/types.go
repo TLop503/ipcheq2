@@ -24,9 +24,12 @@ type Result struct {
 	Users           int
 	LastReported    time.Time
 	ThreatRisk      template.HTML
-	AbuseLinks		bool
-	//vpn status
+	AbuseLinks      bool
+	// vpn status
 	ParsedRes string // vpn provider or "not vpn"
+	// VT detections and flagged engines
+	VtDetections int
+	VtNumEngines int
 }
 
 // InitializeAPIKey sets the AbuseIPDB API key from environment
