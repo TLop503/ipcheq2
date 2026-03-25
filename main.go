@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/tlop503/ipcheq2/internal/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/api"
-	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"log"
 	"net/http"
+
+	"github.com/tlop503/ipcheq2/internal/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/api"
+	"github.com/tlop503/ipcheq2/internal/virustotal"
+	"github.com/tlop503/ipcheq2/internal/vpnid"
 
 	"github.com/joho/godotenv"
 )
@@ -18,8 +20,9 @@ func main() {
 		log.Println("Warning: .env file not found, using environment variables directly")
 	}
 
-	// Initialize API key in internal package
+	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
 	abuseipdb.InitializeAPIKey()
+	virustotal.InitializeVTAPIKey()
 
 	// Initialize VPN ID ranger
 	vpnid.InitializeVpnID()
