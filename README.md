@@ -13,7 +13,7 @@ Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 
 ### IP Data Sources:
 - AbuseIPDB
-- VirusTotal
+- VirusTotal (Optional)
 - iCloud Private Relays
 - Cyberghost
 - Express VPN
@@ -46,7 +46,7 @@ services:
       - "8080:8080"
     environment:
       - ABIPDBKEY=your_api_key_here
-      - VTKEY=your_api_key_here
+      - VTKEY=your_api_key_here # Optional
     restart: unless-stopped
 ```
 

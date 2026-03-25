@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/tlop503/ipcheq2/internal/virustotal"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/tlop503/ipcheq2/internal/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/virustotal"
 	"github.com/tlop503/ipcheq2/internal/vpnid"
 )
 
@@ -47,9 +47,12 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// VirusTotal query
-	result.VtDetections, result.VtNumEngines, err = virustotal.CheckVirusTotal(ip)
-	if err != nil {
-		log.Print(err)
+	log.Printf("vt key status: %t", virustotal.VTKeyPresent)
+	if virustotal.VTKeyPresent {
+		result.VtDetections, result.VtNumEngines, err = virustotal.CheckVirusTotal(ip)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 
 	abuseipdb.Results = append([]abuseipdb.Result{result}, abuseipdb.Results...)
