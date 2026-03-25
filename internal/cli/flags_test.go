@@ -43,7 +43,7 @@ func TestModeWebUI(t *testing.T) {
 
 func TestModeAPI(t *testing.T) {
 	resetFlags()
-	os.Args = []string{"ipcheq2", "--mode", "api"}
+	os.Args = []string{"ipcheq2", "--mode", "router"}
 
 	cfg, err := InitFlags()
 	if err != nil {
@@ -111,7 +111,7 @@ func TestQueryInvalidIP(t *testing.T) {
 
 func TestMutualExclusion(t *testing.T) {
 	resetFlags()
-	os.Args = []string{"ipcheq2", "-i", "1.2.3.4", "--mode", "api"}
+	os.Args = []string{"ipcheq2", "-i", "1.2.3.4", "--mode", "router"}
 
 	_, err := InitFlags()
 	if err == nil {

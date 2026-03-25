@@ -1,21 +1,25 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/tlop503/ipcheq2/internal/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/api"
+	"github.com/tlop503/ipcheq2/internal/cli"
+	"github.com/tlop503/ipcheq2/internal/router"
 	"github.com/tlop503/ipcheq2/internal/virustotal"
 	"github.com/tlop503/ipcheq2/internal/vpnid"
+	"log"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
 
+	cfg, err := cli.InitFlags()
+	if err != nil {
+		log.Fatalf("InitFlags: %v\n", err)
+	}
+
 	// Try to load .env file (optional for container deployment)
-	err := godotenv.Load()
+	err = godotenv.Load()
 	if err != nil {
 		log.Println("Warning: .env file not found, using environment variables directly")
 	}
@@ -27,17 +31,19 @@ func main() {
 	// Initialize VPN ID ranger
 	vpnid.InitializeVpnID()
 
-	// Handle routes
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		api.RenderTemplate(w, "index.html", abuseipdb.Results)
-	})
-	http.HandleFunc("/ip", api.HandleIPPost)
-	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
-	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("web/js"))))
-
-	log.Println("Starting server on :8080")
-	err = http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	switch cfg.Mode {
+	case cli.ModeWebUI:
+		router.RouteWebui()
+	case cli.ModeAPI:
+		router.RouteWebui()
+		log.Println("API mode not yet implemented!")
+	case cli.ModeHeadless:
+		log.Println("Headless mode not yet implemented!")
+	case cli.ModeQuery:
+		log.Println("Query mode not yet implemented!")
+	case cli.ModeREPL:
+		log.Println("REPL mode not yet implemented!")
+	default:
+		log.Fatalf("Unknown mode: %v\n", cfg.Mode)
 	}
 }

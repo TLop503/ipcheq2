@@ -1,4 +1,4 @@
-package api
+package router
 
 import (
 	"html/template"
@@ -13,8 +13,8 @@ import (
 	"github.com/tlop503/ipcheq2/internal/vpnid"
 )
 
-// HandleIPPost parses out IP and queries abuseipdb, vpnid, and virustotal
-func HandleIPPost(w http.ResponseWriter, r *http.Request) {
+// handleIPPost parses out IP and queries abuseipdb, vpnid, and virustotal
+func handleIPPost(w http.ResponseWriter, r *http.Request) {
 	// verify method, parsability
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -63,8 +63,8 @@ func HandleIPPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// RenderTemplate executes templates into a single HTML to serve to the client
-func RenderTemplate(w http.ResponseWriter, pagePath string, data any) {
+// renderTemplate executes templates into a single HTML to serve to the client
+func renderTemplate(w http.ResponseWriter, pagePath string, data any) {
 	templatePath := filepath.Join("web", pagePath)
 	historyPath := filepath.Join("web/templates", "history.html")
 	titlePath := filepath.Join("web/templates", "title.html")
