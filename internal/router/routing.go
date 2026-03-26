@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/tlop503/ipcheq2/internal/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
 	"log"
 	"net/http"
 )

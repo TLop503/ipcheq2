@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/tlop503/ipcheq2/internal/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/cli"
+	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
 	"github.com/tlop503/ipcheq2/internal/router"
-	"github.com/tlop503/ipcheq2/internal/virustotal"
-	"github.com/tlop503/ipcheq2/internal/vpnid"
 	"log"
 
 	"github.com/joho/godotenv"

@@ -31,7 +31,7 @@ Want to see another source here? Open a PR with a file or an issue with a link!
 
 ### Using Docker Run
 ```bash
-# supply router keys
+# supply api keys
 docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here VTKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest
 ```
 

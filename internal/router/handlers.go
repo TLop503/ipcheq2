@@ -1,16 +1,15 @@
 package router
 
 import (
+	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
 	"html/template"
 	"log"
 	"net/http"
 	"net/netip"
 	"path/filepath"
 	"strings"
-
-	"github.com/tlop503/ipcheq2/internal/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/virustotal"
-	"github.com/tlop503/ipcheq2/internal/vpnid"
 )
 
 // handleIPPost parses out IP and queries abuseipdb, vpnid, and virustotal
@@ -41,13 +40,12 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// vpnID query - Check for VPN, iCloud, etc.
-	result.ParsedRes, err = vpnid.Query(ip, vpnid.VpnIDRanger)
+	result.ParsedRes, err = vpnid.Query(ip)
 	if err != nil {
 		log.Print(err)
 	}
 
 	// VirusTotal query
-	log.Printf("vt key status: %t", virustotal.VTKeyPresent)
 	if virustotal.VTKeyPresent {
 		result.VtDetections, result.VtNumEngines, err = virustotal.CheckVirusTotal(ip)
 		if err != nil {
