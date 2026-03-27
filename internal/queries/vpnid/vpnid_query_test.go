@@ -38,6 +38,12 @@ func TestQueryIPs(t *testing.T) {
 		t.Fatalf("Initialize failed: %v", err)
 	}
 
+	prev := VpnIDRanger
+	VpnIDRanger = ranger
+	t.Cleanup(func() {
+		VpnIDRanger = prev
+	})
+
 	// Test cases: IP → expected provider(s)
 	tests := []struct {
 		ip       string
@@ -56,7 +62,7 @@ func TestQueryIPs(t *testing.T) {
 			t.Errorf("ParseAddr(%s) failed: %v", tt.ip, err)
 			continue
 		}
-		result, err := Query(addr, ranger)
+		result, err := Query(addr)
 		if err != nil {
 			t.Errorf("Query(%s) returned error: %v", tt.ip, err)
 			continue
@@ -71,7 +77,7 @@ func TestQueryIPs(t *testing.T) {
 }
 
 func TestWithProdData(t *testing.T) {
-	dataDir := filepath.Join("..", "..", "data")
+	dataDir := filepath.Join("..", "..", "..", "data")
 
 	providers := []string{
 		"cyberghost", "express", "mullvad", "nord",
@@ -98,6 +104,12 @@ func TestWithProdData(t *testing.T) {
 		t.Fatalf("Initialize failed: %v", err)
 	}
 
+	prev := VpnIDRanger
+	VpnIDRanger = ranger
+	t.Cleanup(func() {
+		VpnIDRanger = prev
+	})
+
 	tests := []struct {
 		ip       string
 		expected string
@@ -117,7 +129,7 @@ func TestWithProdData(t *testing.T) {
 		}
 
 		start := time.Now() // ⏱ start timing
-		result, err := Query(addr, ranger)
+		result, err := Query(addr)
 		duration := time.Since(start)
 
 		t.Logf("Query(%s) took %d ns", tt.ip, duration.Nanoseconds())
@@ -132,6 +144,28 @@ func TestWithProdData(t *testing.T) {
 		} else if tt.expected == "" && result != fmt.Sprintf("Not found in dataset") {
 			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
 		}
+	}
+}
+
+func TestQueryWithoutInitialize(t *testing.T) {
+	prev := VpnIDRanger
+	VpnIDRanger = nil
+	t.Cleanup(func() {
+		VpnIDRanger = prev
+	})
+
+	addr, err := netip.ParseAddr("1.1.1.1")
+	if err != nil {
+		t.Fatalf("ParseAddr failed: %v", err)
+	}
+
+	_, err = Query(addr)
+	if err == nil {
+		t.Fatalf("expected error when querying before initialization, got nil")
+	}
+
+	if err.Error() != "VPNIDRanger not initialized" {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 

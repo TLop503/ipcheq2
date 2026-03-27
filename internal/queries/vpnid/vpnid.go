@@ -160,13 +160,14 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 	return nil
 }
 
-func Query(ip netip.Addr, ranger cidranger.Ranger) (string, error) {
-	/*if !ip.Is4() { // IPv6
-		return "IPv6 Support Coming Soon", nil
-	} */
+// query returns the slice literal of db matches for a given ip
+func Query(ip netip.Addr) (string, error) {
+	if VpnIDRanger == nil {
+		return "", fmt.Errorf("VPNIDRanger not initialized")
+	}
 
 	// Lookup all prefixes containing this IP
-	entries, err := ranger.ContainingNetworks(ip.AsSlice())
+	entries, err := VpnIDRanger.ContainingNetworks(ip.AsSlice())
 	if err != nil {
 		return "Query Error!", err
 	}
@@ -183,6 +184,36 @@ func Query(ip netip.Addr, ranger cidranger.Ranger) (string, error) {
 	}
 
 	return fmt.Sprintf("%v", providers), nil
+}
+
+// query to slice checks for db matches and returns a slice of strings or nil
+func QueryToSlice(ip netip.Addr) ([]string, error) {
+	if VpnIDRanger == nil {
+		return nil, fmt.Errorf("VPNIDRanger not initialized")
+	}
+
+	// Lookup all prefixes containing this IP
+	entries, err := VpnIDRanger.ContainingNetworks(ip.AsSlice())
+	if err != nil {
+		return nil, err
+	}
+	if len(entries) == 0 {
+		return []string{}, nil
+	}
+
+	seen := make(map[string]struct{})
+	var providers []string
+
+	for _, e := range entries {
+		te := e.(treeEntry)
+
+		if _, ok := seen[te.Provider]; !ok {
+			seen[te.Provider] = struct{}{}
+			providers = append(providers, te.Provider)
+		}
+	}
+
+	return providers, nil
 }
 
 // sortIPs sorts a slice of net.IP addresses
