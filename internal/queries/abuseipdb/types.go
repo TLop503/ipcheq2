@@ -59,17 +59,17 @@ type abuseIPDBResponse struct {
 // API-specific data struct.
 // TODO: migrate functions using old abuseIPDBResponse to this
 type ABIPDBResponse struct {
-	IsPublic             bool   `json:"isPublic"`
-	IsWhitelisted        bool   `json:"isWhitelisted"`
-	AbuseConfidenceScore int    `json:"abuseConfidenceScore"`
-	CountryCode          string `json:"countryCode"`
-	CountryName          string `json:"countryName"`
-	UsageType            string `json:"usageType"`
-	ISP                  string `json:"isp"`
-	Domain               string `json:"domain"`
-	Hostnames            string `json:"hostnames"`
-	IsTor                bool   `json:"isTor"`
-	TotalReports         int    `json:"totalReports"`
-	NumDistinctUsers     int    `json:"numDistinctUsers"`
-	LastReportedAt       string `json:"lastReportedAt"`
+	IsPublic             bool     `json:"isPublic"`
+	IsWhitelisted        bool     `json:"isWhitelisted"`
+	AbuseConfidenceScore int      `json:"abuseConfidenceScore"`
+	CountryCode          string   `json:"countryCode"`
+	CountryName          string   `json:"countryName"`
+	UsageType            string   `json:"usageType"`
+	ISP                  string   `json:"isp"`
+	Domain               string   `json:"domain"`
+	Hostnames            []string `json:"hostnames"`
+	IsTor                bool     `json:"isTor"`
+	TotalReports         int      `json:"totalReports"`
+	NumDistinctUsers     int      `json:"numDistinctUsers"`
+	LastReportedAt       string   `json:"lastReportedAt"`
 }

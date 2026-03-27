@@ -74,9 +74,13 @@ func QueryAbuseIPDB(ip netip.Addr) (ABIPDBResponse, error) {
 	}
 
 	var result ABIPDBResponse
-	if err = json.Unmarshal(body, &result); err != nil {
+	var payload struct {
+		Data ABIPDBResponse `json:"data"`
+	}
+	if err = json.Unmarshal(body, &payload); err != nil {
 		return ABIPDBResponse{}, fmt.Errorf("failed to parse JSON for ABIPDB %s: %v", ip, err)
 	}
+	result = payload.Data
 
 	return result, nil
 }
