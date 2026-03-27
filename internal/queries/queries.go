@@ -3,7 +3,10 @@ package queries
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
 	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
+	"log"
 	"net/netip"
 )
 
@@ -30,44 +33,31 @@ type FirstPartyResponse struct {
 
 // ThirdPartyQuery only checks external data sources (abipdb and optionally vt)
 func ThirdPartyQuery(addr netip.Addr) ([]byte, error) {
-	return nil, nil
+	var result ThirdPartyResponse
+
+	result.IPAddress = addr.String()
+
+	// Query ABIPDB
+	abResults, err := abuseipdb.QueryAbuseIPDB(addr)
+	if err != nil {
+		log.Printf("Issue with abuseipdb query in ThirdPartyQuery: %s", err)
+	}
+	result.ABIPDBResponse = abResults
+
+	// Query VT (if key)
+	if virustotal.VTKeyPresent {
+		vtResults, err := virustotal.QueryVirusTotal(addr)
+		if err != nil {
+			log.Printf("Issue with virustotal query in ThirdPartyQuery: %s", err)
+		}
+		result.VirusTotalResponse = vtResults
+	}
+
+	return json.Marshal(result)
 }
 
 type ThirdPartyResponse struct {
-	IPAddress string `json:"ipAddress"`
-
-	ABIPDBResponse struct {
-		IsPublic             bool   `json:"isPublic"`
-		IsWhitelisted        bool   `json:"isWhitelisted"`
-		AbuseConfidenceScore int    `json:"abuseConfidenceScore"`
-		CountryCode          string `json:"countryCode"`
-		CountryName          string `json:"countryName"`
-		UsageType            string `json:"usageType"`
-		ISP                  string `json:"isp"`
-		Domain               string `json:"domain"`
-		Hostnames            string `json:"hostnames"`
-		IsTor                bool   `json:"isTor"`
-		TotalReports         int    `json:"totalReports"`
-		NumDistinctUsers     int    `json:"numDistinctUsers"`
-		LastReportedAt       string `json:"lastReportedAt"`
-	} `json:"ABIPDBResponse"`
-
-	VirusTotalResponse struct {
-		Tags                 []string `json:"tags"`
-		LastModificationDate int      `json:"lastModificationDate"`
-		LastAnalysisDate     int      `json:"lastAnalysisDate"`
-		LastAnalysisStats    struct {
-			Malicious  int `json:"malicious"`
-			Suspicious int `json:"suspicious"`
-			Undetected int `json:"undetected"`
-			Harmless   int `json:"harmless"`
-			Timeout    int `json:"timeout"`
-		} `json:"lastAnalysisStats"`
-		RDAP struct {
-			Handle       string `json:"handle"`
-			StartAddress string `json:"startAddress"`
-			EndAddress   string `json:"endAddress"`
-			ParentHandle string `json:"parentHandle"`
-		} `json:"RDAP"`
-	} `json:"VirusTotalResponse"`
+	IPAddress          string                        `json:"ipAddress"`
+	ABIPDBResponse     abuseipdb.ABIPDBResponse      `json:"ABIPDBResponse"`
+	VirusTotalResponse virustotal.VirusTotalResponse `json:"VirusTotalResponse"`
 }

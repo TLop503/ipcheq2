@@ -26,7 +26,7 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 
 		// Parse response into intermediate struct
 		var raw abuseIPDBResponse
-		if err := json.Unmarshal(body, &raw); err != nil {
+		if err = json.Unmarshal(body, &raw); err != nil {
 			return Result{}, fmt.Errorf("failed to parse JSON for IP %s: %v", ip, err)
 		}
 
@@ -53,6 +53,32 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 
 	// no key, return nothing
 	return Result{}, nil
+}
+
+// New query func uses formal ABIPDB Response struct for ipcheq API
+func QueryAbuseIPDB(ip netip.Addr) (ABIPDBResponse, error) {
+	// fail non-destructively incase key intentionally not supplied
+	if abIPDBKey == "" {
+		return ABIPDBResponse{}, fmt.Errorf("No ABIPDB API Key Supplied!")
+	}
+
+	resp, err := queryHelper(ip.String())
+	if err != nil {
+		return ABIPDBResponse{}, err
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ABIPDBResponse{}, fmt.Errorf("error reading response body for IP %s: %v", ip, err)
+	}
+
+	var result ABIPDBResponse
+	if err = json.Unmarshal(body, &result); err != nil {
+		return ABIPDBResponse{}, fmt.Errorf("failed to parse JSON for ABIPDB %s: %v", ip, err)
+	}
+
+	return result, nil
 }
 
 // timeHelper formats time in a human-readable format, or returns blank conversion fails
