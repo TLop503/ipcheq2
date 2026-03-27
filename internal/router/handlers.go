@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/netip"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/tlop503/ipcheq2/internal/queries"
@@ -43,9 +44,21 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// vpnID query - Check for VPN, iCloud, etc.
-	result.ParsedRes, err = vpnid.Query(ip)
+	db_hits, err := vpnid.QueryToSlice(ip)
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
+	}
+
+	slices.Sort(db_hits)
+	slices.Compact(db_hits) //dedupe
+
+	if len(db_hits) == 1 {
+		result.ParsedRes = db_hits[0]
+	} else if len(db_hits) == 0 {
+		result.ParsedRes = "Not found in dataset"
+	} else {
+		moveToEnd(db_hits, "Generic VPN from ASN Data")
+		result.ParsedRes = strings.Join(db_hits, ", ")
 	}
 
 	// VirusTotal query
@@ -83,6 +96,7 @@ func renderTemplate(w http.ResponseWriter, pagePath string, data any) {
 	}
 }
 
+// handleFirstPartyGet funnels api queries to vpnid
 func handleFirstPartyGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -106,6 +120,7 @@ func handleFirstPartyGet(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
+// handleThirdPartyGet returns abuseipdb and vt data
 func handleThirdPartyGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -129,6 +144,7 @@ func handleThirdPartyGet(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
+// handleFullQuery is a combination of first and third party data
 func handleFullQuery(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -175,5 +191,16 @@ func writeJSONError(w http.ResponseWriter, status int, message string) {
 	errResponse := map[string]string{"error": message}
 	if err := json.NewEncoder(w).Encode(errResponse); err != nil {
 		log.Printf("writeJSONError encode failure: %v", err)
+
+// moveToEnd is a helper function to nicely format results when multiple db hits occur
+func moveToEnd(slice []string, target string) {
+	for i, v := range slice {
+		if v == target {
+			// Shift elements left (overwrite target)
+			copy(slice[i:], slice[i+1:])
+			// Place target at the end
+			slice[len(slice)-1] = target
+			return
+		}
 	}
 }
