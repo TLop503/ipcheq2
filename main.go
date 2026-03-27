@@ -40,14 +40,11 @@ func main() {
 		router.RouteWebui()
 		router.RouteAPI()
 		router.StartServing()
-		log.Println("API mode not yet implemented!")
 	case cli.ModeHeadless:
 		router.RouteAPI()
 		router.StartServing()
-	case cli.ModeQuery:
-		log.Println("Query mode not yet implemented!")
-	case cli.ModeREPL:
-		log.Println("REPL mode not yet implemented!")
+	//case cli.ModeQuery:
+	//	log.Println("Query mode not yet implemented!")
 	default:
 		log.Fatalf("Unknown mode: %v\n", cfg.Mode)
 	}

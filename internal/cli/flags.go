@@ -20,14 +20,14 @@ func InitFlags() (Config, error) {
 		fmt.Println("Invoke without arguments to launch the web UI.")
 		fmt.Println("-----------------------------------------------------------------")
 		fmt.Println("Optional flags:")
-		fmt.Println("  -i <ip>          Query a single IP and exit")
+		//fmt.Println("  -i <ip>          Query a single IP and exit")
 		fmt.Println("  --mode <mode>    Set serving mode: webui | api | headless")
 		fmt.Println("                     webui    - serves the web UI only (default)")
 		fmt.Println("                     api      - serves web UI and exposes API")
 		fmt.Println("                     headless - exposes API only, no web UI")
 		fmt.Println()
 		fmt.Println("-----------------------------------------------------------------")
-		fmt.Println("NOTE: -i and --mode are mutually exclusive.")
+		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
 		os.Exit(0)
 	}
 

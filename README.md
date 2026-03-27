@@ -10,6 +10,8 @@ Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 - Extendable data-- bring your own sources to supplement ours!
 - Concise, distraction-free results without any marketing!
 - Linux and Windows both supported!
+- Choose between serving a Web UI, Headless API, or both!
+  - Use `-h` for details on flags
 
 ### IP Data Sources:
 - AbuseIPDB
@@ -32,16 +34,17 @@ Want to see another source here? Open a PR with a file or an issue with a link!
 ### Using Docker Run
 ```bash
 # supply api keys
-docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here VTKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest
+docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here VTKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest <optional --mode webui|api|headless>
 ```
 
 ### Using Docker Compose
-1. Create a `docker-compose.yml` file:
+1. Create a `docker-compose.yml` file containing:
 ```yaml
 version: '3.8'
 services:
   ipcheq2:
     image: ghcr.io/tlop503/ipcheq2:latest
+    command: ["--mode", "webui|api|headless"] # optional
     ports:
       - "8080:8080"
     environment:
