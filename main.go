@@ -1,12 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/tlop503/ipcheq2/internal/cli"
 	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
 	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
 	"github.com/tlop503/ipcheq2/internal/router"
-	"log"
 
 	"github.com/joho/godotenv"
 )
@@ -34,11 +35,15 @@ func main() {
 	switch cfg.Mode {
 	case cli.ModeWebUI:
 		router.RouteWebui()
+		router.StartServing()
 	case cli.ModeAPI:
 		router.RouteWebui()
+		router.RouteAPI()
+		router.StartServing()
 		log.Println("API mode not yet implemented!")
 	case cli.ModeHeadless:
-		log.Println("Headless mode not yet implemented!")
+		router.RouteAPI()
+		router.StartServing()
 	case cli.ModeQuery:
 		log.Println("Query mode not yet implemented!")
 	case cli.ModeREPL:
