@@ -20,6 +20,7 @@ func RouteWebui() {
 func RouteAPI() {
 	http.HandleFunc("/api/firstparty", handleFirstPartyGet)
 	http.HandleFunc("/api/thirdparty", handleThirdPartyGet)
+	http.HandleFunc("/api/fullquery", handleFullQuery)
 }
 
 func StartServing() {

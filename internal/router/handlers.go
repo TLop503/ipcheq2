@@ -129,6 +129,29 @@ func handleThirdPartyGet(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
+func handleFullQuery(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	ip, ok := parseAPIIP(w, r)
+	if !ok {
+		return
+	}
+
+	response, err := queries.FullQuery(ip)
+	if err != nil {
+		log.Printf("FullQuery error: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "failed to run full query")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(response)
+}
+
 func parseAPIIP(w http.ResponseWriter, r *http.Request) (netip.Addr, bool) {
 	ipRaw := strings.TrimSpace(r.URL.Query().Get("ip"))
 	if ipRaw == "" {

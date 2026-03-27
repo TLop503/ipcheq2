@@ -3,11 +3,12 @@ package queries
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/netip"
+
 	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
 	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
-	"log"
-	"net/netip"
 )
 
 // FirstPartyQuery only checks local data, currently just VPNID
@@ -58,6 +59,41 @@ func ThirdPartyQuery(addr netip.Addr) ([]byte, error) {
 
 type ThirdPartyResponse struct {
 	IPAddress          string                        `json:"ipAddress"`
+	ABIPDBResponse     abuseipdb.ABIPDBResponse      `json:"ABIPDBResponse"`
+	VirusTotalResponse virustotal.VirusTotalResponse `json:"VirusTotalResponse"`
+}
+
+func FullQuery(addr netip.Addr) ([]byte, error) {
+	var result FullQueryResponse
+
+	result.IPAddress = addr.String()
+
+	fpResults, err := vpnid.QueryToSlice(addr)
+	if err != nil {
+		log.Printf("Issue with vpnid query in FullQuery: %s", err)
+	}
+	result.VPNIDMatches = fpResults
+
+	abResults, err := abuseipdb.QueryAbuseIPDB(addr)
+	if err != nil {
+		log.Printf("Issue with abuseipdb query in FullQuery: %s", err)
+	}
+	result.ABIPDBResponse = abResults
+
+	if virustotal.VTKeyPresent {
+		vtResults, err := virustotal.QueryVirusTotal(addr)
+		if err != nil {
+			log.Printf("Issue with virustotal query in FullQuery: %s", err)
+		}
+		result.VirusTotalResponse = vtResults
+	}
+
+	return json.Marshal(result)
+}
+
+type FullQueryResponse struct {
+	IPAddress          string                        `json:"ipAddress"`
+	VPNIDMatches       []string                      `json:"vpnid_matches"`
 	ABIPDBResponse     abuseipdb.ABIPDBResponse      `json:"ABIPDBResponse"`
 	VirusTotalResponse virustotal.VirusTotalResponse `json:"VirusTotalResponse"`
 }
