@@ -191,6 +191,8 @@ func writeJSONError(w http.ResponseWriter, status int, message string) {
 	errResponse := map[string]string{"error": message}
 	if err := json.NewEncoder(w).Encode(errResponse); err != nil {
 		log.Printf("writeJSONError encode failure: %v", err)
+	}
+}
 
 // moveToEnd is a helper function to nicely format results when multiple db hits occur
 func moveToEnd(slice []string, target string) {
