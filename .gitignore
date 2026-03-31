@@ -8,6 +8,7 @@
 *.so
 *.dylib
 ipcheq2*
+ipc2c*
 
 # Test binary, built with `go test -c`
 *.test
