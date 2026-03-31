@@ -91,13 +91,13 @@ func InitCliFlags() (CliConfig, error) {
 	}
 
 	switch {
-	case mode == "first":
+	case cliMode == "first":
 		return CliConfig{Mode: ModeFirst, QueryIP: addr}, nil
-	case mode == "third":
+	case cliMode == "third":
 		return CliConfig{Mode: ModeThird, QueryIP: addr}, nil
-	case mode == "" || mode == "full":
+	case cliMode == "" || cliMode == "full":
 		return CliConfig{Mode: ModeFull, QueryIP: addr}, nil
 	default:
-		return CliConfig{}, fmt.Errorf("unknown mode %q: must be first, third, or full", mode)
+		return CliConfig{}, fmt.Errorf("unknown mode %q: must be first, third, or full", cliMode)
 	}
 }
