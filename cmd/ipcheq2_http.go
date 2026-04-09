@@ -1,15 +1,11 @@
 package main
 
 import (
+	"github.com/tlop503/ipcheq2/internal"
 	"log"
 
 	"github.com/tlop503/ipcheq2/internal/cli"
-	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
-	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
 	"github.com/tlop503/ipcheq2/internal/router"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -19,18 +15,7 @@ func main() {
 		log.Fatalf("InitFlags: %v\n", err)
 	}
 
-	// Try to load .env file (optional for container deployment)
-	err = godotenv.Load()
-	if err != nil {
-		log.Println("Warning: .env file not found, using environment variables directly")
-	}
-
-	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
-	abuseipdb.InitializeAPIKey()
-	virustotal.InitializeVTAPIKey()
-
-	// Initialize VPN ID ranger
-	vpnid.InitializeVpnID()
+	internal.SharedStartup()
 
 	switch cfg.Mode {
 	case cli.ModeWebUI:

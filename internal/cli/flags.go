@@ -56,3 +56,48 @@ func InitFlags() (Config, error) {
 		return Config{}, fmt.Errorf("unknown mode %q: must be webui, api, or headless", mode)
 	}
 }
+
+// InitCliFlags parses arguments for the cli mode.
+func InitCliFlags() (CliConfig, error) {
+	flag.StringVar(&cliMode, "mode", "", "")
+	flag.StringVar(&cliMode, "m", "", "")
+	flag.StringVar(&query, "a", "127.0.0.1", "")
+	flag.StringVar(&query, "addr", "", "")
+	flag.BoolVar(&help, "h", false, helpMsg)
+	flag.BoolVar(&help, "help", false, helpMsg)
+
+	flag.Parse()
+
+	if help {
+		fmt.Println("Welcome to ipcheq2 cli")
+		fmt.Println("Usage: ipc2c [OPTIONS] [ADDRESS]")
+		fmt.Println("--------------------------------------------------------------------------------------------")
+		fmt.Println("Optional flags:")
+		fmt.Println("  -m --mode <mode>    		Set query mode: first | third | full")
+		fmt.Println("                     				 	first    - only use local data")
+		fmt.Println("                     				 	third    - only query remote sources")
+		fmt.Println("										full     - query local and remote sources (DEFAULT)")
+		fmt.Println("  -a --addr <ip address>		IP address to query (v4 or v6)")
+		fmt.Println()
+		fmt.Println("--------------------------------------------------------------------------------------------")
+		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
+		os.Exit(0)
+	}
+
+	// validate query
+	addr, err := netip.ParseAddr(query)
+	if err != nil {
+		return CliConfig{}, fmt.Errorf("invalid IP address %q: %w", query, err)
+	}
+
+	switch {
+	case cliMode == "first":
+		return CliConfig{Mode: ModeFirst, QueryIP: addr}, nil
+	case cliMode == "third":
+		return CliConfig{Mode: ModeThird, QueryIP: addr}, nil
+	case cliMode == "" || cliMode == "full":
+		return CliConfig{Mode: ModeFull, QueryIP: addr}, nil
+	default:
+		return CliConfig{}, fmt.Errorf("unknown mode %q: must be first, third, or full", cliMode)
+	}
+}
