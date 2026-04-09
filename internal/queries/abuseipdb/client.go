@@ -11,6 +11,7 @@ import (
 )
 
 // Fetch and parse the AbuseIPDB result
+// TODO: Delete me!
 func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 	if abIPDBKey != "" {
 		resp, err := queryHelper(ip.String())
@@ -58,6 +59,7 @@ func CheckAbuseIPDB(ip netip.Addr) (Result, error) {
 // New query func uses formal ABIPDB Response struct for ipcheq API
 func QueryAbuseIPDB(ip netip.Addr) (ABIPDBResponse, error) {
 	// fail non-destructively incase key intentionally not supplied
+	// TODO: check for keys upstream!
 	if abIPDBKey == "" {
 		return ABIPDBResponse{}, fmt.Errorf("No ABIPDB API Key Supplied!")
 	}
