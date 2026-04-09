@@ -8,7 +8,7 @@ import (
 func RouteWebui() {
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, "index.html", Results)
+		renderTemplate(w, "index.html", Results.Slice())
 	})
 	http.HandleFunc("/ip", handleIPPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))

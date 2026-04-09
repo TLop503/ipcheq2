@@ -34,8 +34,7 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := QueryAndStyle(ip)
-	Results = append(Results, res)
+	Results.Add(QueryAndStyle(ip))
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
