@@ -50,7 +50,8 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 	return fed
 }
 
-var Results []FrontEndData
+// Size of the result buffer declared here!
+var Results = NewResultsBuffer(8)
 
 type FrontEndData struct {
 	FQ                 queries.FullQueryResponse
