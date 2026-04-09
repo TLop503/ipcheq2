@@ -5,6 +5,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -62,16 +63,20 @@ func TestQueryIPs(t *testing.T) {
 			t.Errorf("ParseAddr(%s) failed: %v", tt.ip, err)
 			continue
 		}
-		result, err := Query(addr)
+		result, err := QueryToSlice(addr)
 		if err != nil {
 			t.Errorf("Query(%s) returned error: %v", tt.ip, err)
 			continue
 		}
 
-		if tt.expected != "" && !containsProvider(result, tt.expected) {
-			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("Not found in dataset") {
-			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
+		if tt.expected != "" {
+			if !slices.Contains(result, tt.expected) {
+				t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
+			}
+		} else {
+			if len(result) != 0 {
+				t.Errorf("Query(%s) = %q; Should be an empty slice", tt.ip, result)
+			}
 		}
 	}
 }
@@ -129,7 +134,7 @@ func TestWithProdData(t *testing.T) {
 		}
 
 		start := time.Now() // ⏱ start timing
-		result, err := Query(addr)
+		result, err := QueryToSlice(addr)
 		duration := time.Since(start)
 
 		t.Logf("Query(%s) took %d ns", tt.ip, duration.Nanoseconds())
@@ -139,10 +144,14 @@ func TestWithProdData(t *testing.T) {
 			continue
 		}
 
-		if tt.expected != "" && !containsProvider(result, tt.expected) {
-			t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
-		} else if tt.expected == "" && result != fmt.Sprintf("Not found in dataset") {
-			t.Errorf("Query(%s) = %q; want not found message", tt.ip, result)
+		if tt.expected != "" {
+			if !slices.Contains(result, tt.expected) {
+				t.Errorf("Query(%s) = %q; want contains %q", tt.ip, result, tt.expected)
+			}
+		} else {
+			if len(result) != 0 {
+				t.Errorf("Query(%s) = %q; Should be an empty slice", tt.ip, result)
+			}
 		}
 	}
 }
@@ -159,7 +168,7 @@ func TestQueryWithoutInitialize(t *testing.T) {
 		t.Fatalf("ParseAddr failed: %v", err)
 	}
 
-	_, err = Query(addr)
+	_, err = QueryToSlice(addr)
 	if err == nil {
 		t.Fatalf("expected error when querying before initialization, got nil")
 	}

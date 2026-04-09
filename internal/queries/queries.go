@@ -63,6 +63,7 @@ type ThirdPartyResponse struct {
 	VirusTotalResponse virustotal.VirusTotalResponse `json:"VirusTotalResponse"`
 }
 
+// FullQuery returns a marshalled json FullQueryResponse with first and third party data
 func FullQuery(addr netip.Addr) ([]byte, error) {
 	var result FullQueryResponse
 
@@ -89,6 +90,35 @@ func FullQuery(addr netip.Addr) ([]byte, error) {
 	}
 
 	return json.Marshal(result)
+}
+
+// FullQueryToStruct returns first and third party data as a FullQueryResponse struct
+func FullQueryToStruct(addr netip.Addr) (FullQueryResponse, error) {
+	var result FullQueryResponse
+
+	result.IPAddress = addr.String()
+
+	fpResults, err := vpnid.QueryToSlice(addr)
+	if err != nil {
+		log.Printf("Issue with vpnid query in FullQuery: %s", err)
+	}
+	result.VPNIDMatches = fpResults
+
+	abResults, err := abuseipdb.QueryAbuseIPDB(addr)
+	if err != nil {
+		log.Printf("Issue with abuseipdb query in FullQuery: %s", err)
+	}
+	result.ABIPDBResponse = abResults
+
+	if virustotal.VTKeyPresent {
+		vtResults, err := virustotal.QueryVirusTotal(addr)
+		if err != nil {
+			log.Printf("Issue with virustotal query in FullQuery: %s", err)
+		}
+		result.VirusTotalResponse = vtResults
+	}
+
+	return result, err
 }
 
 type FullQueryResponse struct {
