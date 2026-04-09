@@ -66,6 +66,7 @@ func validateConfig(path string) ([]configEntry, error) {
 	return entries, nil
 }
 
+// initialize returns a new CIDRanger from a given config, passed as a file path
 func initialize(path string) (cidranger.Ranger, error) {
 	configEntries, err := validateConfig(path)
 	if err != nil {
@@ -138,7 +139,7 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 		tree.Insert(treeEntry{Prefix: p, Provider: provider})
 	}
 
-	// collapse IPv4 IPs into ranges (IPv6 already handled above)
+	// collapse IPv4 IPs into ranges (IPv6 not yet collapsed)
 	if len(ipv4s) > 0 {
 		// Sort IPv4 IPs for collapse function
 		sortIPs(ipv4s)
@@ -158,32 +159,6 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 	}
 
 	return nil
-}
-
-// query returns the slice literal of db matches for a given ip
-func Query(ip netip.Addr) (string, error) {
-	if VpnIDRanger == nil {
-		return "", fmt.Errorf("VPNIDRanger not initialized")
-	}
-
-	// Lookup all prefixes containing this IP
-	entries, err := VpnIDRanger.ContainingNetworks(ip.AsSlice())
-	if err != nil {
-		return "Query Error!", err
-	}
-	if len(entries) == 0 {
-		return fmt.Sprintf("Not found in dataset"), nil
-	}
-
-	// Collect provider names (in case of overlap)
-	providers := []string{}
-	for _, e := range entries {
-		if te, ok := e.(treeEntry); ok {
-			providers = append(providers, te.Provider)
-		}
-	}
-
-	return fmt.Sprintf("%v", providers), nil
 }
 
 // query to slice checks for db matches and returns a slice of strings or nil
@@ -223,7 +198,7 @@ func sortIPs(ips []net.IP) {
 	})
 }
 
-// ipLess compares two IP addresses
+// ipLess compares two IP addresses and returns true if the first is less than (as 16B) the second
 func ipLess(a, b net.IP) bool {
 	// Ensure both are same format
 	a = a.To16()

@@ -27,33 +27,6 @@ func InitializeVTAPIKey() {
 	}
 }
 
-// Queries VirusTotal for an IP and returns number of malicious detections + total num of engines
-func CheckVirusTotal(ip netip.Addr) (int, int, error) {
-
-	result, err := vtClient.GetObject(vt.URL("ip_addresses/%s", ip.String()))
-	if err != nil {
-		return 0, 0, err
-	}
-
-	// fields in the VT IP scan result
-	fields := []string{"harmless", "malicious", "suspicious", "undetected", "timeout"}
-	var total, malicious int
-
-	for _, field := range fields {
-		fieldValue, err := result.GetInt64("last_analysis_stats." + field)
-		if err != nil {
-			continue // if there's any missing fields, skip it
-		}
-		if field == "malicious" {
-			malicious = int(fieldValue)
-		}
-		total += int(fieldValue)
-	}
-
-	return malicious, total, nil
-
-}
-
 // QueryVirusTotal returns a raw struct of VT data for use in ipcheq API third-party queries
 func QueryVirusTotal(ip netip.Addr) (VirusTotalResponse, error) {
 	result, err := vtClient.GetObject(vt.URL("ip_addresses/%s", ip.String()))
