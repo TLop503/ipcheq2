@@ -5,37 +5,37 @@
 <div class="results-grid">
 {{ range . }}
 
-<div class="ip-card" data-confidence="{{ .AbuseConfidence }}">
+<div class="ip-card" data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}">
   <div class="card-header">
-    <h3 class="ip-address">{{ .IP }}</h3>
-    <div class="confidence-badge" data-confidence="{{ .AbuseConfidence }}">
-      <p>Abuse Confidence: {{ .AbuseConfidence }}% </p>
+    <h3 class="ip-address">{{ .FQ.IPAddress }}</h3>
+    <div class="confidence-badge" data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}">
+      <p>Abuse Confidence: {{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}% </p>
     </div>
   </div>
 
   <div class="card-body">
     <div class="info-row">
       <span class="info-label">ISP:</span>
-      <span class="info-value">{{ .ISP }}</span>
+      <span class="info-value">{{ .FQ.ABIPDBResponse.ISP }}</span>
     </div>
 
     <div class="info-row">
       <span class="info-label">Domain:</span>
-      <span class="info-value">{{ .Domain }}</span>
+      <span class="info-value">{{ .FQ.ABIPDBResponse.Domain }}</span>
     </div>
 
     <div class="info-row">
       <span class="info-label">Country:</span>
       <span class="info-value">
-        <img class="flag-icon" src="https://flagcdn.com/w40/{{ .CountryCode }}.png" alt="{{ .CountryCode }} flag" onerror="this.style.display='none'">
-        {{ .Country }}
+        <img class="flag-icon" src="https://flagcdn.com/w40/{{ .FQ.ABIPDBResponse.CountryCode }}.png" alt="{{ .FQ.ABIPDBResponse.CountryCode }} flag" onerror="this.style.display='none'">
+        {{ .FQ.ABIPDBResponse.CountryName }}
       </span>
     </div>
 
     <div class="info-row">
       <span class="info-label">Usage Type:</span>
       <span class="info-value">
-        {{ if or (eq .UsageType "Data Center/Web Hosting/Transit") (eq .UsageType "Data Center") }}
+        {{ if or (eq .FQ.ABIPDBResponse.UsageType "Data Center/Web Hosting/Transit") (eq .FQ.ABIPDBResponse.UsageType "Data Center") }}
           <svg class="usage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
             <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -48,25 +48,25 @@
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
         {{ end }}
-        {{ .UsageType }}
+        {{ .FQ.ABIPDBResponse.UsageType }}
       </span>
     </div>
 
     <div class="info-row">
       <span class="info-label">VPN Status:</span>
-      <span class="info-value">{{ .ParsedRes }}</span>
+      <span class="info-value">{{ .VpnidParsedResults }}</span>
     </div>
 
-    {{ if gt .TotalReports 0 }}
+    {{ if gt .FQ.ABIPDBResponse.TotalReports 0 }}
     <div class="info-row">
       <span class="info-label">Total Reports:</span>
-      <span class="info-value">{{ .TotalReports }}</span>
+      <span class="info-value">{{ .FQ.ABIPDBResponse.TotalReports }}</span>
     </div>
 
 
     <div class="info-row sub-info">
       <span class="info-label">Last Reported:</span>
-      <span class="info-value">{{ .LastReported }}</span>
+      <span class="info-value">{{ .FQ.ABIPDBResponse.LastReportedAt }}</span>
     </div>
 
     {{ end }}
@@ -74,27 +74,27 @@
     <div class="info-row">
       <span class="info-label">External Details:</span>
       <span class="info-value">
-          {{ if .AbuseLinks }}
-          <a href="https://www.abuseipdb.com/check/{{ .IP }}" target="_blank">Abuse IPDB Details</a></li>
+          {{ if gt .FQ.ABIPDBResponse.AbuseConfidenceScore 0 }}
+          <a href="https://www.abuseipdb.com/check/{{ .FQ.IPAddress }}" target="_blank">Abuse IPDB Details</a>
           {{ end }}
-        <a href="https://otx.alienvault.com/indicator/ip/{{ .IP }}" target="_blank">OTX Indicator Page</a></li>
+        <a href="https://otx.alienvault.com/indicator/ip/{{ .FQ.IPAddress }}" target="_blank">OTX Indicator Page</a>
       </span>
     </div>
 
     <div class="info-row">
       <span class="info-label">Distinct Users:</span>
-      <span class="info-value">{{ .Users }}</span>
+      <span class="info-value">{{ .FQ.ABIPDBResponse.NumDistinctUsers }}</span>
     </div>
 
-    {{ if gt .VtNumEngines 0 }}
+    {{ if gt .VtTotalEngines 0 }}
     <div class="info-row">
       <span class="info-label">VT Detections:</span>
-      <span class="info-value">{{ .VtDetections }}/{{ .VtNumEngines }}</span>
+      <span class="info-value">{{ .VtTotalDetections }}/{{ .VtTotalEngines }}</span>
     </div>
     {{ end }}
   </div>
 
-  <div class="confidence-bar" data-confidence="{{ .AbuseConfidence }}"></div>
+  <div class="confidence-bar" data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}"></div>
 </div>
 {{ end }}
 </div>

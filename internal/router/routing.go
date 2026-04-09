@@ -3,14 +3,12 @@ package router
 import (
 	"log"
 	"net/http"
-
-	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
 )
 
 func RouteWebui() {
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, "index.html", abuseipdb.Results)
+		renderTemplate(w, "index.html", Results)
 	})
 	http.HandleFunc("/ip", handleIPPost)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))

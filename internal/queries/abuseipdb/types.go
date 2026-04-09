@@ -1,35 +1,10 @@
 package abuseipdb
 
 import (
-	"html/template"
-	"net/netip"
 	"os"
-	"time"
 )
 
 var abIPDBKey string
-
-type Result struct {
-	IP netip.Addr
-	// abuseipdb data
-	IsPub           bool
-	AbuseConfidence int
-	Country         string
-	CountryCode     string
-	UsageType       string
-	ISP             string
-	Domain          string
-	TotalReports    int
-	Users           int
-	LastReported    time.Time
-	ThreatRisk      template.HTML
-	AbuseLinks      bool
-	// vpn status
-	ParsedRes string // vpn provider or "not vpn"
-	// VT detections and flagged engines
-	VtDetections int
-	VtNumEngines int
-}
 
 // InitializeAPIKey sets the AbuseIPDB API key from environment
 func InitializeAPIKey() {
@@ -40,7 +15,6 @@ func InitializeAPIKey() {
 }
 
 // API-specific data struct.
-// TODO: migrate functions using old abuseIPDBResponse to this
 type ABIPDBResponse struct {
 	IsPublic             bool     `json:"isPublic"`
 	IsWhitelisted        bool     `json:"isWhitelisted"`

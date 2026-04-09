@@ -1,7 +1,7 @@
 {{ define "title" }}
 {{ if . }}
 {{ with $n := index . 0 }}
-{{ $n.IP }}
+{{ $n.FQ.IPAddress }}
 {{ end }} |   
 
 {{ end }}

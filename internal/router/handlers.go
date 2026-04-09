@@ -1,13 +1,13 @@
 package router
 
 import (
+	"bytes"
 	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
 	"net/netip"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"github.com/tlop503/ipcheq2/internal/queries"
@@ -34,20 +34,8 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check first and third party sources
-	// this covers abipdb, vt (if present), and vpnid
-	queryResults, err := queries.FullQueryToStruct(ip)
-	if err != nil {
-		log.Printf("FullQueryToStruct error: %v", err)
-	}
-
-	if len(queryResults.VPNIDMatches) == 0 {
-		queryResults.VPNIDMatches = append(queryResults.VPNIDMatches, "Not found in VPNID Dataset")
-	} else {
-		slices.Sort(queryResults.VPNIDMatches)                            // organize
-		slices.Compact(queryResults.VPNIDMatches)                         //dedupe
-		moveToEnd(queryResults.VPNIDMatches, "Generic VPN from ASN Data") // since it's least verbose
-	}
+	res := QueryAndStyle(ip)
+	Results = append(Results, res)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -64,11 +52,16 @@ func renderTemplate(w http.ResponseWriter, pagePath string, data any) {
 		return
 	}
 
-	err = t.Execute(w, data)
+	var buf bytes.Buffer
+	err = t.Execute(&buf, data)
 	if err != nil {
 		log.Printf("Template execution error: %v", err)
 		http.Error(w, "Template Error", 500)
+		return
 	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = w.Write(buf.Bytes())
 }
 
 // handleFirstPartyGet funnels api queries to vpnid
