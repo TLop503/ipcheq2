@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/netip"
-	"time"
 )
 
 // QueryAbuseIPDB returns a struct of the full API response
@@ -38,16 +37,6 @@ func QueryAbuseIPDB(ip netip.Addr) (ABIPDBResponse, error) {
 	result = payload.Data
 
 	return result, nil
-}
-
-// timeHelper formats time in a human-readable format, or returns blank conversion fails
-func timeHelper(t string) time.Time {
-	prettyTime, err := time.Parse(time.RFC3339, t)
-	if err != nil {
-		// return dummy if fail
-		return time.Time{}
-	}
-	return prettyTime
 }
 
 // queryHelper queries abuseipdb and returns errors if invalid data is received or query fails
