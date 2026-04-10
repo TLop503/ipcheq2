@@ -9,38 +9,39 @@ let startY = 0;
 
 // Open focus card (only if user actually clicked, avoids opening on drag click)
 cards.forEach((card) => {
-  card.addEventListener('mousedown', (e) => {
-    isDragging = false;
-    startX = e.clientX;
-    startY = e.clientY;
-  });
+    card.addEventListener('mousedown', (e) => {
+        isDragging = false;
+        startX = e.clientX;
+        startY = e.clientY;
+    });
 
-  card.addEventListener('mousemove', (e) => {
-    const dx = Math.abs(e.clientX - startX);
-    const dy = Math.abs(e.clientY - startY);
+    card.addEventListener('mousemove', (e) => {
+        const dx = Math.abs(e.clientX - startX);
+        const dy = Math.abs(e.clientY - startY);
 
-    if (dx > 5 || dy > 5) { // small threshold
-      isDragging = true;
-    }
-  });
+        if (dx > 5 || dy > 5) { // small threshold
+            isDragging = true;
+        }
+    });
 
-  card.addEventListener('click', () => {
-    if (isDragging) return; // ignore drag
-     // Clear previous content
-    focusedContent.innerHTML = '';
+    card.addEventListener('click', () => {
+        if (isDragging) return; // ignore drag
 
-    // Clone the clicked card
-    const clone = card.cloneNode(true);
+        // Clear previous content
+        focusedContent.innerHTML = '';
 
-    // Optional: remove classes that affect layout
-    clone.classList.remove('ip-card');
-    clone.classList.add('focused-card');
+        // Clone the clicked card
+        const clone = card.cloneNode(true);
 
-    // Append to overlay
-    focusedContent.appendChild(clone);
+        // Modify layout of contents
+        clone.classList.remove('ip-card');
+        clone.classList.add('focused-card');
 
-    overlay.classList.add('active');
-  });
+        // Append to overlay
+        focusedContent.appendChild(clone);
+
+        overlay.classList.add('active');
+    });
 });
 
 // Close logic
