@@ -1,5 +1,6 @@
 {{ define "history" }}
 <script src="/js/confidence-colors.js"></script>
+<script src="/js/focus-card.js" defer></script>
 <script src="/js/wrap-ips.js" defer></script> <!--  "defer" runs the script after the DOM is fully parsed -->
 {{ if . }}
 <div class="results-grid">
@@ -101,4 +102,14 @@
 {{ else }}
 <p class="no-history">No IP queries in history yet.</p>
 {{ end }}
+
+<div class="overlay" id="overlay"> 
+  <div class="focused" id="focused">
+    <span class="close-btn" id="close-btn">✖</span>
+    <div id="focused-content">
+      blah blah blah
+    </div>
+  </div>
+</div>
+
 {{ end }}
