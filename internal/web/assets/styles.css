@@ -251,15 +251,25 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0);
+    opacity: 0;
+    visibility: hidden;
+    transition: background 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
     z-index: 10;
-    display: none;
 }
 
 .overlay.active {
-    display: flex;
+    background: rgba(0,0,0,0.5);
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay.active .focused {
+    transform: scale(1);
+    opacity: 1;
 }
 
 /* Focused card */
@@ -268,29 +278,24 @@ a {
     border: 2px solid var(--card-border);
     border-radius: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
     width: 60%;
     height: 50%;
+    font-size: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    position: relative;
-    animation: pop 0.25s ease;
     position: relative;
     z-index: 1;
     pointer-events: auto;
+    transform: scale(0.85);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 #focused-content {
-  width: 500px;
-  max-width: 90vw;
-  height: auto;
-}
-
-@keyframes pop {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    width: 500px;
+    max-width: 90vw;
+    height: auto;
 }
 
 .close-btn {
