@@ -251,11 +251,11 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none;
     align-items: center;
     justify-content: center;
+    background: rgba(0,0,0,0.5);
     z-index: 10;
+    display: none;
 }
 
 .overlay.active {
@@ -277,10 +277,15 @@ a {
     font-size: 32px;
     position: relative;
     animation: pop 0.25s ease;
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
 }
 
-.focused-content {
-    background-color: red;
+#focused-content {
+  width: 500px;
+  max-width: 90vw;
+  height: auto;
 }
 
 @keyframes pop {

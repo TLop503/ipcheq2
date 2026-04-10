@@ -26,6 +26,18 @@ cards.forEach((card) => {
 
   card.addEventListener('click', () => {
     if (isDragging) return; // ignore drag
+     // Clear previous content
+    focusedContent.innerHTML = '';
+
+    // Clone the clicked card
+    const clone = card.cloneNode(true);
+
+    // Optional: remove classes that affect layout
+    clone.classList.remove('ip-card');
+    clone.classList.add('focused-card');
+
+    // Append to overlay
+    focusedContent.appendChild(clone);
 
     overlay.classList.add('active');
   });
