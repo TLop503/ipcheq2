@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/netip"
-	"path/filepath"
 	"strings"
 
 	"github.com/tlop503/ipcheq2/internal/queries"
+	"github.com/tlop503/ipcheq2/internal/web"
 )
 
 // handleIPPost parses out IP and queries abuseipdb, vpnid, and virustotal
@@ -41,16 +42,52 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 
 // renderTemplate executes templates into a single HTML to serve to the client
 func renderTemplate(w http.ResponseWriter, pagePath string, data any) {
-	templatePath := filepath.Join("web", pagePath)
-	historyPath := filepath.Join("web/templates", "history.html")
-	titlePath := filepath.Join("web/templates", "title.html")
-	t, err := template.ParseFiles(templatePath, historyPath, titlePath)
+	// Read template files from embedded FS
+	mainTemplateBytes, err := fs.ReadFile(web.FS, pagePath)
+	if err != nil {
+		log.Printf("Template file read error (%s): %v", pagePath, err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	historyBytes, err := fs.ReadFile(web.FS, "templates/history.html")
+	if err != nil {
+		log.Printf("Template file read error (templates/history.html): %v", err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	titleBytes, err := fs.ReadFile(web.FS, "templates/title.html")
+	if err != nil {
+		log.Printf("Template file read error (templates/title.html): %v", err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	// Create and parse templates
+	t, err := template.New(pagePath).Parse(string(mainTemplateBytes))
 	if err != nil {
 		log.Printf("Template parsing error: %v", err)
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
 
+	// Parse history and title templates
+	_, err = t.New("history.html").Parse(string(historyBytes))
+	if err != nil {
+		log.Printf("Template parsing error (history): %v", err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	_, err = t.New("title.html").Parse(string(titleBytes))
+	if err != nil {
+		log.Printf("Template parsing error (title): %v", err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	// Execute template
 	var buf bytes.Buffer
 	err = t.Execute(&buf, data)
 	if err != nil {

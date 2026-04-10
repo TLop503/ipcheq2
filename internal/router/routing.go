@@ -1,8 +1,11 @@
 package router
 
 import (
+	"io/fs"
 	"log"
 	"net/http"
+
+	"github.com/tlop503/ipcheq2/internal/web"
 )
 
 func RouteWebui() {
@@ -11,8 +14,13 @@ func RouteWebui() {
 		renderTemplate(w, "index.html", Results.Slice())
 	})
 	http.HandleFunc("/ip", handleIPPost)
-	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))))
-	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("web/js"))))
+
+	// Serve assets from embedded FS
+	assetsFS, _ := fs.Sub(web.FS, "assets")
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetsFS))))
+
+	jsFS, _ := fs.Sub(web.FS, "js")
+	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.FS(jsFS))))
 }
 
 func RouteAPI() {
