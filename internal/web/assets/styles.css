@@ -160,7 +160,7 @@ a {
 .results-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 1.3rem;
     margin: 1rem 0;
     grid-auto-rows: minmax(300px, auto);
 }
@@ -244,7 +244,7 @@ a {
 
 }
 
-/* Overlay */
+/* Overlay, contains the focus card */
 .overlay {
     position: fixed;
     top: 0;
@@ -293,7 +293,8 @@ a {
     transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-#focused-content {
+/* Focus card content container */
+#focused-content { 
     width: 100%;
     max-width: 90vw;
     height: auto;
