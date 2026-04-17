@@ -59,24 +59,18 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the ip data as well and arrange to match tree:
-   	Alternatively clone the repo and build from source to skip arranging files (see "Local Development" below)
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest).
+	   VPN source lists and config are bundled into the binary, so no extra data files are required.
 ```
-├── ipcheq2 or ipcheq2.exe
-└── data
-        ├── source1.txt
-        ├── ...
-        └── upstream-icloud-list.hash
-└── vpnid_config.txt
+└── ipcheq2 or ipcheq2.exe
 ```
 2. Create a .env file with AbuseIPDB and VirusTotal API Keys (see `.env.example`) in the same directory, or set an enviornment variable.
-3. Update the icloud prefixes if desired with the bundled Go updater.
+3. Optionally update iCloud prefixes before building your own binary.
   1. Use the Go updater from the repository root:
   ```bash
-  go run ./cmd/update-icloud -data-dir ./data
+  go run ./cmd/update-icloud -data-dir ./internal/data
   ```
-4. Optionally add IP lists to data/ and update the config file to match
-5. Run the executable! ipcheq2 will serve on localhost:8080.
+4. Run the executable! ipcheq2 will serve on localhost:8080.
 
 ## Development Setup
 
@@ -111,7 +105,7 @@ go build . # inside project
 
 #### Updating iCloud Private Relay prefixes
 
-The updater can be run with `go run ./cmd/update-icloud -data-dir ./data`.
+The updater can be run with `go run ./cmd/update-icloud -data-dir ./internal/data`.
 
 ## Deployment
 

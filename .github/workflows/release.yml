@@ -38,7 +38,7 @@ jobs:
         run: |
           # Create a tar.gz archive with binaries and additional files
           tar -czf data.tar.gz \
-            data/
+            internal/data/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
