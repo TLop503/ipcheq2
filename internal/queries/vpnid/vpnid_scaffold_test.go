@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"testing/fstest"
 )
 
 // helper to create temp file with given content
@@ -83,4 +84,15 @@ func TestInitialize(t *testing.T) {
 			t.Errorf("expected no error, got %v", err)
 		}
 	})
+}
+
+func TestInitializeFromFS(t *testing.T) {
+	fsys := fstest.MapFS{
+		"vpnid_config.txt":            &fstest.MapFile{Data: []byte("provider1 : internal/data/provider1.txt\n")},
+		"internal/data/provider1.txt": &fstest.MapFile{Data: []byte("1.1.1.1\n2.2.2.0/24\n")},
+	}
+
+	if _, err := initializeFromFS(fsys, "vpnid_config.txt"); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
 }

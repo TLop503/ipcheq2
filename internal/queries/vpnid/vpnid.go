@@ -3,6 +3,8 @@ package vpnid
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"io/fs"
 	"net"
 	"net/netip"
 	"os"
@@ -21,8 +23,40 @@ func validateConfig(path string) ([]configEntry, error) {
 	}
 	defer file.Close()
 
+	return parseConfigEntries(file, func(filePath string) error {
+		info, err := os.Stat(filePath)
+		if err != nil {
+			return fmt.Errorf("file %q does not exist: %w", filePath, err)
+		}
+		if info.IsDir() {
+			return fmt.Errorf("file %q is a directory", filePath)
+		}
+		return nil
+	})
+}
+
+func validateConfigFromFS(fsys fs.FS, path string) ([]configEntry, error) {
+	file, err := fsys.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open config file: %w", err)
+	}
+	defer file.Close()
+
+	return parseConfigEntries(file, func(filePath string) error {
+		info, err := fs.Stat(fsys, filePath)
+		if err != nil {
+			return fmt.Errorf("file %q does not exist: %w", filePath, err)
+		}
+		if info.IsDir() {
+			return fmt.Errorf("file %q is a directory", filePath)
+		}
+		return nil
+	})
+}
+
+func parseConfigEntries(reader io.Reader, validatePath func(filePath string) error) ([]configEntry, error) {
 	var entries []configEntry
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(reader)
 	lineNum := 0
 	for scanner.Scan() {
 		lineNum++
@@ -31,7 +65,6 @@ func validateConfig(path string) ([]configEntry, error) {
 			continue
 		}
 
-		// Split line into "name : path"
 		parts := strings.SplitN(line, ":", 2)
 		if len(parts) != 2 {
 			return nil, fmt.Errorf("invalid config format on line %d: %q", lineNum, line)
@@ -39,24 +72,15 @@ func validateConfig(path string) ([]configEntry, error) {
 
 		name := strings.TrimSpace(parts[0])
 		filePath := strings.TrimSpace(parts[1])
-
 		if name == "" || filePath == "" {
 			return nil, fmt.Errorf("empty name or path on line %d: %q", lineNum, line)
 		}
 
-		// Check file exists and readable
-		info, err := os.Stat(filePath)
-		if err != nil {
-			return nil, fmt.Errorf("file %q does not exist: %w", filePath, err)
-		}
-		if info.IsDir() {
-			return nil, fmt.Errorf("file %q is a directory", filePath)
+		if err := validatePath(filePath); err != nil {
+			return nil, err
 		}
 
-		entries = append(entries, configEntry{
-			Name: name,
-			Path: filePath,
-		})
+		entries = append(entries, configEntry{Name: name, Path: filePath})
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -73,10 +97,28 @@ func initialize(path string) (cidranger.Ranger, error) {
 		return nil, fmt.Errorf("config validation error: %w", err)
 	}
 
+	return initializeWithEntries(configEntries, func(tree cidranger.Ranger, path, provider string) error {
+		return addToTree(tree, path, provider)
+	})
+}
+
+func initializeFromFS(fsys fs.FS, path string) (cidranger.Ranger, error) {
+	configEntries, err := validateConfigFromFS(fsys, path)
+	if err != nil {
+		return nil, fmt.Errorf("config validation error: %w", err)
+	}
+
+	return initializeWithEntries(configEntries, func(tree cidranger.Ranger, path, provider string) error {
+		return addToTreeFromFS(tree, fsys, path, provider)
+	})
+}
+
+func initializeWithEntries(configEntries []configEntry, add func(tree cidranger.Ranger, path, provider string) error) (cidranger.Ranger, error) {
+
 	var ranger = cidranger.NewPCTrieRanger()
 
 	for _, entry := range configEntries {
-		err = addToTree(ranger, entry.Path, entry.Name)
+		err := add(ranger, entry.Path, entry.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -94,10 +136,25 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 	}
 	defer file.Close()
 
+	return addToTreeFromReader(tree, file, path, provider)
+}
+
+func addToTreeFromFS(tree cidranger.Ranger, fsys fs.FS, path string, provider string) error {
+	file, err := fsys.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to open file %q: %w", path, err)
+	}
+	defer file.Close()
+
+	return addToTreeFromReader(tree, file, path, provider)
+}
+
+func addToTreeFromReader(tree cidranger.Ranger, reader io.Reader, source string, provider string) error {
+
 	var ipv4s []net.IP
 	var prefixes []netip.Prefix
 
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(reader)
 	lineNum := 0
 	for scanner.Scan() {
 		lineNum++
@@ -127,11 +184,11 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 			continue
 		}
 
-		return fmt.Errorf("invalid IP or CIDR on line %d of %q: %q", lineNum, path, line)
+		return fmt.Errorf("invalid IP or CIDR on line %d of %q: %q", lineNum, source, line)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("error reading file %q: %w", path, err)
+		return fmt.Errorf("error reading file %q: %w", source, err)
 	}
 
 	// Insert any CIDR prefixes directly

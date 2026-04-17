@@ -82,7 +82,7 @@ func TestQueryIPs(t *testing.T) {
 }
 
 func TestWithProdData(t *testing.T) {
-	dataDir := filepath.Join("..", "..", "..", "data")
+	dataDir := filepath.Join("..", "..", "..", "internal", "data")
 
 	providers := []string{
 		"cyberghost", "express", "mullvad", "nord",

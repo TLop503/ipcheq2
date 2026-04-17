@@ -2,9 +2,11 @@ package vpnid
 
 import (
 	"fmt"
-	"github.com/yl2chen/cidranger"
 	"net"
 	"net/netip"
+
+	"github.com/tlop503/ipcheq2"
+	"github.com/yl2chen/cidranger"
 )
 
 // configEntry represents one line in the config file: name → path
@@ -30,7 +32,7 @@ var VpnIDRanger cidranger.Ranger
 
 // InitializeVpnID initializes the VPN identification ranger from config file
 func InitializeVpnID() {
-	ranger, err := initialize("vpnid_config.txt")
+	ranger, err := initializeFromFS(ipcheq2.BundledDataFS, "vpnid_config.txt")
 	if err != nil {
 		panic("Failed to initialize VPN ID: " + err.Error())
 	}
