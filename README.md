@@ -66,13 +66,15 @@ docker-compose up -d
 └── data
         ├── source1.txt
         ├── ...
-        ├── update_icloud_relays.py
         └── upstream-icloud-list.hash
 └── vpnid_config.txt
 ```
 2. Create a .env file with AbuseIPDB and VirusTotal API Keys (see `.env.example`) in the same directory, or set an enviornment variable.
-3. Update the icloud prefixes if desired with the bundled Python script.
-	1. Note- this must be ran from wihtin the `data/` directory!
+3. Update the icloud prefixes if desired with the bundled Go updater.
+  1. Use the Go updater from the repository root:
+  ```bash
+  go run ./cmd/update-icloud -data-dir ./data
+  ```
 4. Optionally add IP lists to data/ and update the config file to match
 5. Run the executable! ipcheq2 will serve on localhost:8080.
 
@@ -109,8 +111,7 @@ go build . # inside project
 
 #### Updating iCloud Private Relay prefixes
 
-[A script is provided](data/update_icloud_relays.py) to update the iCloud Private Relay prefixes within the repo.
-Before running it, make sure that you're inside the `data/` directory.
+The updater can be run with `go run ./cmd/update-icloud -data-dir ./data`.
 
 ## Deployment
 
