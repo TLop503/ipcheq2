@@ -68,7 +68,6 @@ docker-compose up -d
         ├── ...
         ├── update_icloud_relays.py
         └── upstream-icloud-list.hash
-└── vpnid_config.txt
 ```
 2. Create a .env file with AbuseIPDB and VirusTotal API Keys (see `.env.example`) in the same directory, or set an enviornment variable.
 3. Update the icloud prefixes if desired with the bundled Python script.

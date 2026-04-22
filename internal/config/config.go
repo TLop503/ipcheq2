@@ -19,7 +19,7 @@ func Init() *Config {
 	}
 
 	configDir = filepath.Join(configDir, "ipcheq2")
-	configFile := filepath.Join(configDir, "ipcheq2.json")
+	configFile := filepath.Join(configDir, "ipcheq2.yaml")
 	err = ensureConfig(configFile)
 	if err != nil {
 		log.Panicf("Error ensuring config file: %v", err)
