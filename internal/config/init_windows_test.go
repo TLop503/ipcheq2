@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/tlop503/ipcheq2/internal/data"
 )
 
 func TestInitWindowsCreatesAndLoadsConfig(t *testing.T) {
@@ -22,7 +24,13 @@ func TestInitWindowsCreatesAndLoadsConfig(t *testing.T) {
 	})
 
 	appData := t.TempDir()
+	cacheHome := t.TempDir()
 	t.Setenv("APPDATA", appData)
+	t.Setenv("XDG_CACHE_HOME", cacheHome)
+
+	if _, err := data.EnsureDataDir(); err != nil {
+		t.Fatalf("failed to hydrate cache data for Init test: %v", err)
+	}
 
 	cfg := Init()
 	if cfg == nil {
@@ -33,7 +41,7 @@ func TestInitWindowsCreatesAndLoadsConfig(t *testing.T) {
 		t.Fatalf("len(cfg.Sources) = %d, want %d", len(cfg.Sources), len(defaultConfig().Sources))
 	}
 
-	configPath := filepath.Join(appData, "ipcheq2", "ipcheq2.json")
+	configPath := filepath.Join(appData, "ipcheq2", "ipcheq2.yaml")
 	if _, err := os.Stat(configPath); err != nil {
 		t.Fatalf("expected config file at %q, stat error: %v", configPath, err)
 	}

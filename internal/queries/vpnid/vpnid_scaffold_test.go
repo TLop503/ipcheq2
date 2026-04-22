@@ -31,7 +31,7 @@ func writeInitConfig(t *testing.T, cfg config.Config) string {
 		t.Fatalf("failed to create config dir: %v", err)
 	}
 
-	configPath := filepath.Join(configDir, "ipcheq2.json")
+	configPath := filepath.Join(configDir, "ipcheq2.yaml")
 	data, err := yaml.Marshal(&cfg)
 	if err != nil {
 		t.Fatalf("failed to marshal config yaml: %v", err)

@@ -11,6 +11,7 @@ import (
 
 	"net/netip"
 
+	"github.com/tlop503/ipcheq2/internal/data"
 	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
 	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
@@ -45,6 +46,7 @@ func TestFirstPartyQuery_WhenRangerNotInitialized(t *testing.T) {
 
 func TestFirstPartyQuery_WithInitializedRanger(t *testing.T) {
 	prevRanger := vpnid.VpnIDRanger
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
 	prevWD, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get current working directory: %v", err)
@@ -59,6 +61,10 @@ func TestFirstPartyQuery_WithInitializedRanger(t *testing.T) {
 		_ = os.Chdir(prevWD)
 		vpnid.VpnIDRanger = prevRanger
 	})
+
+	if _, err := data.EnsureDataDir(); err != nil {
+		t.Fatalf("failed to hydrate cache data for test: %v", err)
+	}
 
 	vpnid.InitializeVpnID()
 

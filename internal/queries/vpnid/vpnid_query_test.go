@@ -86,7 +86,7 @@ func TestWithProdData(t *testing.T) {
 		t.Fatalf("failed to get working directory: %v", err)
 	}
 	repoRoot := filepath.Clean(filepath.Join(wd, "..", "..", ".."))
-	dataDir := filepath.Join(repoRoot, "data")
+	dataDir := filepath.Join(repoRoot, "internal", "data")
 
 	providers := []string{
 		"cyberghost", "express", "mullvad", "nord",

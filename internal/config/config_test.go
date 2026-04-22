@@ -86,6 +86,8 @@ func TestEnsureConfigDoesNotOverwriteExisting(t *testing.T) {
 }
 
 func TestLoadAndValidateConfigSuccess(t *testing.T) {
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+
 	tempDir := t.TempDir()
 	sourcePath := filepath.Join(tempDir, "source.txt")
 	if err := os.WriteFile(sourcePath, []byte("1.2.3.4\n"), 0644); err != nil {
@@ -109,6 +111,63 @@ func TestLoadAndValidateConfigSuccess(t *testing.T) {
 
 	if got.Sources[0].Name != "Test Source" || got.Sources[0].Path != sourcePath {
 		t.Fatalf("got source = %+v, want name/path preserved", got.Sources[0])
+	}
+}
+
+func TestLoadAndValidateConfigResolvesRelativePathFromCacheRoot(t *testing.T) {
+	cacheHome := t.TempDir()
+	t.Setenv("XDG_CACHE_HOME", cacheHome)
+
+	cacheRoot := filepath.Join(cacheHome, "ipcheq2")
+	relPath := filepath.Join("data", "custom.txt")
+	absPath := filepath.Join(cacheRoot, relPath)
+	if err := os.MkdirAll(filepath.Dir(absPath), 0755); err != nil {
+		t.Fatalf("failed to create parent dir: %v", err)
+	}
+	if err := os.WriteFile(absPath, []byte("ok\n"), 0644); err != nil {
+		t.Fatalf("failed to write source file: %v", err)
+	}
+
+	cfgOnDisk := Config{Sources: []Source{{Name: "Relative Source", Path: relPath}}}
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := writeConfig(configPath, cfgOnDisk); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	got, err := LoadAndValidateConfig(configPath)
+	if err != nil {
+		t.Fatalf("LoadAndValidateConfig returned unexpected error: %v", err)
+	}
+
+	if got.Sources[0].Path != absPath {
+		t.Fatalf("resolved path = %q, want %q", got.Sources[0].Path, absPath)
+	}
+}
+
+func TestLoadAndValidateConfigPreservesAbsoluteCustomPath(t *testing.T) {
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+
+	absPath := filepath.Join(t.TempDir(), "external", "custom.txt")
+	if err := os.MkdirAll(filepath.Dir(absPath), 0755); err != nil {
+		t.Fatalf("failed to create parent dir: %v", err)
+	}
+	if err := os.WriteFile(absPath, []byte("ok\n"), 0644); err != nil {
+		t.Fatalf("failed to write source file: %v", err)
+	}
+
+	cfgOnDisk := Config{Sources: []Source{{Name: "Absolute Source", Path: absPath}}}
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := writeConfig(configPath, cfgOnDisk); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	got, err := LoadAndValidateConfig(configPath)
+	if err != nil {
+		t.Fatalf("LoadAndValidateConfig returned unexpected error: %v", err)
+	}
+
+	if got.Sources[0].Path != filepath.Clean(absPath) {
+		t.Fatalf("resolved path = %q, want %q", got.Sources[0].Path, filepath.Clean(absPath))
 	}
 }
 

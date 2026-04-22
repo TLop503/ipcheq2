@@ -59,21 +59,15 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the ip data as well and arrange to match tree:
-   	Alternatively clone the repo and build from source to skip arranging files (see "Local Development" below)
-```
-├── ipcheq2 or ipcheq2.exe
-└── data
-        ├── source1.txt
-        ├── ...
-        ├── update_icloud_relays.py
-        └── upstream-icloud-list.hash
-```
-2. Create a .env file with AbuseIPDB and VirusTotal API Keys (see `.env.example`) in the same directory, or set an enviornment variable.
-3. Update the icloud prefixes if desired with the bundled Python script.
-	1. Note- this must be ran from wihtin the `data/` directory!
-4. Optionally add IP lists to data/ and update the config file to match
-5. Run the executable! ipcheq2 will serve on localhost:8080.
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest), or build from source (see "Local Development" below).
+2. Run the executable once. On first startup, bundled provider data is hydrated to your user cache directory:
+  - Linux: $XDG_CACHE_HOME/ipcheq2/data (or ~/.cache/ipcheq2/data)
+  - Windows: %LocalAppData%/ipcheq2/data
+3. Create a .env file with AbuseIPDB and VirusTotal API keys (see `.env.example`) in the same directory, or set environment variables.
+4. Optionally add your own source files and update the config:
+  - Relative source paths are resolved from the cache root (for example: data/my-source.txt)
+  - Absolute source paths are used as-is
+5. Run the executable. ipcheq2 serves on localhost:8080.
 
 ## Development Setup
 
@@ -98,9 +92,9 @@ cp .env.example .env
 
 3. Run the application:
 ```bash
-go run main.go
+go run ./cmd/server
 # or
-go build . # inside project
+go build ./cmd/server # inside project
 ./ipcheq2
 ```
 
@@ -109,7 +103,7 @@ go build . # inside project
 #### Updating iCloud Private Relay prefixes
 
 [A script is provided](data/update_icloud_relays.py) to update the iCloud Private Relay prefixes within the repo.
-Before running it, make sure that you're inside the `data/` directory.
+Before running it, make sure that you're inside internal/data.
 
 ## Deployment
 

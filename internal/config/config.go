@@ -10,6 +10,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+func getCacheRootDir() (string, error) {
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(cacheDir, "ipcheq2"), nil
+}
+
+func resolveSourcePath(cacheRoot, sourcePath string) string {
+	if filepath.IsAbs(sourcePath) {
+		return filepath.Clean(sourcePath)
+	}
+
+	return filepath.Clean(filepath.Join(cacheRoot, sourcePath))
+}
+
 // Init loads and verifies the config file
 func Init() *Config {
 	configDir, err := os.UserConfigDir()
@@ -77,6 +94,11 @@ func LoadAndValidateConfig(path string) (*Config, error) {
 		return nil, errors.New("no sources defined")
 	}
 
+	cacheRoot, err := getCacheRootDir()
+	if err != nil {
+		return nil, fmt.Errorf("getting user cache dir: %w", err)
+	}
+
 	// verify each exists + is readable
 	seen := make(map[string]struct{})
 	for i, s := range cfg.Sources {
@@ -93,10 +115,12 @@ func LoadAndValidateConfig(path string) (*Config, error) {
 		}
 		seen[s.Name] = struct{}{}
 
+		cfg.Sources[i].Path = resolveSourcePath(cacheRoot, s.Path)
+
 		// Check file exists + is readable
-		f, err := os.Open(s.Path)
+		f, err := os.Open(cfg.Sources[i].Path)
 		if err != nil {
-			return nil, fmt.Errorf("source %q: cannot open file %q: %w", s.Name, s.Path, err)
+			return nil, fmt.Errorf("source %q: cannot open file %q: %w", s.Name, cfg.Sources[i].Path, err)
 		}
 		f.Close()
 	}
