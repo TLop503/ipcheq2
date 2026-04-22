@@ -2,16 +2,11 @@ package vpnid
 
 import (
 	"fmt"
-	"github.com/yl2chen/cidranger"
 	"net"
 	"net/netip"
-)
 
-// configEntry represents one line in the config file: name → path
-type configEntry struct {
-	Name string
-	Path string
-}
+	"github.com/yl2chen/cidranger"
+)
 
 type treeEntry struct {
 	Prefix   netip.Prefix
@@ -30,7 +25,7 @@ var VpnIDRanger cidranger.Ranger
 
 // InitializeVpnID initializes the VPN identification ranger from config file
 func InitializeVpnID() {
-	ranger, err := initialize("vpnid_config.txt")
+	ranger, err := initialize()
 	if err != nil {
 		panic("Failed to initialize VPN ID: " + err.Error())
 	}

@@ -1,14 +1,14 @@
 package vpnid
 
 import (
-	"fmt"
 	"net/netip"
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"testing"
 	"time"
+
+	"github.com/tlop503/ipcheq2/internal/config"
 )
 
 func TestQueryIPs(t *testing.T) {
@@ -26,15 +26,14 @@ func TestQueryIPs(t *testing.T) {
 		makeTempFile(t, tmp, fname, content)
 	}
 
-	// Create config file
-	configContent := ""
+	var sources []config.Source
 	for fname := range files {
-		configContent += fmt.Sprintf("%s : %s\n", fname, filepath.Join(tmp, fname))
+		sources = append(sources, config.Source{Name: fname, Path: filepath.Join(tmp, fname)})
 	}
-	configPath := makeTempFile(t, tmp, "config.txt", configContent)
+	writeInitConfig(t, config.Config{Sources: sources})
 
 	// Initialize ranger
-	ranger, err := initialize(configPath)
+	ranger, err := initialize()
 	if err != nil {
 		t.Fatalf("Initialize failed: %v", err)
 	}
@@ -82,26 +81,27 @@ func TestQueryIPs(t *testing.T) {
 }
 
 func TestWithProdData(t *testing.T) {
-	dataDir := filepath.Join("..", "..", "..", "data")
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	repoRoot := filepath.Clean(filepath.Join(wd, "..", "..", ".."))
+	dataDir := filepath.Join(repoRoot, "data")
 
 	providers := []string{
 		"cyberghost", "express", "mullvad", "nord",
 		"pia", "proton", "surfshark", "torguard", "tunnelbear",
 	}
 
-	configPath := filepath.Join(t.TempDir(), "vpnid_config.txt")
-	var config string
+	var sources []config.Source
 	for _, p := range providers {
 		path := filepath.Join(dataDir, p+".txt")
-		config += p + " : " + path + "\n"
+		sources = append(sources, config.Source{Name: p, Path: path})
 	}
-
-	if err := os.WriteFile(configPath, []byte(config), 0644); err != nil {
-		t.Fatalf("failed to write config file: %v", err)
-	}
+	writeInitConfig(t, config.Config{Sources: sources})
 
 	start := time.Now() // ⏱ start timing
-	ranger, err := initialize(configPath)
+	ranger, err := initialize()
 	duration := time.Since(start)
 	t.Logf("Init took %s", duration.String())
 
@@ -176,9 +176,4 @@ func TestQueryWithoutInitialize(t *testing.T) {
 	if err.Error() != "VPNIDRanger not initialized" {
 		t.Fatalf("unexpected error: %v", err)
 	}
-}
-
-// Helper to check if result string contains the provider name
-func containsProvider(result, provider string) bool {
-	return strings.Contains(result, provider)
 }
