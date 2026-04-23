@@ -22,6 +22,7 @@ func initialize() (cidranger.Ranger, error) {
 		return nil, err
 	}
 
+	// iterate through idx:sources, only looking at values
 	for _, source := range cfg.Sources {
 		if err := addToTree(ranger, source.Path, source.Name); err != nil {
 			return nil, fmt.Errorf("failed loading source %q from %q: %w", source.Name, source.Path, err)
