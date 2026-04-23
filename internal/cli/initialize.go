@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/tlop503/ipcheq2/internal/data"
 	"github.com/tlop503/ipcheq2/internal/router"
 	"log"
 )
@@ -10,6 +11,10 @@ func InitServer() {
 	cfg, err := InitFlags()
 	if err != nil {
 		log.Fatalf("InitFlags: %v\n", err)
+	}
+
+	if cfg.Update {
+		data.Update()
 	}
 
 	switch cfg.Mode {
@@ -23,8 +28,7 @@ func InitServer() {
 	case ModeHeadless:
 		router.RouteAPI()
 		router.StartServing()
-	//case cli.ModeQuery:
-	//	log.Println("Query mode not yet implemented!")
+
 	default:
 		log.Fatalf("Unknown mode: %v\n", cfg.Mode)
 	}

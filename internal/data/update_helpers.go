@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -13,7 +15,7 @@ import (
 
 // bufferIfHashDiffers compares a remote file to an expected hash. If they differ, the file and hash are returned
 // otherwise, nil
-func bufferIfHashDiffers(url, expectedHash string) ([]byte, string, error) {
+func bufferIfHashDiffers(url, expectedHashPath string) ([]byte, string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, "", err
@@ -36,12 +38,27 @@ func bufferIfHashDiffers(url, expectedHash string) ([]byte, string, error) {
 
 	actualHash := fmt.Sprintf("%x", hasher.Sum(nil))
 
+	var expectedHashStr string
+	if _, err := os.Stat(expectedHashPath); errors.Is(err, os.ErrNotExist) {
+		expectedHashStr = ""
+	} else {
+		expectedHash, err := os.ReadFile(expectedHashPath)
+		if err != nil {
+			return nil, "", err
+		}
+		expectedHashStr = string(expectedHash)
+	}
+
 	// If hashes differ, return the data
-	if actualHash != expectedHash {
+	if actualHash != expectedHashStr {
+		log.Println("Hashes differ, loading data...")
+		log.Println("Actual hash:", actualHash)
+		log.Println("Expected hash:", expectedHashStr)
 		return buf.Bytes(), actualHash, nil
 	}
 
 	// If same, no work needed
+	log.Println("Hashes do not differ, continuing...")
 	return nil, "", nil
 }
 
@@ -89,4 +106,14 @@ func WriteNormalizedIPNets(nets []*net.IPNet, path string) error {
 	}
 
 	return nil
+}
+
+func writeHashToFile(hash string, path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.WriteString(hash)
+	return err
 }

@@ -12,6 +12,8 @@ func InitFlags() (Config, error) {
 	flag.StringVar(&query, "i", "", queryMsg)
 	flag.BoolVar(&help, "h", false, helpMsg)
 	flag.BoolVar(&help, "help", false, helpMsg)
+	flag.BoolVar(&update, "update", false, helpMsg)
+	flag.BoolVar(&update, "u", false, helpMsg)
 
 	flag.Parse()
 
@@ -20,11 +22,12 @@ func InitFlags() (Config, error) {
 		fmt.Println("Invoke without arguments to launch the web UI.")
 		fmt.Println("-----------------------------------------------------------------")
 		fmt.Println("Optional flags:")
-		//fmt.Println("  -i <ip>          Query a single IP and exit")
 		fmt.Println("  --mode <mode>    Set serving mode: webui | api | headless")
 		fmt.Println("                     webui    - serves the web UI only (default)")
 		fmt.Println("                     api      - serves web UI and exposes API")
 		fmt.Println("                     headless - exposes API only, no web UI")
+		fmt.Println("  --update -u      Update data sources.")
+		fmt.Println("  --help -h        Show this help message.")
 		fmt.Println()
 		fmt.Println("-----------------------------------------------------------------")
 		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
@@ -45,13 +48,13 @@ func InitFlags() (Config, error) {
 
 	switch {
 	case query != "":
-		return Config{Mode: ModeQuery, QueryIP: query}, nil
+		return Config{Mode: ModeQuery, QueryIP: query, Update: update}, nil
 	case mode == "api":
-		return Config{Mode: ModeAPI}, nil
+		return Config{Mode: ModeAPI, Update: update}, nil
 	case mode == "headless":
-		return Config{Mode: ModeHeadless}, nil
+		return Config{Mode: ModeHeadless, Update: update}, nil
 	case mode == "" || mode == "webui":
-		return Config{Mode: ModeWebUI}, nil
+		return Config{Mode: ModeWebUI, Update: update}, nil
 	default:
 		return Config{}, fmt.Errorf("unknown mode %q: must be webui, api, or headless", mode)
 	}
