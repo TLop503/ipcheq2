@@ -3,10 +3,10 @@ package vpnid
 import (
 	"bufio"
 	"fmt"
+	"github.com/tlop503/ipcheq2/internal/iputils"
 	"net"
 	"net/netip"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/tlop503/ipcheq2/internal/config"
@@ -62,7 +62,7 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 
 		// Try parse as single IP
 		if ip, err := netip.ParseAddr(line); err == nil {
-			// Convert to net.IP for collapse function
+			// Convert to net.IP for Collapse function
 			netIP := ip.AsSlice()
 			if ip.Is4() {
 				ipv4s = append(ipv4s, netIP)
@@ -86,18 +86,18 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 		tree.Insert(treeEntry{Prefix: p, Provider: provider})
 	}
 
-	// collapse IPv4 IPs into ranges (IPv6 not yet collapsed)
+	// Collapse IPv4 IPs into ranges (IPv6 not yet collapsed)
 	if len(ipv4s) > 0 {
-		// Sort IPv4 IPs for collapse function
-		sortIPs(ipv4s)
+		// Sort IPv4 IPs for Collapse function
+		iputils.SortIPs(ipv4s)
 
-		// collapse into CIDR ranges
-		cidrs := collapse(ipv4s)
+		// Collapse into CIDR ranges
+		cidrs := iputils.CollapseIPsToNets(ipv4s)
 
 		// Insert collapsed ranges
 		for _, cidr := range cidrs {
 			// Convert net.IPNet back to netip.Prefix
-			prefix, err := netipFromIPNet(cidr)
+			prefix, err := iputils.NetipFromIPNet(cidr)
 			if err != nil {
 				return fmt.Errorf("failed to convert CIDR %s: %w", cidr, err)
 			}
@@ -136,37 +136,4 @@ func QueryToSlice(ip netip.Addr) ([]string, error) {
 	}
 
 	return providers, nil
-}
-
-// sortIPs sorts a slice of net.IP addresses
-func sortIPs(ips []net.IP) {
-	sort.Slice(ips, func(i, j int) bool {
-		return ipLess(ips[i], ips[j])
-	})
-}
-
-// ipLess compares two IP addresses and returns true if the first is less than (as 16B) the second
-func ipLess(a, b net.IP) bool {
-	// Ensure both are same format
-	a = a.To16()
-	b = b.To16()
-	for i := 0; i < len(a); i++ {
-		if a[i] < b[i] {
-			return true
-		} else if a[i] > b[i] {
-			return false
-		}
-	}
-	return false // they're equal
-}
-
-// netipFromIPNet converts net.IPNet to netip.Prefix
-func netipFromIPNet(ipnet *net.IPNet) (netip.Prefix, error) {
-	addr, ok := netip.AddrFromSlice(ipnet.IP)
-	if !ok {
-		return netip.Prefix{}, fmt.Errorf("invalid IP address")
-	}
-
-	ones, _ := ipnet.Mask.Size()
-	return netip.PrefixFrom(addr, ones), nil
 }

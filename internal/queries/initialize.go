@@ -18,6 +18,10 @@ func InitConnectors() {
 		log.Panicf("Error hydrating local data to cache: %v", err)
 	}
 
+	if _, err := data.EnsureHashDir(); err != nil {
+		log.Panicf("Error creating hash dir in cache: %v", err)
+	}
+
 	if _, err := os.Stat(".env"); err == nil {
 		log.Println("Warning: .env loading is deprecated and ignored. Use user config keys file or environment variables instead.")
 	}
