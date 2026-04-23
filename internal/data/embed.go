@@ -21,6 +21,15 @@ func getDataDir() (string, error) {
 	return filepath.Join(cacheDir, "ipcheq2", "data"), nil
 }
 
+// getHashDir determines correct cache path
+func getHashDir() (string, error) {
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(cacheDir, "ipcheq2", "hashes"), nil
+}
+
 // copyEmbeddedData writes embedded txt files to disk.
 func copyEmbeddedData(dstDir string) error {
 	entries, err := embeddedData.ReadDir(".")
@@ -81,4 +90,21 @@ func EnsureDataDir() (string, error) {
 	}
 
 	return dataDir, nil
+}
+
+// EnsureHashDir creates the hash directory if it does not exist
+func EnsureHashDir() (string, error) {
+	hashDir, err := getHashDir()
+	if err != nil {
+		return "", err
+	}
+
+	// create dir
+	if _, err := os.Stat(hashDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(hashDir, 0755); err != nil {
+			return "", fmt.Errorf("creating data directory %q: %w", hashDir, err)
+		}
+	}
+
+	return hashDir, nil
 }

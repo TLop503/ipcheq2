@@ -1,11 +1,14 @@
 package iputils
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"log"
 	"net"
 	"net/netip"
 	"sort"
+	"strings"
 )
 
 // SortIPs sorts a slice of net.IP addresses as though they were just bytestrings
@@ -129,4 +132,53 @@ func rangeToIPNetCidr(start, end net.IP) []*net.IPNet {
 	}
 
 	return nets
+}
+
+// DataToIPNetSlice reads a bufio scanner containing 1 addr or subnet per line
+// and outputs a slice of all addresses as ipnet types
+// Note: each line is parsed until a comma is seen, if present
+func DataToIPNetSlice(scanner *bufio.Scanner) []*net.IPNet {
+	var rawIPs []*net.IPNet
+
+	for scanner.Scan() {
+		line := untilComma(strings.TrimSpace(scanner.Text()))
+
+		// Try CIDR first
+		if _, ipNet, err := net.ParseCIDR(line); err == nil && ipNet != nil {
+			ipNet.IP = ipNet.IP.To16()
+			rawIPs = append(rawIPs, ipNet)
+			continue
+		}
+
+		// Otherwise attempt to parse single IP
+		if ip := net.ParseIP(line); ip != nil {
+			ip = ip.To16()
+
+			var mask net.IPMask
+			if ip.To4() != nil {
+				mask = net.CIDRMask(32, 32)
+			} else {
+				mask = net.CIDRMask(128, 128)
+			}
+
+			rawIPs = append(rawIPs, &net.IPNet{
+				IP:   ip,
+				Mask: mask,
+			})
+			continue
+		}
+
+		log.Printf("Failed to parse line: %s", line)
+	}
+
+	return rawIPs
+}
+
+func untilComma(s string) string {
+	for i := 0; i < len(s); i++ {
+		if s[i] == ',' {
+			return s[:i]
+		}
+	}
+	return s
 }
