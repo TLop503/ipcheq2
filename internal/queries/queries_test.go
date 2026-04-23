@@ -152,7 +152,9 @@ func TestThirdPartyQuery_AbuseIPDBKeyPresent_NoVTKey(t *testing.T) {
 	const helperEnv = "IPCHEQ2_THIRDPARTY_HELPER"
 
 	if os.Getenv(helperEnv) == "1" {
-		abuseipdb.InitializeAPIKey()
+		if err := abuseipdb.InitializeAPIKey(); err != nil {
+			t.Fatalf("InitializeAPIKey returned unexpected error: %v", err)
+		}
 		virustotal.VTKeyPresent = false
 
 		addr := netip.MustParseAddr("8.8.4.4")

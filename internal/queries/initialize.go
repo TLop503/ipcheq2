@@ -28,7 +28,7 @@ func InitConnectors() {
 	if abuseIPDBKey == "" && vtKey == "" {
 		path, created, err := config.EnsureKeysFile()
 		if err != nil {
-			log.Panicf("Error ensuring keys file: %v", err)
+			log.Fatalf("Unable to initialize keys file: %v", err)
 		}
 		if created {
 			log.Printf("Created blank keys file at %s", path)
@@ -37,7 +37,7 @@ func InitConnectors() {
 
 	keys, err := config.LoadKeys()
 	if err != nil {
-		log.Panicf("Error loading keys file: %v", err)
+		log.Fatalf("Unable to load API keys configuration: %v", err)
 	}
 
 	if abuseIPDBKey == "" {
@@ -49,7 +49,9 @@ func InitConnectors() {
 	}
 
 	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
-	abuseipdb.InitializeAPIKeyFromValue(abuseIPDBKey)
+	if err := abuseipdb.InitializeAPIKeyFromValue(abuseIPDBKey); err != nil {
+		log.Fatalf("Missing required AbuseIPDB key. Set ABIPDBKEY env var or abipdbKey in keys.yaml: %v", err)
+	}
 	virustotal.InitializeVTAPIKeyFromValue(vtKey)
 	// Initialize VPN ID ranger
 	vpnid.InitializeVpnID()
