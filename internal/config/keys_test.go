@@ -67,8 +67,8 @@ func TestEnsureKeysFileCreatesWhenMissing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed reading created keys file: %v", err)
 	}
-	if len(content) != 0 {
-		t.Fatalf("expected blank keys file, got %q", string(content))
+	if string(content) != keysTemplate {
+		t.Fatalf("expected template keys file content, got %q", string(content))
 	}
 }
 

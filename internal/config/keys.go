@@ -15,7 +15,16 @@ type Keys struct {
 	VTKey     string `yaml:"vtKey"`
 }
 
-// EnsureKeysFile creates an empty keys file when one does not exist yet.
+const keysTemplate = `# API keys for ipcheq2
+# Place this file at:
+#   Linux:   ~/.config/ipcheq2/keys.yaml (or $XDG_CONFIG_HOME/ipcheq2/keys.yaml)
+#   Windows: %APPDATA%/ipcheq2/keys.yaml
+
+abipdbKey: ""
+vtKey: ""
+`
+
+// EnsureKeysFile creates a template keys file when one does not exist yet.
 // Returns path, whether it was created, and any error.
 func EnsureKeysFile() (string, bool, error) {
 	path, err := keysFilePath()
@@ -33,7 +42,7 @@ func EnsureKeysFile() (string, bool, error) {
 		return "", false, fmt.Errorf("creating keys directory %q: %w", filepath.Dir(path), err)
 	}
 
-	if err := os.WriteFile(path, []byte{}, 0644); err != nil {
+	if err := os.WriteFile(path, []byte(keysTemplate), 0644); err != nil {
 		return "", false, fmt.Errorf("creating keys file %q: %w", path, err)
 	}
 
