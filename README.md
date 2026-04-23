@@ -5,13 +5,13 @@ Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 ![ipcheq2 homescreen with search bar](image.png)
 
 ## Features
-- Search results history!
-- Full IPv4 Support, with v6 coverage coming soon!
-- Extendable data-- bring your own sources to supplement ours!
-- Concise, distraction-free results without any marketing!
+- Multi-result dashboard for large investigations
+- Extendable data-- bring your own sources to supplement ours
+- Concise, distraction-free results without any marketing
 - Linux and Windows both supported!
-- Choose between serving a Web UI, Headless API, or both!
+- Choose between serving a Web UI, Headless API, or both
   - Use `-h` for details on flags
+- Fully portable binary w/ bundled data
 
 ### IP Data Sources:
 - AbuseIPDB
@@ -59,22 +59,21 @@ docker-compose up -d
 ```
 
 ## Run locally
-1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest). Download and extract the ip data as well and arrange to match tree:
-   	Alternatively clone the repo and build from source to skip arranging files (see "Local Development" below)
-```
-├── ipcheq2 or ipcheq2.exe
-└── data
-        ├── source1.txt
-        ├── ...
-        ├── update_icloud_relays.py
-        └── upstream-icloud-list.hash
-└── vpnid_config.txt
-```
-2. Create a .env file with AbuseIPDB and VirusTotal API Keys (see `.env.example`) in the same directory, or set an enviornment variable.
-3. Update the icloud prefixes if desired with the bundled Python script.
-	1. Note- this must be ran from wihtin the `data/` directory!
-4. Optionally add IP lists to data/ and update the config file to match
-5. Run the executable! ipcheq2 will serve on localhost:8080.
+1. Download exe or elf from the latest [release](https://github.com/tlop503/ipcheq2/releases/latest), or build from source (see "Local Development" below).
+2. Run the executable once. On first startup, bundled provider data is hydrated to your user cache directory:
+  - Linux: $XDG_CACHE_HOME/ipcheq2/data (or ~/.cache/ipcheq2/data)
+  - Windows: %LocalAppData%/ipcheq2/data
+3. Configure API keys using either:
+  - User config keys file:
+    - Linux: `$XDG_CONFIG_HOME/ipcheq2/keys.yaml` (or `~/.config/ipcheq2/keys.yaml`)
+    - Windows: `%APPDATA%/ipcheq2/keys.yaml`
+    - Run the executable once to create a blank keyfile, or download and fill out the [example](keys.example.yaml).
+  - Environment variables: ABIPDBKEY and (optional) VTKEY
+  - *Note: .env loading is deprecated and ignored at runtime.*
+4. Optionally add your own source files and update the config:
+  - Relative source paths in the config are resolved from the cache root (for example: data/my-source.txt)
+  - Absolute source paths are used as-is
+5. Run the executable. ipcheq2 serves on localhost:8080.
 
 ## Development Setup
 
@@ -90,27 +89,24 @@ git clone https://github.com/tlop503/ipcheq2.git
 cd ipcheq2
 ```
 
-2. Create a `.env` file:
+2. Create a keys file in your user config directory:
 ```bash
-cp .env.example .env
-# Edit .env and add your ABIPDBKEY, VTKEY
-# Alternatively, enviornment variables can be used.
+mkdir -p ~/.config/ipcheq2
+cp keys.example.yaml ~/.config/ipcheq2/keys.yaml
+# Edit keys.yaml and add your abipdbKey, vtKey
+# Note, a blank keyfile is automatically generated on startup if needed
+# Alternatively, environment variables can be used.
 ```
 
 3. Run the application:
 ```bash
-go run main.go
+go run ./cmd/server
 # or
-go build . # inside project
+go build -o ipcheq2 ./cmd/server
 ./ipcheq2
 ```
 
 4. Open your browser to `http://localhost:8080`
-
-#### Updating iCloud Private Relay prefixes
-
-[A script is provided](data/update_icloud_relays.py) to update the iCloud Private Relay prefixes within the repo.
-Before running it, make sure that you're inside the `data/` directory.
 
 ## Deployment
 

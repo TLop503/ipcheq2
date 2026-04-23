@@ -41,7 +41,8 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 		// sort and dedupe
 		slices.Sort(data.VPNIDMatches)
 		slices.Compact(data.VPNIDMatches)
-		moveToEnd(data.VPNIDMatches, "Generic VPN from ASN Data") // as it's least verbose
+		moveToEnd(data.VPNIDMatches, "Generic VPN from ASN Data V4") // as it's least verbose
+		moveToEnd(data.VPNIDMatches, "Generic VPN from ASN Data V6") // as it's least verbose
 		fed.VpnidParsedResults = strings.Join(data.VPNIDMatches, ", ")
 	} else {
 		fed.VpnidParsedResults = "Not found in VPNID"

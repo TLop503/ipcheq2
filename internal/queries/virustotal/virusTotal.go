@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/netip"
 	"os"
+	"strings"
 
 	vt "github.com/VirusTotal/vt-go"
 )
@@ -17,9 +18,17 @@ var vtClient *vt.Client
 
 // InitializeAPIKey sets the VirusTotal API key from environment
 func InitializeVTAPIKey() {
-	vtKey = os.Getenv("VTKEY")
+	InitializeVTAPIKeyFromValue(os.Getenv("VTKEY"))
+}
+
+// InitializeVTAPIKeyFromValue sets the VirusTotal API key from an explicit value.
+func InitializeVTAPIKeyFromValue(key string) {
+	VTKeyPresent = false
+	vtClient = nil
+
+	vtKey = strings.TrimSpace(key)
 	if vtKey == "" {
-		log.Println("Warning: VTKEY environment variable is not set")
+		log.Println("Warning: VTKEY not set; VirusTotal lookups are disabled")
 	} else {
 		VTKeyPresent = true
 		log.Println("VT Key loaded")
