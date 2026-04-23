@@ -2,8 +2,10 @@ package queries
 
 import (
 	"log"
+	"os"
+	"strings"
 
-	"github.com/joho/godotenv"
+	"github.com/tlop503/ipcheq2/internal/config"
 	"github.com/tlop503/ipcheq2/internal/data"
 	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
 	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
@@ -16,13 +18,39 @@ func InitConnectors() {
 		log.Panicf("Error hydrating local data to cache: %v", err)
 	}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Warning: .env file not found, using environment variables directly")
+	if _, err := os.Stat(".env"); err == nil {
+		log.Println("Warning: .env loading is deprecated and ignored. Use user config keys file or environment variables instead.")
 	}
+
+	abuseIPDBKey := strings.TrimSpace(os.Getenv("ABIPDBKEY"))
+	vtKey := strings.TrimSpace(os.Getenv("VTKEY"))
+
+	if abuseIPDBKey == "" && vtKey == "" {
+		path, created, err := config.EnsureKeysFile()
+		if err != nil {
+			log.Panicf("Error ensuring keys file: %v", err)
+		}
+		if created {
+			log.Printf("Created blank keys file at %s", path)
+		}
+	}
+
+	keys, err := config.LoadKeys()
+	if err != nil {
+		log.Panicf("Error loading keys file: %v", err)
+	}
+
+	if abuseIPDBKey == "" {
+		abuseIPDBKey = keys.ABIPDBKey
+	}
+
+	if vtKey == "" {
+		vtKey = keys.VTKey
+	}
+
 	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
-	abuseipdb.InitializeAPIKey()
-	virustotal.InitializeVTAPIKey()
+	abuseipdb.InitializeAPIKeyFromValue(abuseIPDBKey)
+	virustotal.InitializeVTAPIKeyFromValue(vtKey)
 	// Initialize VPN ID ranger
 	vpnid.InitializeVpnID()
 }

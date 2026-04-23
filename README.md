@@ -63,7 +63,12 @@ docker-compose up -d
 2. Run the executable once. On first startup, bundled provider data is hydrated to your user cache directory:
   - Linux: $XDG_CACHE_HOME/ipcheq2/data (or ~/.cache/ipcheq2/data)
   - Windows: %LocalAppData%/ipcheq2/data
-3. Create a .env file with AbuseIPDB and VirusTotal API keys (see `.env.example`) in the same directory, or set environment variables.
+3. Configure API keys using either:
+  - User config keys file:
+    - Linux: $XDG_CONFIG_HOME/ipcheq2/keys.yaml (or ~/.config/ipcheq2/keys.yaml)
+    - Windows: %APPDATA%/ipcheq2/keys.yaml
+  - Environment variables: ABIPDBKEY and (optional) VTKEY
+  - Note: .env loading is deprecated and ignored at runtime.
 4. Optionally add your own source files and update the config:
   - Relative source paths are resolved from the cache root (for example: data/my-source.txt)
   - Absolute source paths are used as-is
@@ -83,11 +88,12 @@ git clone https://github.com/tlop503/ipcheq2.git
 cd ipcheq2
 ```
 
-2. Create a `.env` file:
+2. Create a keys file in your user config directory:
 ```bash
-cp .env.example .env
-# Edit .env and add your ABIPDBKEY, VTKEY
-# Alternatively, enviornment variables can be used.
+mkdir -p ~/.config/ipcheq2
+cp keys.example.yaml ~/.config/ipcheq2/keys.yaml
+# Edit keys.yaml and add your abipdbKey, vtKey
+# Alternatively, environment variables can be used.
 ```
 
 3. Run the application:
@@ -102,7 +108,7 @@ go build ./cmd/server # inside project
 
 #### Updating iCloud Private Relay prefixes
 
-[A script is provided](data/update_icloud_relays.py) to update the iCloud Private Relay prefixes within the repo.
+[A script is provided](old_data/update_icloud_relays.py) to update the iCloud Private Relay prefixes within the repo.
 Before running it, make sure that you're inside internal/data.
 
 ## Deployment
