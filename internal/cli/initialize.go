@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/tlop503/ipcheq2/internal/data"
+	"github.com/tlop503/ipcheq2/internal/queries"
 	"github.com/tlop503/ipcheq2/internal/router"
 	"log"
 )
@@ -12,6 +13,8 @@ func InitServer() {
 	if err != nil {
 		log.Fatalf("InitFlags: %v\n", err)
 	}
+
+	queries.InitConnectors()
 
 	if cfg.Update {
 		data.Update()
