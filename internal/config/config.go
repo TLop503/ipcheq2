@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// getCacheRootDir returns the user's cache directory + ipcheq2
 func getCacheRootDir() (string, error) {
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
@@ -19,6 +20,8 @@ func getCacheRootDir() (string, error) {
 	return filepath.Join(cacheDir, "ipcheq2"), nil
 }
 
+// resolveSourcePath adjusts relative paths to the cache directory, and laves absolute untouched
+// for example, /foo -> /foo, but bar/buz -> $cachedir/bar/buz
 func resolveSourcePath(cacheRoot, sourcePath string) string {
 	if filepath.IsAbs(sourcePath) {
 		return filepath.Clean(sourcePath)
@@ -28,7 +31,7 @@ func resolveSourcePath(cacheRoot, sourcePath string) string {
 }
 
 // Init loads and verifies the config file
-func Init() *Config {
+func Init() (*Config, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		log.Printf("Error getting user config dir: %v", err)
@@ -39,13 +42,13 @@ func Init() *Config {
 	configFile := filepath.Join(configDir, "ipcheq2.yaml")
 	err = ensureConfig(configFile)
 	if err != nil {
-		log.Panicf("Error ensuring config file: %v", err)
+		return nil, err
 	}
 	cfg, err := LoadAndValidateConfig(configFile)
 	if err != nil {
-		log.Panicf("Error loading config: %v", err)
+		log.Printf("Error loading config: %v", err)
 	}
-	return cfg
+	return cfg, nil
 }
 
 // ensureConfig verifies config exists, and if not creates the default

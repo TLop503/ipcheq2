@@ -16,7 +16,11 @@ import (
 // initialize builds a new CIDRanger from configured sources.
 func initialize() (cidranger.Ranger, error) {
 	var ranger = cidranger.NewPCTrieRanger()
-	cfg := config.Init()
+	cfg, err := config.Init()
+
+	if err != nil {
+		return nil, err
+	}
 
 	for _, source := range cfg.Sources {
 		if err := addToTree(ranger, source.Path, source.Name); err != nil {

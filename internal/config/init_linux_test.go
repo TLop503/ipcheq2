@@ -32,7 +32,10 @@ func TestInitLinuxCreatesAndLoadsConfig(t *testing.T) {
 		t.Fatalf("failed to hydrate cache data for Init test: %v", err)
 	}
 
-	cfg := Init()
+	cfg, err := Init()
+	if err != nil {
+		t.Errorf("failed to init test config: %v", err)
+	}
 	if cfg == nil {
 		t.Fatal("Init returned nil config")
 	}
