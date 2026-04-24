@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/yl2chen/cidranger"
 	"log"
 	"net"
 	"net/netip"
@@ -181,4 +182,194 @@ func untilComma(s string) string {
 		}
 	}
 	return s
+}
+
+// normalize takes a raw []*net.IPNet and returns clean, deduplicated,
+// host-bit-normalized entries split by address family.
+func normalize(raw []*net.IPNet) (v4, v6 []*net.IPNet) {
+	seen := make(map[string]struct{})
+
+	for _, n := range raw {
+		if n == nil {
+			continue
+		}
+
+		// Zero host bits: e.g. 192.168.1.1/24 → 192.168.1.0/24
+		masked := &net.IPNet{
+			IP:   n.IP.Mask(n.Mask),
+			Mask: n.Mask,
+		}
+
+		key := masked.String()
+		if _, dup := seen[key]; dup {
+			continue
+		}
+		seen[key] = struct{}{}
+
+		if masked.IP.To4() != nil {
+			v4 = append(v4, masked)
+		} else {
+			v6 = append(v6, masked)
+		}
+	}
+	return v4, v6
+}
+
+// sortBySize sorts prefixes broadest-first (smallest mask length = largest network).
+// Ties broken by IP for determinism.
+func sortBySize(nets []*net.IPNet) {
+	sort.Slice(nets, func(i, j int) bool {
+		mi, _ := nets[i].Mask.Size()
+		mj, _ := nets[j].Mask.Size()
+		if mi != mj {
+			return mi < mj // broader first
+		}
+		return nets[i].IP.String() < nets[j].IP.String()
+	})
+}
+
+// filterContained inserts prefixes broadest-first; skips any prefix
+// already covered by something in the ranger.
+func filterContained(nets []*net.IPNet) ([]*net.IPNet, error) {
+	sortBySize(nets)
+
+	ranger := cidranger.NewPCTrieRanger()
+	var kept []*net.IPNet
+
+	for _, n := range nets {
+		containing, err := ranger.ContainingNetworks(n.IP)
+		if err != nil {
+			return nil, err
+		}
+		// Also check if a broader prefix we already added covers this one.
+		// ContainingNetworks checks a single IP — use the network address,
+		// which is sufficient since we normalized host bits already.
+		alreadyCovered := false
+		for _, entry := range containing {
+			existing := entry.Network()
+			if existing.Contains(n.IP) {
+				// Check mask: if existing is broader or equal, n is redundant
+				eOnes, _ := existing.Mask.Size()
+				nOnes, _ := n.Mask.Size()
+				if eOnes <= nOnes {
+					alreadyCovered = true
+					break
+				}
+			}
+		}
+		if !alreadyCovered {
+			if err := ranger.Insert(cidranger.NewBasicRangerEntry(*n)); err != nil {
+				return nil, err
+			}
+			kept = append(kept, n)
+		}
+	}
+	return kept, nil
+}
+
+// mergeSiblings repeatedly merges adjacent same-size sibling prefixes
+// (e.g. 10.0.0.0/25 + 10.0.0.128/25 → 10.0.0.0/24) until stable.
+func mergeSiblings(nets []*net.IPNet) []*net.IPNet {
+	for {
+		merged, changed := mergePass(nets)
+		if !changed {
+			return merged
+		}
+		nets = merged
+	}
+}
+
+func mergePass(nets []*net.IPNet) ([]*net.IPNet, bool) {
+	sortBySize(nets) // ensure consistent order for pairing
+
+	used := make([]bool, len(nets))
+	var result []*net.IPNet
+	changed := false
+
+	for i := 0; i < len(nets); i++ {
+		if used[i] {
+			continue
+		}
+		onesI, bitsI := nets[i].Mask.Size()
+		if onesI == 0 {
+			// Default route — can't merge up
+			result = append(result, nets[i])
+			continue
+		}
+
+		merged := false
+		for j := i + 1; j < len(nets); j++ {
+			if used[j] {
+				continue
+			}
+			onesJ, bitsJ := nets[j].Mask.Size()
+			if onesI != onesJ || bitsI != bitsJ {
+				continue // different prefix lengths
+			}
+
+			parent := parentPrefix(nets[i])
+			if parent == nil {
+				continue
+			}
+			if parent.Contains(nets[j].IP) {
+				// Check nets[j] is also directly under parent (not just contained)
+				onesP, _ := parent.Mask.Size()
+				if onesI == onesP+1 {
+					result = append(result, parent)
+					used[i] = true
+					used[j] = true
+					changed = true
+					merged = true
+					break
+				}
+			}
+		}
+		if !merged {
+			result = append(result, nets[i])
+		}
+	}
+	return result, changed
+}
+
+// parentPrefix returns the next-broader prefix containing n,
+// or nil if already at /0.
+func parentPrefix(n *net.IPNet) *net.IPNet {
+	ones, bits := n.Mask.Size()
+	if ones == 0 {
+		return nil
+	}
+	parentMask := net.CIDRMask(ones-1, bits)
+	parentIP := n.IP.Mask(parentMask)
+	return &net.IPNet{IP: parentIP, Mask: parentMask}
+}
+
+// Compact calculates the minimum spanning subnets for a list of potentially overlapping data
+func Compact(rawIPs []*net.IPNet) []*net.IPNet {
+	log.Println("Attempting to compact IPs")
+	v4, v6 := normalize(rawIPs)
+	log.Println("Sorting...")
+	sortBySize(v4)
+	sortBySize(v6)
+	log.Println("Sorted!")
+
+	log.Println("Filtering...")
+
+	var err error
+	v4, err = filterContained(v4)
+	if err != nil {
+		log.Fatal(err)
+	}
+	v6, err = filterContained(v6)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Filtered!")
+
+	log.Println("Merging...")
+	v4 = mergeSiblings(v4)
+	v6 = mergeSiblings(v6)
+	log.Println("Merged!")
+
+	output := append(v4, v6...)
+	return output
 }

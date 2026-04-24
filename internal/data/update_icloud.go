@@ -18,6 +18,7 @@ func updateiCloud(dataPath string, hashPath string) error {
 	// parse write IPs + cidr
 	scanner := bufio.NewScanner(bytes.NewReader(file))
 	IPs := iputils.DataToIPNetSlice(scanner)
+	IPs = iputils.Compact(IPs)
 	err = WriteNormalizedIPNets(IPs, dataPath)
 	if err != nil {
 		return err

@@ -11,6 +11,7 @@ func Update() {
 
 func icloudWrapper() {
 	log.Println("Attempting to update iCloud relays")
+	log.Println("This will take ~3 minutes")
 	dataDir, err := EnsureDataDir()
 	if err != nil {
 		log.Fatal(err)
