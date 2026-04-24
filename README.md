@@ -12,11 +12,12 @@ Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 - Choose between serving a Web UI, Headless API, or both
   - Use `-h` for details on flags
 - Fully portable binary w/ bundled data
+- Update iCloud data from the cli w/o installing a new binary!
 
 ### IP Data Sources:
 - AbuseIPDB
 - VirusTotal (Optional)
-- iCloud Private Relays
+- iCloud Private Relays (Supports updating!)
 - Cyberghost
 - Express VPN
 - Mullvad VPN
@@ -35,6 +36,7 @@ Want to see another source here? Open a PR with a file or an issue with a link!
 ```bash
 # supply api keys
 docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here -e VTKEY=your_api_key_here ghcr.io/tlop503/ipcheq2:latest <optional --mode webui|api|headless>
+# optionally, use "--update" at the end to refresh iCloud data within the container
 ```
 
 ### Using Docker Compose

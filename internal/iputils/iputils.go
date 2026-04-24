@@ -346,14 +346,9 @@ func parentPrefix(n *net.IPNet) *net.IPNet {
 
 // Compact calculates the minimum spanning subnets for a list of potentially overlapping data
 func Compact(rawIPs []*net.IPNet) []*net.IPNet {
-	log.Println("Attempting to compact IPs")
 	v4, v6 := normalize(rawIPs)
-	log.Println("Sorting...")
 	sortBySize(v4)
 	sortBySize(v6)
-	log.Println("Sorted!")
-
-	log.Println("Filtering...")
 
 	var err error
 	v4, err = filterContained(v4)
@@ -364,7 +359,6 @@ func Compact(rawIPs []*net.IPNet) []*net.IPNet {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Filtered!")
 
 	log.Println("Merging...")
 	v4 = mergeSiblings(v4)
