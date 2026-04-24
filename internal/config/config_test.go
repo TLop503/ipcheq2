@@ -16,7 +16,7 @@ func TestDefaultConfig(t *testing.T) {
 		t.Fatal("defaultConfig returned no sources")
 	}
 
-	if got := len(cfg.Sources); got != 15 {
+	if got := len(cfg.Sources); got != 14 {
 		t.Fatalf("len(cfg.Sources) = %d, want 14", got)
 	}
 }

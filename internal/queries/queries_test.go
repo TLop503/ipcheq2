@@ -46,6 +46,7 @@ func TestFirstPartyQuery_WhenRangerNotInitialized(t *testing.T) {
 
 func TestFirstPartyQuery_WithInitializedRanger(t *testing.T) {
 	prevRanger := vpnid.VpnIDRanger
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	t.Setenv("XDG_CACHE_HOME", t.TempDir())
 	prevWD, err := os.Getwd()
 	if err != nil {

@@ -7,12 +7,9 @@ import (
 	"log"
 	"net"
 	"net/netip"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/internal/config"
 	"github.com/yl2chen/cidranger"
 )
 
@@ -376,95 +373,4 @@ func Compact(rawIPs []*net.IPNet) []*net.IPNet {
 
 	output := append(v4, v6...)
 	return output
-}
-
-// WriteNormalizedIPNets writes IPs and ranges to a file, one per line.
-// /32 and /128 addresses are written with no CIDR suffix.
-func WriteNormalizedIPNets(nets []*net.IPNet, path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	defer w.Flush()
-
-	for _, n := range nets {
-		if n == nil {
-			continue
-		}
-
-		ip := n.IP
-
-		if ip.To4() != nil {
-			ip = ip.To4()
-		} else {
-			ip = ip.To16()
-		}
-
-		ones, bits := n.Mask.Size()
-
-		switch {
-		case ip.To4() != nil && ones == 32 && bits == 32:
-			fmt.Fprintln(w, ip.String())
-		case ip.To4() == nil && ones == 128 && bits == 128:
-			fmt.Fprintln(w, ip.String())
-		default:
-			fmt.Fprintf(w, "%s/%d\n", ip.String(), ones)
-		}
-	}
-
-	return nil
-}
-
-// BulkCompact compacts each configured file in place and logs size reduction in KB.
-func BulkCompact() error {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		log.Printf("Error getting user config dir: %v", err)
-		log.Printf("Using default config instead...")
-	}
-
-	configDir = filepath.Join(configDir, "ipcheq2")
-	configFile := filepath.Join(configDir, "ipcheq2.yaml")
-	sources, err := config.LoadAndValidateConfig(configFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, source := range sources.Sources {
-		log.Printf("Compacting %s (%s)", source.Name, source.Path)
-
-		beforeInfo, err := os.Stat(source.Path)
-		if err != nil {
-			return fmt.Errorf("stat before compact (%s): %w", source.Path, err)
-		}
-
-		f, err := os.Open(source.Path)
-		if err != nil {
-			return fmt.Errorf("open source (%s): %w", source.Path, err)
-		}
-
-		rawIPs := DataToIPNetSlice(bufio.NewScanner(f))
-		if err := f.Close(); err != nil {
-			return fmt.Errorf("close source (%s): %w", source.Path, err)
-		}
-
-		compacted := Compact(rawIPs)
-		if err := WriteNormalizedIPNets(compacted, source.Path); err != nil {
-			return fmt.Errorf("write compacted file (%s): %w", source.Path, err)
-		}
-
-		afterInfo, err := os.Stat(source.Path)
-		if err != nil {
-			return fmt.Errorf("stat after compact (%s): %w", source.Path, err)
-		}
-
-		deltaKB := float64(beforeInfo.Size()-afterInfo.Size()) / 1024
-		log.Printf("Compacted %s: %.2f KB saved", source.Path, deltaKB)
-	}
-
-	log.Println("Finished compacting configured data files")
-	return nil
 }
