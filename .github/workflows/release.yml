@@ -34,12 +34,6 @@ jobs:
           # Build for arm64 Windows
           GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe ./cmd/server
 
-      - name: Create release archive
-        run: |
-          # Create a tar.gz archive with binaries and additional files
-          tar -czf data.tar.gz \
-            data/
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -49,8 +43,6 @@ jobs:
             ipcheq2_linux_arm64
             ipcheq2_windows_amd64.exe
             ipcheq2_windows_arm64.exe
-            data.tar.gz
-            vpnid_config.txt
 
   release:
     needs: build-and-test
@@ -70,8 +62,6 @@ jobs:
             ipcheq2_linux_arm64
             ipcheq2_windows_amd64.exe
             ipcheq2_windows_arm64.exe
-            data.tar.gz
-            vpnid_config.txt
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
