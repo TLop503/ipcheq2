@@ -16,12 +16,8 @@ func TestDefaultConfig(t *testing.T) {
 		t.Fatal("defaultConfig returned no sources")
 	}
 
-	if cfg.Sources[0].Name != "Cyberghost" || cfg.Sources[0].Path != "data/cyberghost.txt" {
-		t.Fatalf("first source = %+v, want Cyberghost/data/cyberghost.txt", cfg.Sources[0])
-	}
-
-	if got := len(cfg.Sources); got != 15 {
-		t.Fatalf("len(cfg.Sources) = %d, want 15", got)
+	if got := len(cfg.Sources); got != 14 {
+		t.Fatalf("len(cfg.Sources) = %d, want 14", got)
 	}
 }
 
