@@ -117,7 +117,7 @@ This project is automatically built and published to GitHub Container Registry v
 
 ### Manual Build
 ```bash
-docker build -t ipcheq2 ./dockerfiles
+docker build -t ipcheq2 .
 docker run -p 8080:8080 -e ABIPDBKEY=your_api_key_here VTKEY=your_api_key_here ipcheq2
 ```
 
