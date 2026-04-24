@@ -3,6 +3,7 @@ package data
 import (
 	"bufio"
 	"bytes"
+
 	"github.com/tlop503/ipcheq2/internal/iputils"
 )
 
@@ -18,7 +19,7 @@ func updateiCloud(dataPath string, hashPath string) error {
 	// parse write IPs + cidr
 	scanner := bufio.NewScanner(bytes.NewReader(file))
 	IPs := iputils.DataToIPNetSlice(scanner)
-	IPs = iputils.Compact(IPs)
+	//IPs = iputils.Compact(IPs)
 	err = WriteNormalizedIPNets(IPs, dataPath)
 	if err != nil {
 		return err

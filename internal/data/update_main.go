@@ -3,10 +3,13 @@ package data
 import (
 	"log"
 	"path/filepath"
+
+	"github.com/tlop503/ipcheq2/internal/iputils"
 )
 
 func Update() {
 	icloudWrapper()
+	iputils.BulkCompact()
 }
 
 func icloudWrapper() {
