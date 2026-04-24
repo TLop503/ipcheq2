@@ -1,17 +1,26 @@
 package abuseipdb
 
 import (
+	"fmt"
 	"os"
+	"strings"
 )
 
 var abIPDBKey string
 
-// InitializeAPIKey sets the AbuseIPDB API key from environment
-func InitializeAPIKey() {
-	abIPDBKey = os.Getenv("ABIPDBKEY")
+// InitializeAPIKey sets the AbuseIPDB API key from environment.
+func InitializeAPIKey() error {
+	return InitializeAPIKeyFromValue(os.Getenv("ABIPDBKEY"))
+}
+
+// InitializeAPIKeyFromValue sets the AbuseIPDB API key from an explicit value.
+func InitializeAPIKeyFromValue(key string) error {
+	abIPDBKey = strings.TrimSpace(key)
 	if abIPDBKey == "" {
-		panic("ABIPDBKEY environment variable is not set")
+		return fmt.Errorf("ABIPDB key is not set (keys file and ABIPDBKEY environment variable are both empty)")
 	}
+
+	return nil
 }
 
 // API-specific data struct.

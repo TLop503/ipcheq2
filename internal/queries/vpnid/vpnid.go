@@ -3,82 +3,29 @@ package vpnid
 import (
 	"bufio"
 	"fmt"
+	"github.com/tlop503/ipcheq2/internal/iputils"
 	"net"
 	"net/netip"
 	"os"
-	"sort"
 	"strings"
 
+	"github.com/tlop503/ipcheq2/internal/config"
 	"github.com/yl2chen/cidranger"
 )
 
-// validateConfig reads the config file, parses it into entries, and returns them.
-// Returns an error if the file cannot be read or any line is invalid.
-func validateConfig(path string) ([]configEntry, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open config file: %w", err)
-	}
-	defer file.Close()
-
-	var entries []configEntry
-	scanner := bufio.NewScanner(file)
-	lineNum := 0
-	for scanner.Scan() {
-		lineNum++
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-
-		// Split line into "name : path"
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("invalid config format on line %d: %q", lineNum, line)
-		}
-
-		name := strings.TrimSpace(parts[0])
-		filePath := strings.TrimSpace(parts[1])
-
-		if name == "" || filePath == "" {
-			return nil, fmt.Errorf("empty name or path on line %d: %q", lineNum, line)
-		}
-
-		// Check file exists and readable
-		info, err := os.Stat(filePath)
-		if err != nil {
-			return nil, fmt.Errorf("file %q does not exist: %w", filePath, err)
-		}
-		if info.IsDir() {
-			return nil, fmt.Errorf("file %q is a directory", filePath)
-		}
-
-		entries = append(entries, configEntry{
-			Name: name,
-			Path: filePath,
-		})
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed reading config file: %w", err)
-	}
-
-	return entries, nil
-}
-
-// initialize returns a new CIDRanger from a given config, passed as a file path
-func initialize(path string) (cidranger.Ranger, error) {
-	configEntries, err := validateConfig(path)
-	if err != nil {
-		return nil, fmt.Errorf("config validation error: %w", err)
-	}
-
+// initialize builds a new CIDRanger from configured sources.
+func initialize() (cidranger.Ranger, error) {
 	var ranger = cidranger.NewPCTrieRanger()
+	cfg, err := config.Init()
 
-	for _, entry := range configEntries {
-		err = addToTree(ranger, entry.Path, entry.Name)
-		if err != nil {
-			return nil, err
+	if err != nil {
+		return nil, err
+	}
+
+	// iterate through idx:sources, only looking at values
+	for _, source := range cfg.Sources {
+		if err := addToTree(ranger, source.Path, source.Name); err != nil {
+			return nil, fmt.Errorf("failed loading source %q from %q: %w", source.Name, source.Path, err)
 		}
 	}
 
@@ -115,7 +62,7 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 
 		// Try parse as single IP
 		if ip, err := netip.ParseAddr(line); err == nil {
-			// Convert to net.IP for collapse function
+			// Convert to net.IP for Collapse function
 			netIP := ip.AsSlice()
 			if ip.Is4() {
 				ipv4s = append(ipv4s, netIP)
@@ -139,18 +86,18 @@ func addToTree(tree cidranger.Ranger, path string, provider string) error {
 		tree.Insert(treeEntry{Prefix: p, Provider: provider})
 	}
 
-	// collapse IPv4 IPs into ranges (IPv6 not yet collapsed)
+	// Collapse IPv4 IPs into ranges (IPv6 not yet collapsed)
 	if len(ipv4s) > 0 {
-		// Sort IPv4 IPs for collapse function
-		sortIPs(ipv4s)
+		// Sort IPv4 IPs for Collapse function
+		iputils.SortIPs(ipv4s)
 
-		// collapse into CIDR ranges
-		cidrs := collapse(ipv4s)
+		// Collapse into CIDR ranges
+		cidrs := iputils.CollapseIPsToNets(ipv4s)
 
 		// Insert collapsed ranges
 		for _, cidr := range cidrs {
 			// Convert net.IPNet back to netip.Prefix
-			prefix, err := netipFromIPNet(cidr)
+			prefix, err := iputils.NetipFromIPNet(cidr)
 			if err != nil {
 				return fmt.Errorf("failed to convert CIDR %s: %w", cidr, err)
 			}
@@ -189,37 +136,4 @@ func QueryToSlice(ip netip.Addr) ([]string, error) {
 	}
 
 	return providers, nil
-}
-
-// sortIPs sorts a slice of net.IP addresses
-func sortIPs(ips []net.IP) {
-	sort.Slice(ips, func(i, j int) bool {
-		return ipLess(ips[i], ips[j])
-	})
-}
-
-// ipLess compares two IP addresses and returns true if the first is less than (as 16B) the second
-func ipLess(a, b net.IP) bool {
-	// Ensure both are same format
-	a = a.To16()
-	b = b.To16()
-	for i := 0; i < len(a); i++ {
-		if a[i] < b[i] {
-			return true
-		} else if a[i] > b[i] {
-			return false
-		}
-	}
-	return false // they're equal
-}
-
-// netipFromIPNet converts net.IPNet to netip.Prefix
-func netipFromIPNet(ipnet *net.IPNet) (netip.Prefix, error) {
-	addr, ok := netip.AddrFromSlice(ipnet.IP)
-	if !ok {
-		return netip.Prefix{}, fmt.Errorf("invalid IP address")
-	}
-
-	ones, _ := ipnet.Mask.Size()
-	return netip.PrefixFrom(addr, ones), nil
 }

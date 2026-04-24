@@ -1,10 +1,12 @@
 package vpnid
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/tlop503/ipcheq2/internal/config"
+	"gopkg.in/yaml.v2"
 )
 
 // helper to create temp file with given content
@@ -17,70 +19,68 @@ func makeTempFile(t *testing.T, dir, name, content string) string {
 	return path
 }
 
-func TestValidateConfig(t *testing.T) {
-	t.Run("valid config", func(t *testing.T) {
-		tmp := t.TempDir()
+func writeInitConfig(t *testing.T, cfg config.Config) string {
+	t.Helper()
 
-		// files with content
-		file1 := makeTempFile(t, tmp, "f1.txt", "foo")
-		file2 := makeTempFile(t, tmp, "f2.txt", "bar")
+	configHome := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", configHome)
+	t.Setenv("APPDATA", configHome)
 
-		// config content
-		config := `foo : ` + file1 + "\nbar : " + file2 + "\n"
-		configPath := makeTempFile(t, tmp, "config.txt", config)
+	configDir := filepath.Join(configHome, "ipcheq2")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		t.Fatalf("failed to create config dir: %v", err)
+	}
 
-		entries, err := validateConfig(configPath)
-		if err != nil {
-			t.Errorf("expected valid config, got error: %v", err)
-		}
+	configPath := filepath.Join(configDir, "ipcheq2.yaml")
+	data, err := yaml.Marshal(&cfg)
+	if err != nil {
+		t.Fatalf("failed to marshal config yaml: %v", err)
+	}
 
-		// optional: check parsed entries
-		if len(entries) != 2 {
-			t.Errorf("expected 2 entries, got %d", len(entries))
-		} else {
-			if entries[0].Name != "foo" || entries[0].Path != file1 {
-				t.Errorf("first entry mismatch: %+v", entries[0])
-			}
-			if entries[1].Name != "bar" || entries[1].Path != file2 {
-				t.Errorf("second entry mismatch: %+v", entries[1])
-			}
-		}
-	})
+	if err := os.WriteFile(configPath, data, 0644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
 
-	t.Run("bad format line", func(t *testing.T) {
-		tmp := t.TempDir()
-		config := "this-is-wrong\n"
-		configPath := makeTempFile(t, tmp, "config.txt", config)
-
-		if _, err := validateConfig(configPath); err == nil {
-			t.Errorf("expected error for bad format line, got nil")
-		}
-	})
-
-	t.Run("file does not exist", func(t *testing.T) {
-		tmp := t.TempDir()
-		config := "foo : /nonexistent/path\n"
-		configPath := makeTempFile(t, tmp, "config.txt", config)
-
-		if _, err := validateConfig(configPath); err == nil {
-			t.Errorf("expected error for missing file, got nil")
-		}
-	})
+	return configPath
 }
 
 func TestInitialize(t *testing.T) {
-	t.Run("no error expected", func(t *testing.T) {
+	t.Run("loads configured sources", func(t *testing.T) {
 		tmp := t.TempDir()
 
-		// Create a data file first
-		dataFile := makeTempFile(t, tmp, "data.txt", "1.1.1.1\n2.2.2.0/24\n")
+		dataFileA := makeTempFile(t, tmp, "provider-a.txt", "1.1.1.1\n2.2.2.0/24\n")
+		dataFileB := makeTempFile(t, tmp, "provider-b.txt", "3.3.3.3\n")
 
-		// Create config that references the actual data file
-		config := fmt.Sprintf("provider1 : %s\n", dataFile)
-		configPath := makeTempFile(t, tmp, "config.txt", config)
+		writeInitConfig(t, config.Config{
+			Sources: []config.Source{
+				{Name: "provider-a", Path: dataFileA},
+				{Name: "provider-b", Path: dataFileB},
+			},
+		})
 
-		if _, err := initialize(configPath); err != nil {
+		ranger, err := initialize()
+		if err != nil {
 			t.Errorf("expected no error, got %v", err)
+		}
+
+		if ranger == nil {
+			t.Fatal("expected initialized ranger, got nil")
+		}
+	})
+
+	t.Run("fails when source contains invalid line", func(t *testing.T) {
+		tmp := t.TempDir()
+
+		invalidDataFile := makeTempFile(t, tmp, "invalid-provider.txt", "not-an-ip\n")
+
+		writeInitConfig(t, config.Config{
+			Sources: []config.Source{
+				{Name: "broken-provider", Path: invalidDataFile},
+			},
+		})
+
+		if _, err := initialize(); err == nil {
+			t.Fatal("expected initialize to fail for invalid source data, got nil")
 		}
 	})
 }
