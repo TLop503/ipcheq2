@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 
-	"github.com/tlop503/ipcheq2/internal/iputils"
+	"github.com/tlop503/ipcheq2/v2/internal/iputils"
 )
 
 var prefixes_url = "https://mask-api.icloud.com/egress-ip-ranges.csv"

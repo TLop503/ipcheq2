@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tlop503/ipcheq2/internal/config"
+	"github.com/tlop503/ipcheq2/v2/internal/config"
 	"gopkg.in/yaml.v2"
 )
 

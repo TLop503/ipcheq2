@@ -3,13 +3,13 @@ package vpnid
 import (
 	"bufio"
 	"fmt"
-	"github.com/tlop503/ipcheq2/internal/iputils"
+	"github.com/tlop503/ipcheq2/v2/internal/iputils"
 	"net"
 	"net/netip"
 	"os"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/internal/config"
+	"github.com/tlop503/ipcheq2/v2/internal/config"
 	"github.com/yl2chen/cidranger"
 )
 
