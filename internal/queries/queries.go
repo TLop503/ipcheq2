@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/netip"
 
-	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
-	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/vpnid"
 )
 
 // FirstPartyQuery only checks local data, currently just VPNID

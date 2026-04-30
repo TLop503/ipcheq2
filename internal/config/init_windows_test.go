@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tlop503/ipcheq2/internal/data"
+	"github.com/tlop503/ipcheq2/v2/internal/data"
 )
 
 func TestInitWindowsCreatesAndLoadsConfig(t *testing.T) {

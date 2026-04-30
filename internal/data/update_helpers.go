@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/internal/iputils"
+	"github.com/tlop503/ipcheq2/v2/internal/iputils"
 	"gopkg.in/yaml.v2"
 )
 

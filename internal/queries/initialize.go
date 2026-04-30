@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/internal/config"
-	"github.com/tlop503/ipcheq2/internal/data"
-	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
-	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
+	"github.com/tlop503/ipcheq2/v2/internal/config"
+	"github.com/tlop503/ipcheq2/v2/internal/data"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/vpnid"
 )
 
 // InitConnectors reads API keys for upstream services and calls vpnid's init

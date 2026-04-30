@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tlop503/ipcheq2/internal/config"
+	"github.com/tlop503/ipcheq2/v2/internal/config"
 )
 
 func TestQueryIPs(t *testing.T) {

@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"github.com/tlop503/ipcheq2/internal/data"
-	"github.com/tlop503/ipcheq2/internal/queries"
-	"github.com/tlop503/ipcheq2/internal/router"
+	"github.com/tlop503/ipcheq2/v2/internal/data"
+	"github.com/tlop503/ipcheq2/v2/internal/queries"
+	"github.com/tlop503/ipcheq2/v2/internal/router"
 	"log"
 	"os"
 )

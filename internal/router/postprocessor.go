@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/internal/queries"
-	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/v2/internal/queries"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
 )
 
 func QueryAndStyle(ip netip.Addr) FrontEndData {

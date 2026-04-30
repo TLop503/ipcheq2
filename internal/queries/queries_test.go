@@ -11,10 +11,10 @@ import (
 
 	"net/netip"
 
-	"github.com/tlop503/ipcheq2/internal/data"
-	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
-	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
+	"github.com/tlop503/ipcheq2/v2/internal/data"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/vpnid"
 )
 
 func TestFirstPartyQuery_WhenRangerNotInitialized(t *testing.T) {
