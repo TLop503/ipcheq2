@@ -23,16 +23,16 @@ jobs:
       - name: Build binaries
         run: |
           # Build for amd64 Linux
-          GOOS=linux GOARCH=amd64 go build -o ipcheq2_linux_amd64 ./cmd/server
+          GOOS=linux GOARCH=amd64 go build -o ipcheq2_linux_amd64 ./cmd/ipcheq2server
           
           # Build for arm64 Linux
-          GOOS=linux GOARCH=arm64 go build -o ipcheq2_linux_arm64 ./cmd/server
+          GOOS=linux GOARCH=arm64 go build -o ipcheq2_linux_arm64 ./cmd/ipcheq2server
           
           # Build for amd64 Windows
-          GOOS=windows GOARCH=amd64 go build -o ipcheq2_windows_amd64.exe ./cmd/server
+          GOOS=windows GOARCH=amd64 go build -o ipcheq2_windows_amd64.exe ./cmd/ipcheq2server
           
           # Build for arm64 Windows
-          GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe ./cmd/server
+          GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe ./cmd/ipcheq2server
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

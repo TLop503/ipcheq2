@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 WORKDIR /app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o ipcheq2 ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o ipcheq2 ./cmd/ipcheq2server
 
 # --------------------
 # Final stage (NO apk, NO shell)
