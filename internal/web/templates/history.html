@@ -5,7 +5,7 @@
 <div class="results-grid">
 {{ range . }}
 
-<div class="ip-card" data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}">
+<div {{if .VPNidHasMatches}}class="ip-card-glow"{{else}}class="ip-card"{{end}} data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}">
   <div class="card-header">
     <h3 class="ip-address">{{ .FQ.IPAddress }}</h3>
     <div class="confidence-badge" data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}">
