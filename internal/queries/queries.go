@@ -2,7 +2,6 @@ package queries
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/netip"
 
@@ -12,10 +11,12 @@ import (
 )
 
 // FirstPartyQuery only checks local data, currently just VPNID
+// if VPNID range not initialized, should return error
 func FirstPartyQuery(addr netip.Addr) ([]byte, error) {
 	results, err := vpnid.QueryToSlice(addr)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("First Party Query: ", err)
+		return nil, err
 	}
 
 	response := FirstPartyResponse{

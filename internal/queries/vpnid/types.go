@@ -1,7 +1,7 @@
 package vpnid
 
 import (
-	"fmt"
+	"log"
 	"net"
 	"net/netip"
 
@@ -30,5 +30,5 @@ func InitializeVpnID() {
 		panic("Failed to initialize VPN ID: " + err.Error())
 	}
 	VpnIDRanger = ranger
-	fmt.Println("VPN ID ranger initialized successfully")
+	log.Println("VPN ID ranger initialized successfully")
 }

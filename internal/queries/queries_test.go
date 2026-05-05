@@ -25,22 +25,12 @@ func TestFirstPartyQuery_WhenRangerNotInitialized(t *testing.T) {
 	})
 
 	addr := netip.MustParseAddr("1.1.1.1")
-	body, err := FirstPartyQuery(addr)
-	if err != nil {
-		t.Fatalf("FirstPartyQuery returned unexpected error: %v", err)
+	_, err := FirstPartyQuery(addr)
+	if err == nil {
+		t.Fatalf("FirstPartyQuery failed to return expected error")
 	}
-
-	var got FirstPartyResponse
-	if err := json.Unmarshal(body, &got); err != nil {
-		t.Fatalf("failed to unmarshal FirstPartyQuery response: %v", err)
-	}
-
-	if got.IPAddress != addr.String() {
-		t.Fatalf("IPAddress = %q, want %q", got.IPAddress, addr.String())
-	}
-
-	if got.VPNIDMatches != nil {
-		t.Fatalf("VPNIDMatches = %#v, want nil when ranger is uninitialized", got.VPNIDMatches)
+	if err.Error() != "VPNIDRanger not initialized" {
+		t.Fatalf("FirstPartyQuery failed to return expected error, instead got %s", err.Error())
 	}
 }
 
