@@ -181,6 +181,22 @@ a {
     display: flex;
     flex-direction: column;
     min-height: 300px;
+    z-index: 1; /* render above glow */
+}
+
+.ip-card-glow {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    -webkit-box-shadow:0 0 62px 0 rgba(184,255,31,0.41);
+    -moz-box-shadow: 0 0 62px 0 rgba(184,255,31,0.41);
+    box-shadow: 0 0 32px 0 rgba(184,255,31,0.41);
+    z-index: 0; /* render below other cards */
 }
 
 .ip-card:hover {
@@ -387,3 +403,4 @@ a {
 .dark-mode .threat-icon svg {
     stroke: var(--back-color);
 }
+

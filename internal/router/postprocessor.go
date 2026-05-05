@@ -44,8 +44,10 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 		moveToEnd(data.VPNIDMatches, "Generic VPN from ASN Data V4") // as it's least verbose
 		moveToEnd(data.VPNIDMatches, "Generic VPN from ASN Data V6") // as it's least verbose
 		fed.VpnidParsedResults = strings.Join(data.VPNIDMatches, ", ")
+		fed.VPNidHasMatches = true
 	} else {
 		fed.VpnidParsedResults = "Not found in VPNID"
+		fed.VPNidHasMatches = false
 	}
 
 	return fed
@@ -57,6 +59,7 @@ var Results = NewResultsBuffer(8)
 type FrontEndData struct {
 	FQ                 queries.FullQueryResponse
 	VpnidParsedResults string `default:"Not found in VPNID"`
+	VPNidHasMatches    bool   `default:false`
 	VtTotalDetections  int    `default:"0"`
 	VtTotalEngines     int    `default:"0"`
 	ShowAbuseLinks     bool   `default:"false"`
