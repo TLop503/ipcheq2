@@ -178,7 +178,7 @@ a {
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
     min-height: 300px;
@@ -190,7 +190,7 @@ a {
     border: 2px solid var(--card-border);
     border-radius: 15px;
     overflow: hidden;
-    transition: box-shadow 0.3s ease;
+    transition: transform 0.2s, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
     min-height: 300px;
@@ -203,6 +203,10 @@ a {
 .ip-card:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.ip-card-glow:hover {
+    transform: scale(1.05);
 }
 
 .card-header {
@@ -307,6 +311,10 @@ a {
     transform: scale(0.85);
     opacity: 0;
     transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.focused.glow {
+    box-shadow: 0 0 32px 0 rgba(184,255,31,0.41);
 }
 
 /* Focus card content container */

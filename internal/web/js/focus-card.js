@@ -2,47 +2,40 @@ const grid = document.getElementById('results-grid');
 const overlay = document.getElementById('overlay');
 const focusedContent = document.getElementById('focused-content');
 const closeBtn = document.getElementById('close-btn');
-const cards = document.querySelectorAll('.ip-card');
+const nonglow_cards = document.querySelectorAll('.ip-card');
+const glow_cards = document.querySelectorAll('.ip-card-glow');
 let isDragging = false;
 let startX = 0;
 let startY = 0;
 
 // Open focus card (only if user actually clicked, avoids opening on drag click)
-cards.forEach((card) => {
-    card.addEventListener('mousedown', (e) => {
-        isDragging = false;
-        startX = e.clientX;
-        startY = e.clientY;
+function applyCardListeners(cards, cardClass) {
+    cards.forEach((card) => {
+        card.addEventListener('mousedown', (e) => {
+            isDragging = false;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+        card.addEventListener('mousemove', (e) => {
+            const dx = Math.abs(e.clientX - startX);
+            const dy = Math.abs(e.clientY - startY);
+            if (dx > 5 || dy > 5) {
+                isDragging = true;
+            }
+        });
+        card.addEventListener('click', () => {
+            if (isDragging) return;
+            focusedContent.innerHTML = '';
+            const clone = card.cloneNode(true);
+            clone.classList.remove(cardClass);
+            focusedContent.appendChild(clone);
+            overlay.classList.add('active');
+        });
     });
+}
 
-    card.addEventListener('mousemove', (e) => {
-        const dx = Math.abs(e.clientX - startX);
-        const dy = Math.abs(e.clientY - startY);
-
-        if (dx > 5 || dy > 5) { // small threshold
-            isDragging = true;
-        }
-    });
-
-    card.addEventListener('click', () => {
-        if (isDragging) return; // ignore drag
-
-        // Clear previous content
-        focusedContent.innerHTML = '';
-
-        // Clone the clicked card
-        const clone = card.cloneNode(true);
-
-        // Modify layout of contents
-        clone.classList.remove('ip-card');
-        clone.classList.add('focused-card');
-
-        // Append to overlay
-        focusedContent.appendChild(clone);
-
-        overlay.classList.add('active');
-    });
-});
+applyCardListeners(nonglow_cards, 'ip-card');
+applyCardListeners(glow_cards, 'ip-card-glow');
 
 // Close logic
 closeBtn.addEventListener('click', () => {
