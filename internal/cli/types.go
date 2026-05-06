@@ -1,5 +1,7 @@
 package cli
 
+import "net/netip"
+
 type RunMode int
 
 const (
@@ -7,7 +9,6 @@ const (
 	ModeAPI
 	ModeHeadless
 	ModeQuery
-	ModeREPL
 )
 
 type Config struct {
@@ -22,3 +23,16 @@ var (
 	query  string
 	update bool
 )
+
+type CliMode int
+
+const (
+	ModeFirst CliMode = iota
+	ModeThird
+	ModeFull
+)
+
+type CliConfig struct {
+	Mode    CliMode
+	QueryIP netip.Addr
+}

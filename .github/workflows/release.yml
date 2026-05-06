@@ -23,16 +23,21 @@ jobs:
       - name: Build binaries
         run: |
           # Build for amd64 Linux
-          GOOS=linux GOARCH=amd64 go build -o ipcheq2_linux_amd64 ./cmd/ipcheq2server
+          GOOS=linux GOARCH=amd64 go build -o ipcheq2_linux_amd64 ./cmd/ipcheq2
+          GOOS=linux GOARCH=amd64 go build -o ipc2cmd_linux_amd64 ./cmd/ipc2cmd
           
           # Build for arm64 Linux
-          GOOS=linux GOARCH=arm64 go build -o ipcheq2_linux_arm64 ./cmd/ipcheq2server
+          GOOS=linux GOARCH=arm64 go build -o ipcheq2_linux_arm64 ./cmd/ipcheq2
+          GOOS=linux GOARCH=arm64 go build -o ipc2cmd_linux_arm64 ./cmd/ipc2cmd
           
           # Build for amd64 Windows
-          GOOS=windows GOARCH=amd64 go build -o ipcheq2_windows_amd64.exe ./cmd/ipcheq2server
+          GOOS=windows GOARCH=amd64 go build -o ipcheq2_windows_amd64.exe ./cmd/ipcheq2
+          GOOS=windows GOARCH=amd64 go build -o ipc2cmd_windows_amd64.exe ./cmd/ipc2cmd
           
           # Build for arm64 Windows
-          GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe ./cmd/ipcheq2server
+          GOOS=windows GOARCH=arm64 go build -o ipcheq2_windows_arm64.exe ./cmd/ipcheq2
+          GOOS=windows GOARCH=arm64 go build -o ipc2cmd_windows_arm64.exe ./cmd/ipc2cmd
+          
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -43,6 +48,10 @@ jobs:
             ipcheq2_linux_arm64
             ipcheq2_windows_amd64.exe
             ipcheq2_windows_arm64.exe
+            ipc2cmd_linux_amd64
+            ipc2cmd_linux_arm64
+            ipc2cmd_windows_amd64.exe
+            ipc2cmd_windows_arm64.exe
 
   release:
     needs: build-and-test
@@ -57,11 +66,16 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: true
+          generate_release_notes: true
           files: |
             ipcheq2_linux_amd64
             ipcheq2_linux_arm64
             ipcheq2_windows_amd64.exe
             ipcheq2_windows_arm64.exe
+            ipc2cmd_linux_amd64
+            ipc2cmd_linux_arm64
+            ipc2cmd_windows_amd64.exe
+            ipc2cmd_windows_arm64.exe
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
