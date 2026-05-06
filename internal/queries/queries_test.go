@@ -11,9 +11,10 @@ import (
 
 	"net/netip"
 
-	"github.com/tlop503/ipcheq2/internal/queries/abuseipdb"
-	"github.com/tlop503/ipcheq2/internal/queries/virustotal"
-	"github.com/tlop503/ipcheq2/internal/queries/vpnid"
+	"github.com/tlop503/ipcheq2/v2/internal/data"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/vpnid"
 )
 
 func TestFirstPartyQuery_WhenRangerNotInitialized(t *testing.T) {
@@ -24,27 +25,19 @@ func TestFirstPartyQuery_WhenRangerNotInitialized(t *testing.T) {
 	})
 
 	addr := netip.MustParseAddr("1.1.1.1")
-	body, err := FirstPartyQuery(addr)
-	if err != nil {
-		t.Fatalf("FirstPartyQuery returned unexpected error: %v", err)
+	_, err := FirstPartyQuery(addr)
+	if err == nil {
+		t.Fatalf("FirstPartyQuery failed to return expected error")
 	}
-
-	var got FirstPartyResponse
-	if err := json.Unmarshal(body, &got); err != nil {
-		t.Fatalf("failed to unmarshal FirstPartyQuery response: %v", err)
-	}
-
-	if got.IPAddress != addr.String() {
-		t.Fatalf("IPAddress = %q, want %q", got.IPAddress, addr.String())
-	}
-
-	if got.VPNIDMatches != nil {
-		t.Fatalf("VPNIDMatches = %#v, want nil when ranger is uninitialized", got.VPNIDMatches)
+	if err.Error() != "VPNIDRanger not initialized" {
+		t.Fatalf("FirstPartyQuery failed to return expected error, instead got %s", err.Error())
 	}
 }
 
 func TestFirstPartyQuery_WithInitializedRanger(t *testing.T) {
 	prevRanger := vpnid.VpnIDRanger
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
 	prevWD, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get current working directory: %v", err)
@@ -59,6 +52,10 @@ func TestFirstPartyQuery_WithInitializedRanger(t *testing.T) {
 		_ = os.Chdir(prevWD)
 		vpnid.VpnIDRanger = prevRanger
 	})
+
+	if _, err := data.EnsureDataDir(); err != nil {
+		t.Fatalf("failed to hydrate cache data for test: %v", err)
+	}
 
 	vpnid.InitializeVpnID()
 
@@ -146,7 +143,9 @@ func TestThirdPartyQuery_AbuseIPDBKeyPresent_NoVTKey(t *testing.T) {
 	const helperEnv = "IPCHEQ2_THIRDPARTY_HELPER"
 
 	if os.Getenv(helperEnv) == "1" {
-		abuseipdb.InitializeAPIKey()
+		if err := abuseipdb.InitializeAPIKey(); err != nil {
+			t.Fatalf("InitializeAPIKey returned unexpected error: %v", err)
+		}
 		virustotal.VTKeyPresent = false
 
 		addr := netip.MustParseAddr("8.8.4.4")

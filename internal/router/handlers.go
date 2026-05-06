@@ -10,8 +10,8 @@ import (
 	"net/netip"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/internal/queries"
-	"github.com/tlop503/ipcheq2/internal/web"
+	"github.com/tlop503/ipcheq2/v2/internal/queries"
+	"github.com/tlop503/ipcheq2/v2/internal/web"
 )
 
 // handleIPPost parses out IP and queries abuseipdb, vpnid, and virustotal

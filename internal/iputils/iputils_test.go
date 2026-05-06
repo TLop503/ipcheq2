@@ -1,4 +1,4 @@
-package vpnid
+package iputils
 
 import (
 	"net"
@@ -14,7 +14,7 @@ func mustIP(s string) net.IP {
 	return ip.To4()
 }
 
-func TestCollapse(t *testing.T) {
+func TestCollapseIPsToNets(t *testing.T) {
 	tests := []struct {
 		name string
 		ips  []string
@@ -68,7 +68,7 @@ func TestCollapse(t *testing.T) {
 				ips = append(ips, mustIP(ip))
 			}
 
-			gotNets := collapse(ips)
+			gotNets := CollapseIPsToNets(ips)
 
 			// normalize both got/want to []string to cover empty return case
 			var got []string
@@ -77,10 +77,10 @@ func TestCollapse(t *testing.T) {
 			}
 
 			if len(tt.want) != 0 && !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("collapse(%v) = %v, want %v", tt.ips, got, tt.want)
+				t.Errorf("Collapse(%v) = %v, want %v", tt.ips, got, tt.want)
 			} else if len(tt.want) == 0 { // to cover empty response never fulfilling deep equal
 				if len(got) != 0 {
-					t.Errorf("collapse(%v) = %v, want %v", tt.ips, got, nil)
+					t.Errorf("Collapse(%v) = %v, want %v", tt.ips, got, nil)
 				}
 			}
 		})

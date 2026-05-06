@@ -5,11 +5,8 @@ import (
 	"io"
 	"net/netip"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/joho/godotenv"
 )
 
 // TestQueryAbuseIPDB_PrintRawAndStruct is an opt-in integration test.
@@ -19,12 +16,12 @@ func TestQueryAbuseIPDB_PrintRawAndStruct(t *testing.T) {
 		t.Skip("skipping AbuseIPDB integration test in short mode")
 	}
 
-	key := envOrDotenv("ABIPDBKEY")
+	key := envVar("ABIPDBKEY")
 	if key == "" {
-		t.Skip("ABIPDBKEY not set in environment or .env; skipping live AbuseIPDB integration test")
+		t.Skip("ABIPDBKEY not set in environment; skipping live AbuseIPDB integration test")
 	}
 
-	targetIP := envOrDotenv("ABIPDB_TEST_IP")
+	targetIP := envVar("ABIPDB_TEST_IP")
 	if targetIP == "" {
 		targetIP = "8.8.8.8"
 	}
@@ -64,34 +61,6 @@ func TestQueryAbuseIPDB_PrintRawAndStruct(t *testing.T) {
 	}
 }
 
-func envOrDotenv(key string) string {
-	value := strings.TrimSpace(os.Getenv(key))
-	if value != "" {
-		return value
-	}
-
-	loadDotenvFromCWDOrParents()
+func envVar(key string) string {
 	return strings.TrimSpace(os.Getenv(key))
-}
-
-func loadDotenvFromCWDOrParents() {
-	wd, err := os.Getwd()
-	if err != nil {
-		return
-	}
-
-	current := wd
-	for {
-		dotenvPath := filepath.Join(current, ".env")
-		if _, statErr := os.Stat(dotenvPath); statErr == nil {
-			_ = godotenv.Load(dotenvPath)
-			return
-		}
-
-		parent := filepath.Dir(current)
-		if parent == current {
-			return
-		}
-		current = parent
-	}
 }

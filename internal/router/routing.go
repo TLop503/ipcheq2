@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tlop503/ipcheq2/internal/web"
+	"github.com/tlop503/ipcheq2/v2/internal/web"
 )
 
 func RouteWebui() {

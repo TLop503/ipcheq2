@@ -1,6 +1,6 @@
 // Dynamic confidence bar and badge color based on abuse confidence percentage
 document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.ip-card');
+    const cards = document.querySelectorAll('.ip-card, .ip-card-glow');
 
     cards.forEach(card => {
         const confidence = parseInt(card.getAttribute('data-confidence'));
