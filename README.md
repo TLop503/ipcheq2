@@ -31,7 +31,8 @@ Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 Want to see another source here? Open a PR with a file or an issue with a link!
 
 ## Install with package managers
-Go: `go install github.com/tlop503/ipcheq2/v2/cmd/ipcheq2server@latest`
+### ipcheq2 server:
+With Go: `go install github.com/tlop503/ipcheq2/v2/cmd/ipcheq2@latest`
 
 ## Quick Start with Docker
 
