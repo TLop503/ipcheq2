@@ -49,6 +49,7 @@ body {
     width: 60px;
     height: 34px;
     border-radius: 34px;
+    flex-shrink: 0; 
 }
 
 .slider:before {
@@ -165,7 +166,7 @@ a {
     grid-auto-rows: minmax(300px, auto);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
     .results-grid {
         grid-template-columns: 1fr;
     }
@@ -211,6 +212,7 @@ a {
 
 .card-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1rem 0.75rem 1rem;
@@ -300,7 +302,8 @@ a {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 70%;
     height: 60%;
-    min-height: 300px;
+    min-height: 760px;
+    min-width: 760px;
     font-size: 32px;
     display: flex;
     align-items: center;
@@ -388,6 +391,8 @@ a {
     justify-content: flex-end;
     gap: 0.5rem;
     font-size: 1rem;
+    word-break: break-all;
+    min-width: 0;
 }
 
 .risk-level {
