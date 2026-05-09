@@ -166,9 +166,18 @@ a {
     grid-auto-rows: minmax(300px, auto);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1150px) {
     .results-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 655px) {
+    body {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        min-width: 0;
     }
 }
 
@@ -354,6 +363,10 @@ a {
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.info-hidden {
+    display: none;
 }
 
 .info-row {

@@ -87,6 +87,11 @@
       <span class="info-value">{{ .FQ.ABIPDBResponse.NumDistinctUsers }}</span>
     </div>
 
+    <div class="info-hidden">
+      <span class="info-label">VT Tags:</span>
+      <span class="info-value">{{ .FQ.VirusTotalResponse.Tags }}</span>
+    </div>
+
     {{ if gt .VtTotalEngines 0 }}
     <div class="info-row">
       <span class="info-label">VT Detections:</span>

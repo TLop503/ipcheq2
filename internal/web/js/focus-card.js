@@ -27,6 +27,10 @@ function applyCardListeners(cards, cardClass) {
             if (isDragging) return;
             focusedContent.innerHTML = '';
             const clone = card.cloneNode(true);
+            clone.querySelectorAll('.info-hidden').forEach(el => {
+                el.classList.remove('info-hidden');
+                el.classList.add('info-row');
+            });
             clone.classList.remove(cardClass);
             focusedContent.appendChild(clone);
             overlay.classList.add('active');
