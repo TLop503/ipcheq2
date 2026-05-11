@@ -26,12 +26,12 @@ func InitConnectors() {
 		log.Println("Warning: .env loading is deprecated and ignored. Use user config keys file or environment variables instead.")
 	}
 
-	// load from desk
+	// load from env
 	abuseIPDBKey := strings.TrimSpace(os.Getenv("ABIPDBKEY"))
 	vtKey := strings.TrimSpace(os.Getenv("VTKEY"))
 
-	// and from env
-	keys, err := config.LoadKeys()
+	// and from disk
+	disk, err := config.LoadKeys()
 	if err != nil {
 		log.Println("Error loading keys, falling back to env vars: ", err)
 		if err == os.ErrNotExist {
@@ -46,15 +46,15 @@ func InitConnectors() {
 
 	// prioritize env variables over config
 	if abuseIPDBKey == "" {
-		abuseIPDBKey = keys.ABIPDBKey
+		abuseIPDBKey = disk.ABIPDBKey
 	}
 	if vtKey == "" {
-		vtKey = keys.VTKey
+		vtKey = disk.VTKey
 	}
 
 	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
 	if err := abuseipdb.InitializeAPIKeyFromValue(abuseIPDBKey); err != nil {
-		log.Println("Missing required AbuseIPDB key. Set ABIPDBKEY env var or abipdbKey in keys.yaml: %v", err)
+		log.Printf("Missing required AbuseIPDB key. Set ABIPDBKEY env var or abipdbKey in keys.yaml: %v", err)
 	}
 	virustotal.InitializeVTAPIKeyFromValue(vtKey)
 	// Initialize VPN ID ranger
