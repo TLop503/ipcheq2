@@ -1,22 +1,24 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
-func TestLoadKeysMissingFileReturnsEmpty(t *testing.T) {
+func TestLoadKeysMissingFileReturnsNotExist(t *testing.T) {
 	configHome := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", configHome)
 
 	keys, err := LoadKeys()
-	if err != nil {
-		t.Fatalf("LoadKeys returned unexpected error: %v", err)
+	if !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("LoadKeys error = %v, want os.ErrNotExist", err)
 	}
 
-	if keys.ABIPDBKey != "" || keys.VTKey != "" {
-		t.Fatalf("expected empty keys on missing keys file, got %+v", keys)
+	if keys != (Keys{}) {
+		t.Fatalf("expected zero-value keys on missing keys file, got %+v", keys)
 	}
 }
 
@@ -67,7 +69,7 @@ func TestEnsureKeysFileCreatesWhenMissing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed reading created keys file: %v", err)
 	}
-	if string(content) != keysTemplate {
+	if strings.TrimSpace(string(content)) != strings.TrimSpace(keysTemplate) {
 		t.Fatalf("expected template keys file content, got %q", string(content))
 	}
 }

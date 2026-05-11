@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/netip"
-	"os"
 	"strings"
 
 	vt "github.com/VirusTotal/vt-go"
@@ -15,11 +14,6 @@ import (
 var VTKeyPresent bool = false
 var vtKey string
 var vtClient *vt.Client
-
-// InitializeAPIKey sets the VirusTotal API key from environment
-func InitializeVTAPIKey() {
-	InitializeVTAPIKeyFromValue(os.Getenv("VTKEY"))
-}
 
 // InitializeVTAPIKeyFromValue sets the VirusTotal API key from an explicit value.
 func InitializeVTAPIKeyFromValue(key string) {

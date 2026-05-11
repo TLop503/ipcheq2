@@ -39,14 +39,14 @@ func ThirdPartyQuery(addr netip.Addr) ([]byte, error) {
 
 	result.IPAddress = addr.String()
 
-	// Query ABIPDB
-	abResults, err := abuseipdb.QueryAbuseIPDB(addr)
-	if err != nil {
-		log.Printf("Issue with abuseipdb query in ThirdPartyQuery: %s", err)
+	if abuseipdb.ABIPKeyPresent {
+		abResults, err := abuseipdb.QueryAbuseIPDB(addr)
+		if err != nil {
+			log.Printf("Issue with abuseipdb query in ThirdPartyQuery: %s", err)
+		}
+		result.ABIPDBResponse = abResults
 	}
-	result.ABIPDBResponse = abResults
 
-	// Query VT (if key)
 	if virustotal.VTKeyPresent {
 		vtResults, err := virustotal.QueryVirusTotal(addr)
 		if err != nil {
@@ -66,30 +66,11 @@ type ThirdPartyResponse struct {
 
 // FullQuery returns a marshalled json FullQueryResponse with first and third party data
 func FullQuery(addr netip.Addr) ([]byte, error) {
-	var result FullQueryResponse
-
-	result.IPAddress = addr.String()
-
-	fpResults, err := vpnid.QueryToSlice(addr)
+	result, err := FullQueryToStruct(addr)
 	if err != nil {
-		log.Printf("Issue with vpnid query in FullQuery: %s", err)
+		log.Printf("FullQueryToStruct error: %v", err)
 	}
-	result.VPNIDMatches = fpResults
-
-	abResults, err := abuseipdb.QueryAbuseIPDB(addr)
-	if err != nil {
-		log.Printf("Issue with abuseipdb query in FullQuery: %s", err)
-	}
-	result.ABIPDBResponse = abResults
-
-	if virustotal.VTKeyPresent {
-		vtResults, err := virustotal.QueryVirusTotal(addr)
-		if err != nil {
-			log.Printf("Issue with virustotal query in FullQuery: %s", err)
-		}
-		result.VirusTotalResponse = vtResults
-	}
-
+	
 	return json.Marshal(result)
 }
 
@@ -105,16 +86,18 @@ func FullQueryToStruct(addr netip.Addr) (FullQueryResponse, error) {
 	}
 	result.VPNIDMatches = fpResults
 
-	abResults, err := abuseipdb.QueryAbuseIPDB(addr)
-	if err != nil {
-		log.Printf("Issue with abuseipdb query in FullQuery: %s", err)
+	if abuseipdb.ABIPKeyPresent {
+		abResults, err := abuseipdb.QueryAbuseIPDB(addr)
+		if err != nil {
+			log.Printf("Issue with abuseipdb query in ThirdPartyQuery: %s", err)
+		}
+		result.ABIPDBResponse = abResults
 	}
-	result.ABIPDBResponse = abResults
 
 	if virustotal.VTKeyPresent {
 		vtResults, err := virustotal.QueryVirusTotal(addr)
 		if err != nil {
-			log.Printf("Issue with virustotal query in FullQuery: %s", err)
+			log.Printf("Issue with virustotal query in ThirdPartyQuery: %s", err)
 		}
 		result.VirusTotalResponse = vtResults
 	}
