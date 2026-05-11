@@ -13,6 +13,8 @@ func resetFlags() {
 	mode = ""
 	query = ""
 	help = false
+	update = false
+	compact = false
 }
 
 func TestDefaultMode(t *testing.T) {
@@ -64,6 +66,19 @@ func TestModeHeadless(t *testing.T) {
 	}
 	if cfg.Mode != ModeHeadless {
 		t.Errorf("expected ModeHeadless, got %v", cfg.Mode)
+	}
+}
+
+func TestCompactFlag(t *testing.T) {
+	resetFlags()
+	os.Args = []string{"ipcheq2", "--compact"}
+
+	cfg, err := InitFlags()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !cfg.Compact {
+		t.Error("expected Compact to be true")
 	}
 }
 

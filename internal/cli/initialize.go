@@ -6,7 +6,6 @@ import (
 	"github.com/tlop503/ipcheq2/v2/internal/queries"
 	"github.com/tlop503/ipcheq2/v2/internal/router"
 	"log"
-	"os"
 )
 
 // InitServer parses CLI flags and calls corresponding router hooks
@@ -16,13 +15,19 @@ func InitServer() {
 		log.Fatalf("InitFlags: %v\n", err)
 	}
 
-	queries.InitConnectors()
-
 	if cfg.Update {
 		data.Update()
 		log.Println("Update complete!")
-		os.Exit(0)
 	}
+	if cfg.Compact {
+		data.Bulk_compact()
+		log.Println("Bulk compact complete!")
+	}
+	if cfg.Compact || cfg.Update {
+		return
+	}
+
+	queries.InitConnectors()
 
 	switch cfg.Mode {
 	case ModeWebUI:

@@ -12,6 +12,8 @@ func InitFlags() (Config, error) {
 	registerSharedFlags()
 	flag.BoolVar(&update, "update", false, "")
 	flag.BoolVar(&update, "u", false, "")
+	flag.BoolVar(&compact, "compact", false, "")
+	flag.BoolVar(&compact, "c", false, "")
 
 	flag.Parse()
 
@@ -21,27 +23,30 @@ func InitFlags() (Config, error) {
 		fmt.Println("-----------------------------------------------------------------")
 		fmt.Println("Optional flags:")
 		fmt.Println("  --mode <mode>    Set serving mode: webui | api | headless")
-		fmt.Println("                     webui    - serves the web UI only (default)")
-		fmt.Println("                     api      - serves web UI and exposes API")
-		fmt.Println("                     headless - exposes API only, no web UI")
-		fmt.Println("  --update -u      Update data sources and compact results")
-		fmt.Println("                      note: compression may take a few min")
+		fmt.Println("                   	webui    - serves the web UI only (default)")
+		fmt.Println("                   	api      - serves web UI and exposes API")
+		fmt.Println("                   	headless - exposes API only, no web UI")
+		fmt.Println("  --update -u      Update data sources")
+		fmt.Println("                   	currently only updates iCloud relays")
+		fmt.Println("  --compact -c     Compress data to minimum spanning subnets")
+		fmt.Println("                   	compression may take a few min")
+		fmt.Println("                   	note: bundled data is already compacted, but updates are raw")
+		fmt.Println("  						and should be compressed")
 		fmt.Println("  --help -h        Show this help message.")
 		fmt.Println()
 		fmt.Println("-----------------------------------------------------------------")
-		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
 		os.Exit(0)
 	}
 
 	switch {
 	case query != "":
-		return Config{Mode: ModeQuery, Update: update}, nil
+		return Config{Mode: ModeQuery, Update: update, Compact: compact}, nil
 	case mode == "api":
-		return Config{Mode: ModeAPI, Update: update}, nil
+		return Config{Mode: ModeAPI, Update: update, Compact: compact}, nil
 	case mode == "headless":
-		return Config{Mode: ModeHeadless, Update: update}, nil
+		return Config{Mode: ModeHeadless, Update: update, Compact: compact}, nil
 	case mode == "" || mode == "webui":
-		return Config{Mode: ModeWebUI, Update: update}, nil
+		return Config{Mode: ModeWebUI, Update: update, Compact: compact}, nil
 	default:
 		return Config{}, fmt.Errorf("unknown mode %q: must be webui, api, or headless", mode)
 	}

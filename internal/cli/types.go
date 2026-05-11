@@ -12,15 +12,18 @@ const (
 )
 
 type Config struct {
-	Mode   RunMode
-	Update bool
+	Mode    RunMode
+	Update  bool
+	Config  bool
+	Compact bool
 }
 
 var (
-	help   bool
-	mode   string
-	query  string
-	update bool
+	help    bool
+	mode    string
+	query   string
+	update  bool
+	compact bool
 )
 
 type CliMode int
