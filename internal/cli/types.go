@@ -12,9 +12,8 @@ const (
 )
 
 type Config struct {
-	Mode    RunMode
-	QueryIP string
-	Update  bool
+	Mode   RunMode
+	Update bool
 }
 
 var (

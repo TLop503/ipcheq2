@@ -7,13 +7,11 @@ import (
 	"os"
 )
 
+// InitFlags acts as the entry for the main ipcheq binary
 func InitFlags() (Config, error) {
-	flag.StringVar(&mode, "mode", "", modeMsg)
-	flag.StringVar(&query, "i", "", queryMsg)
-	flag.BoolVar(&help, "h", false, helpMsg)
-	flag.BoolVar(&help, "help", false, helpMsg)
-	flag.BoolVar(&update, "update", false, helpMsg)
-	flag.BoolVar(&update, "u", false, helpMsg)
+	registerSharedFlags()
+	flag.BoolVar(&update, "update", false, "")
+	flag.BoolVar(&update, "u", false, "")
 
 	flag.Parse()
 
@@ -35,21 +33,9 @@ func InitFlags() (Config, error) {
 		os.Exit(0)
 	}
 
-	// if user set mode AND query
-	if mode != "" && query != "" {
-		return Config{}, fmt.Errorf("-i and --mode are mutually exclusive")
-	}
-
-	// otherwise if user only set query
-	if query != "" {
-		if _, err := netip.ParseAddr(query); err != nil {
-			return Config{}, fmt.Errorf("invalid IP address %q: %w", query, err)
-		}
-	}
-
 	switch {
 	case query != "":
-		return Config{Mode: ModeQuery, QueryIP: query, Update: update}, nil
+		return Config{Mode: ModeQuery, Update: update}, nil
 	case mode == "api":
 		return Config{Mode: ModeAPI, Update: update}, nil
 	case mode == "headless":
@@ -61,14 +47,11 @@ func InitFlags() (Config, error) {
 	}
 }
 
-// InitCliFlags parses arguments for the cli mode.
+// InitCliFlags parses arguments for the cli binary
 func InitCliFlags() (CliConfig, error) {
-	flag.StringVar(&mode, "mode", "", "")
-	flag.StringVar(&mode, "m", "", "")
+	registerSharedFlags()
 	flag.StringVar(&query, "a", "127.0.0.1", "")
 	flag.StringVar(&query, "addr", "", "")
-	flag.BoolVar(&help, "h", false, helpMsg)
-	flag.BoolVar(&help, "help", false, helpMsg)
 
 	flag.Parse()
 
@@ -82,6 +65,7 @@ func InitCliFlags() (CliConfig, error) {
 		fmt.Println("                     				 	third    - only query remote sources")
 		fmt.Println("										full     - query local and remote sources (DEFAULT)")
 		fmt.Println("  -a --addr <ip address>		IP address to query (v4 or v6)")
+		fmt.Println("  -h --help                   Show this help message.")
 		fmt.Println()
 		fmt.Println("--------------------------------------------------------------------------------------------")
 		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
@@ -104,4 +88,13 @@ func InitCliFlags() (CliConfig, error) {
 	default:
 		return CliConfig{}, fmt.Errorf("unknown mode %q: must be first, third, or full", mode)
 	}
+}
+
+// registerSharedFlags establishes help and mode flags
+func registerSharedFlags() {
+	// mode maps to iotas for either binary
+	flag.StringVar(&mode, "mode", "", "")
+	flag.StringVar(&mode, "m", "", "")
+	flag.BoolVar(&help, "h", false, "")
+	flag.BoolVar(&help, "help", false, "")
 }
