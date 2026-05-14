@@ -54,7 +54,7 @@ func InitConnectors() {
 
 	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
 	if err := abuseipdb.InitializeAPIKeyFromValue(abuseIPDBKey); err != nil {
-		log.Printf("Missing required AbuseIPDB key. Set ABIPDBKEY env var or abipdbKey in keys.yaml: %v", err)
+		log.Printf("Warning: AbuseIPDBKey not loaded. InitalizeAPIKeyFromValue: %v", err)
 	}
 	virustotal.InitializeVTAPIKeyFromValue(vtKey)
 	// Initialize VPN ID ranger
