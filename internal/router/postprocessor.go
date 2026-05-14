@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
 	"log"
 	"net/netip"
 	"slices"
@@ -20,6 +21,10 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 
 	var fed FrontEndData
 	fed.FQ = data
+
+	if abuseipdb.ABIPKeyPresent {
+		fed.AbKeyPresent = true
+	}
 
 	// populate VT data if present
 	if virustotal.VTKeyPresent {
@@ -59,8 +64,9 @@ var Results = NewResultsBuffer(8)
 type FrontEndData struct {
 	FQ                 queries.FullQueryResponse
 	VpnidParsedResults string `default:"Not found in VPNID"`
-	VPNidHasMatches    bool   `default:false`
+	VPNidHasMatches    bool   `default:"false"`
 	VtTotalDetections  int    `default:"0"`
 	VtTotalEngines     int    `default:"0"`
 	ShowAbuseLinks     bool   `default:"false"`
+	AbKeyPresent       bool   `default:"false"`
 }
