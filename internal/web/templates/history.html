@@ -14,6 +14,8 @@
   </div>
 
   <div class="card-body">
+
+    {{ if .AbKeyPresent }}
     <div class="info-row">
       <span class="info-label">ISP:</span>
       <span class="info-value">{{ .FQ.ABIPDBResponse.ISP }}</span>
@@ -51,6 +53,12 @@
         {{ .FQ.ABIPDBResponse.UsageType }}
       </span>
     </div>
+    {{ else }}
+    <div class="info-row">
+      <span class="info-label">ISP, Domain, Location, Usage: </span>
+      <span class="info-value">No IP Data provider linked</span>
+    </div>
+    {{ end }}
 
     <div class="info-row">
       <span class="info-label">VPN Status:</span>
