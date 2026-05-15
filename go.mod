@@ -1,6 +1,6 @@
 module github.com/tlop503/ipcheq2/v2
 
-go 1.25.0
+go 1.23.4
 
 require (
 	github.com/VirusTotal/vt-go v1.1.0
