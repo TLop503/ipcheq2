@@ -26,35 +26,35 @@ func InitConnectors() {
 		log.Println("Warning: .env loading is deprecated and ignored. Use user config keys file or environment variables instead.")
 	}
 
+	// load from env
 	abuseIPDBKey := strings.TrimSpace(os.Getenv("ABIPDBKEY"))
 	vtKey := strings.TrimSpace(os.Getenv("VTKEY"))
 
-	if abuseIPDBKey == "" && vtKey == "" {
-		path, created, err := config.EnsureKeysFile()
-		if err != nil {
-			log.Fatalf("Unable to initialize keys file: %v", err)
-		}
-		if created {
-			log.Printf("Created blank keys file at %s", path)
-		}
-	}
-
-	keys, err := config.LoadKeys()
+	// and from disk
+	disk, err := config.LoadKeys()
 	if err != nil {
-		log.Fatalf("Unable to load API keys configuration: %v", err)
+		log.Println("Error loading keys, falling back to env vars: ", err)
+		if err == os.ErrNotExist {
+			path, created, err := config.EnsureKeysFile()
+			if err != nil {
+				log.Fatalf("Unable to initialize keys file: %v", err)
+			} else if created {
+				log.Printf("Created blank keys file at %s", path)
+			}
+		}
 	}
 
+	// prioritize env variables over config
 	if abuseIPDBKey == "" {
-		abuseIPDBKey = keys.ABIPDBKey
+		abuseIPDBKey = disk.ABIPDBKey
 	}
-
 	if vtKey == "" {
-		vtKey = keys.VTKey
+		vtKey = disk.VTKey
 	}
 
 	// Initialize API keys in internal package -- at minimum, abuseIPDB key is required
 	if err := abuseipdb.InitializeAPIKeyFromValue(abuseIPDBKey); err != nil {
-		log.Fatalf("Missing required AbuseIPDB key. Set ABIPDBKEY env var or abipdbKey in keys.yaml: %v", err)
+		log.Printf("Warning: AbuseIPDBKey not loaded. InitalizeAPIKeyFromValue: %v", err)
 	}
 	virustotal.InitializeVTAPIKeyFromValue(vtKey)
 	// Initialize VPN ID ranger

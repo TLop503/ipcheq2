@@ -143,8 +143,8 @@ func TestThirdPartyQuery_AbuseIPDBKeyPresent_NoVTKey(t *testing.T) {
 	const helperEnv = "IPCHEQ2_THIRDPARTY_HELPER"
 
 	if os.Getenv(helperEnv) == "1" {
-		if err := abuseipdb.InitializeAPIKey(); err != nil {
-			t.Fatalf("InitializeAPIKey returned unexpected error: %v", err)
+		if err := initializeAPIKey(); err != nil {
+			t.Fatalf("initializeAPIKey returned unexpected error: %v", err)
 		}
 		virustotal.VTKeyPresent = false
 
@@ -194,4 +194,9 @@ func mapKeys(m map[string]any) []string {
 		keys = append(keys, key)
 	}
 	return keys
+}
+
+// initializeAPIKey sets the AbuseIPDB API key from environment.
+func initializeAPIKey() error {
+	return abuseipdb.InitializeAPIKeyFromValue(os.Getenv("ABIPDBKEY"))
 }

@@ -16,7 +16,7 @@ Aggregate data from AbuseIPDB, VPNID, and VirusTotal to investigate IPs!
 - Cli tool for querying ipcheq2 from the terminal
 
 ### IP Data Sources:
-- AbuseIPDB
+- AbuseIPDB (Optional)
 - VirusTotal (Optional)
 - iCloud Private Relays (Supports updating!)
 - Cyberghost
@@ -34,7 +34,7 @@ Want to see another source here? Open a PR with a file or an issue with a link!
 ## Install with package managers
 ### ipcheq2 server:
 With Go: `go install github.com/tlop503/ipcheq2/v2/cmd/ipcheq2@latest`
-### ipcehq2 cli:
+### ipcheq2 cli:
 With Go: `go install github.com/tlop503/ipcheq2/v2/cmd/ipc2cmd@latest`
 
 ## Quick Start with Docker for the ipcheq2 Server

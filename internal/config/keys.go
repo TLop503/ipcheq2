@@ -69,7 +69,7 @@ func LoadKeys() (Keys, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return Keys{}, nil
+			return Keys{}, os.ErrNotExist
 		}
 		return Keys{}, fmt.Errorf("reading keys file %q: %w", path, err)
 	}
