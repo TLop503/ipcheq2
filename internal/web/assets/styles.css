@@ -374,12 +374,12 @@ a {
     justify-content: space-between;
     align-items: center;
     padding: 0.4rem 0;
-    border-bottom: 1px solid var(--card-border);
+    border-top: 1px solid var(--card-border);
     font-size: 1rem;
 }
 
-.info-row:last-child {
-    border-bottom: none;
+.info-row:first-of-type {
+    border-top: none;
 }
 
 .info-row.sub-info {
