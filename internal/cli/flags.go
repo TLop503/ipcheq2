@@ -76,7 +76,6 @@ func InitCliFlags() (CliConfig, error) {
 		fmt.Println("  -h --help                    Show this help message.")
 		fmt.Println()
 		fmt.Println("--------------------------------------------------------------------------------------------")
-		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
 		os.Exit(0)
 	}
 
