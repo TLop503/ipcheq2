@@ -55,5 +55,5 @@ func CliEntry() {
 
 	queries.InitConnectors()
 	fmt.Printf("\nQuery results for %v from ipcheq2:\n\n", cfg.QueryIP)
-	queries.PrettyPrint(cfg.QueryIP, int(cfg.Mode))
+	queries.PrettyPrint(cfg.QueryIP, int(cfg.Mode), cfg.HumanReadable)
 }

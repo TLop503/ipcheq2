@@ -24,6 +24,7 @@ var (
 	query   string
 	update  bool
 	compact bool
+	human   bool
 )
 
 type CliMode int
@@ -35,6 +36,7 @@ const (
 )
 
 type CliConfig struct {
-	Mode    CliMode
-	QueryIP netip.Addr
+	Mode          CliMode
+	QueryIP       netip.Addr
+	HumanReadable bool
 }

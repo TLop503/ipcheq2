@@ -57,6 +57,8 @@ func InitCliFlags() (CliConfig, error) {
 	registerSharedFlags()
 	flag.StringVar(&query, "a", "127.0.0.1", "")
 	flag.StringVar(&query, "addr", "", "")
+	flag.BoolVar(&human, "H", false, "")
+	flag.BoolVar(&human, "human", false, "")
 
 	flag.Parse()
 
@@ -70,6 +72,7 @@ func InitCliFlags() (CliConfig, error) {
 		fmt.Println("                     				 	third    - only query remote sources")
 		fmt.Println("										full     - query local and remote sources (DEFAULT)")
 		fmt.Println("  -a --addr <ip address>		IP address to query (v4 or v6)")
+		fmt.Println("  -H --human				Print human-friendly summary rather than formatted JSON")
 		fmt.Println("  -h --help                   Show this help message.")
 		fmt.Println()
 		fmt.Println("--------------------------------------------------------------------------------------------")
@@ -85,11 +88,11 @@ func InitCliFlags() (CliConfig, error) {
 
 	switch {
 	case mode == "first":
-		return CliConfig{Mode: ModeFirst, QueryIP: addr}, nil
+		return CliConfig{Mode: ModeFirst, QueryIP: addr, HumanReadable: human}, nil
 	case mode == "third":
-		return CliConfig{Mode: ModeThird, QueryIP: addr}, nil
+		return CliConfig{Mode: ModeThird, QueryIP: addr, HumanReadable: human}, nil
 	case mode == "" || mode == "full":
-		return CliConfig{Mode: ModeFull, QueryIP: addr}, nil
+		return CliConfig{Mode: ModeFull, QueryIP: addr, HumanReadable: human}, nil
 	default:
 		return CliConfig{}, fmt.Errorf("unknown mode %q: must be first, third, or full", mode)
 	}
