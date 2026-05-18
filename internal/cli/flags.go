@@ -29,7 +29,6 @@ func InitFlags() (Config, error) {
 		fmt.Println("                   	api      - serves web UI and exposes API")
 		fmt.Println("                   	headless - exposes API only, no web UI")
 		fmt.Println("  --port -p        Port to serve on. Low ports may require root")
-		fmt.Println("                      overrides value set in config")
 		fmt.Println("  --update -u      Update data sources")
 		fmt.Println("                   	currently only updates iCloud relays")
 		fmt.Println("  --compact -c     Compress data to minimum spanning subnets")
