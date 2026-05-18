@@ -29,6 +29,8 @@ func InitServer() {
 
 	queries.InitConnectors()
 
+	router.Port = cfg.Port
+
 	switch cfg.Mode {
 	case ModeWebUI:
 		router.RouteWebui()

@@ -14,6 +14,8 @@ func InitFlags() (Config, error) {
 	flag.BoolVar(&update, "u", false, "")
 	flag.BoolVar(&compact, "compact", false, "")
 	flag.BoolVar(&compact, "c", false, "")
+	flag.IntVar(&port, "port", 8080, "")
+	flag.IntVar(&port, "p", 8080, "")
 
 	flag.Parse()
 
@@ -26,30 +28,34 @@ func InitFlags() (Config, error) {
 		fmt.Println("                   	webui    - serves the web UI only (default)")
 		fmt.Println("                   	api      - serves web UI and exposes API")
 		fmt.Println("                   	headless - exposes API only, no web UI")
+		fmt.Println("  --port -p        Port to serve on. Low ports may require root")
+		fmt.Println("                      overrides value set in config")
 		fmt.Println("  --update -u      Update data sources")
 		fmt.Println("                   	currently only updates iCloud relays")
 		fmt.Println("  --compact -c     Compress data to minimum spanning subnets")
 		fmt.Println("                   	compression may take a few min")
-		fmt.Println("                   	note: bundled data is already compacted, but updates are raw")
-		fmt.Println("  						and should be compressed")
+		fmt.Println("                   	note: bundled data is already compacted,")
+		fmt.Println("  						 but updates are uncompressed")
 		fmt.Println("  --help -h        Show this help message.")
 		fmt.Println()
 		fmt.Println("-----------------------------------------------------------------")
 		os.Exit(0)
 	}
 
+	var runMode RunMode
+
 	switch {
-	case query != "":
-		return Config{Mode: ModeQuery, Update: update, Compact: compact}, nil
 	case mode == "api":
-		return Config{Mode: ModeAPI, Update: update, Compact: compact}, nil
+		runMode = ModeAPI
 	case mode == "headless":
-		return Config{Mode: ModeHeadless, Update: update, Compact: compact}, nil
+		runMode = ModeHeadless
 	case mode == "" || mode == "webui":
-		return Config{Mode: ModeWebUI, Update: update, Compact: compact}, nil
+		runMode = ModeWebUI
 	default:
 		return Config{}, fmt.Errorf("unknown mode %q: must be webui, api, or headless", mode)
 	}
+
+	return Config{Mode: runMode, Update: update, Compact: compact, Port: port}, nil
 }
 
 // InitCliFlags parses arguments for the cli binary
