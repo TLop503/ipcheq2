@@ -16,6 +16,7 @@ type Config struct {
 	Update  bool
 	Config  bool
 	Compact bool
+	Port    int
 }
 
 var (
@@ -25,6 +26,7 @@ var (
 	update  bool
 	compact bool
 	human   bool
+	port    int
 )
 
 type CliMode int
