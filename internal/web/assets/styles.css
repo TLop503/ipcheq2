@@ -309,9 +309,9 @@ a {
     border: 2px solid var(--card-border);
     border-radius: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    max-width: 60%;
-    min-width: 650px;
-    min-height: 580px;
+    max-width: 60vw;
+    min-height: min(580px, 85vh);
+    max-height: 90vh;
     font-size: 32px;
     padding-top: 1.5rem;
     display: flex;
@@ -323,7 +323,7 @@ a {
     transform: scale(0.85);
     opacity: 0;
     transition: transform 0.25s ease, opacity 0.25s ease;
-    overflow: auto;
+    overflow: hidden;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -343,20 +343,28 @@ a {
 
 /* Focus card content container */
 #focused-content { 
-    width: 90%;
-    max-width: 90vw;
-    height: auto;
+    flex: 1;
+    min-height: 0;           
+    overflow-y: auto; 
     display: flex;
     flex-direction: column;
-    flex: 1;            
-    min-height: 0;       
+    width: 90%;
+    max-width: 90vw;     
 }
 
+/* Focus card adjustments for cloned contents */
 #focused-content .ip-card-clone {
     flex: 1;
-    min-height: 0;
     display: flex;
     flex-direction: column;
+}
+#focused-content .ip-card-clone .card-body {
+    flex: 1;          /* absorbs available space */
+    min-height: 0;
+}
+#focused-content .ip-card-clone .confidence-bar {
+    margin-top: auto; 
+    flex-shrink: 0;   
 }
 
 .close-btn {
@@ -370,6 +378,18 @@ a {
 
 .close-btn:hover {
     color: black;
+}
+
+/* focus card on small screens */
+@media (max-width: 1150px) {
+    .focused {
+        max-width: 90vw;
+        padding-top: 2.5rem; 
+    }
+    
+    #focused-content {
+        width: 95%;
+    }
 }
 
 /* Confidence badge colors */
