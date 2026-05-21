@@ -27,6 +27,10 @@ function applyCardListeners(cards, cardClass) {
         card.addEventListener('click', () => {
             if (is_dragging) return;
             focused_content.innerHTML = '';
+            // Clean up old bar from previous open
+            const old_confidence_bar = focused_card.querySelector('.confidence-bar');
+            if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
+            
             const clone = card.cloneNode(true);
             clone.querySelectorAll('.info-hidden').forEach(el => {
                 el.classList.remove('info-hidden');
@@ -58,14 +62,11 @@ applyCardListeners(glow_cards, 'ip-card-glow');
 // Close logic
 close_btn.addEventListener('click', () => {
     overlay.classList.remove('active');
-    const old_confidence_bar = focused_card.querySelector('.confidence-bar');
-    if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
+
 });
 
 overlay.addEventListener('click', (e) => {
 if (e.target === overlay) {
     overlay.classList.remove('active');
-    const old_confidence_bar = focused_card.querySelector('.confidence-bar');
-    if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
 }
 });

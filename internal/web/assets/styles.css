@@ -311,9 +311,9 @@ a {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     max-width: 60%;
     min-width: 650px;
-    min-height: 600px;
+    min-height: 580px;
     font-size: 32px;
-    padding-top: 2rem;
+    padding-top: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -331,7 +331,7 @@ a {
     -ms-overflow-style: none;
 }
 
-.focused .glow {
+.focused.glow {
     box-shadow: 0 0 32px 0 rgba(184,255,31,0.41);
 }
 
