@@ -28,14 +28,18 @@ function applyCardListeners(cards, cardClass) {
             if (is_dragging) return;
             focused_content.innerHTML = '';
             const clone = card.cloneNode(true);
-            const confidence_bar = clone.getElementsByClassName('confidence-bar');
-            confidence_bar[0].remove();
             clone.querySelectorAll('.info-hidden').forEach(el => {
                 el.classList.remove('info-hidden');
                 el.classList.add('info-row');
             });
             clone.classList.remove(cardClass);
+            clone.classList.add('ip-card-clone');
             focused_content.appendChild(clone);
+            const confidence_bar = clone.querySelector('.confidence-bar');
+            if (confidence_bar) {
+                clone.removeChild(confidence_bar);
+                focused_card.appendChild(confidence_bar);
+            }
             overlay.classList.add('active');
             if (cardClass == 'ip-card-glow') {
                 // make the focus card glow too
@@ -54,10 +58,14 @@ applyCardListeners(glow_cards, 'ip-card-glow');
 // Close logic
 close_btn.addEventListener('click', () => {
     overlay.classList.remove('active');
+    const old_confidence_bar = focused_card.querySelector('.confidence-bar');
+    if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
 });
 
 overlay.addEventListener('click', (e) => {
 if (e.target === overlay) {
     overlay.classList.remove('active');
+    const old_confidence_bar = focused_card.querySelector('.confidence-bar');
+    if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
 }
 });
