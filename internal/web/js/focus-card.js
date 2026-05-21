@@ -1,10 +1,11 @@
 const grid = document.getElementById('results-grid');
 const overlay = document.getElementById('overlay');
-const focusedContent = document.getElementById('focused-content');
-const closeBtn = document.getElementById('close-btn');
+const focused_content = document.getElementById('focused-content');
+const close_btn = document.getElementById('close-btn');
 const nonglow_cards = document.querySelectorAll('.ip-card');
 const glow_cards = document.querySelectorAll('.ip-card-glow');
-let isDragging = false;
+const focused_card = document.getElementById('focused');
+let is_dragging = false;
 let startX = 0;
 let startY = 0;
 
@@ -12,7 +13,7 @@ let startY = 0;
 function applyCardListeners(cards, cardClass) {
     cards.forEach((card) => {
         card.addEventListener('mousedown', (e) => {
-            isDragging = false;
+            is_dragging = false;
             startX = e.clientX;
             startY = e.clientY;
         });
@@ -20,20 +21,29 @@ function applyCardListeners(cards, cardClass) {
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
             if (dx > 5 || dy > 5) {
-                isDragging = true;
+                is_dragging = true;
             }
         });
         card.addEventListener('click', () => {
-            if (isDragging) return;
-            focusedContent.innerHTML = '';
+            if (is_dragging) return;
+            focused_content.innerHTML = '';
             const clone = card.cloneNode(true);
+            const confidence_bar = clone.getElementsByClassName('confidence-bar');
+            confidence_bar[0].remove();
             clone.querySelectorAll('.info-hidden').forEach(el => {
                 el.classList.remove('info-hidden');
                 el.classList.add('info-row');
             });
             clone.classList.remove(cardClass);
-            focusedContent.appendChild(clone);
+            focused_content.appendChild(clone);
             overlay.classList.add('active');
+            if (cardClass == 'ip-card-glow') {
+                // make the focus card glow too
+                focused_card.classList.add('glow');
+            }
+            else {
+                focused_card.classList.remove('glow');
+            }
         });
     });
 }
@@ -42,7 +52,7 @@ applyCardListeners(nonglow_cards, 'ip-card');
 applyCardListeners(glow_cards, 'ip-card-glow');
 
 // Close logic
-closeBtn.addEventListener('click', () => {
+close_btn.addEventListener('click', () => {
     overlay.classList.remove('active');
 });
 

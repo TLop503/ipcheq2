@@ -89,10 +89,12 @@
       <span class="info-value">{{ .FQ.VirusTotalResponse.Tags }}</span>
     </div>
 
+    {{if .FQ.VirusTotalResponse.RDAP.Handle}}
     <div class="info-hidden">
       <span class="info-label">VT RDAP Handle:</span>
       <span class="info-value">{{ .FQ.VirusTotalResponse.RDAP.Handle }}</span>
     </div>
+    {{end}}
 
     {{ if gt .VtTotalEngines 0 }}
     <div class="info-row">
