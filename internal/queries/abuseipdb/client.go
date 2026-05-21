@@ -11,11 +11,6 @@ import (
 // QueryAbuseIPDB returns a struct of the full API response
 func QueryAbuseIPDB(ip netip.Addr) (ABIPDBResponse, error) {
 	// fail non-destructively incase key intentionally not supplied
-	// TODO: check for keys upstream!
-	if abIPDBKey == "" {
-		return ABIPDBResponse{}, fmt.Errorf("No ABIPDB API Key Supplied!")
-	}
-
 	resp, err := queryHelper(ip.String())
 	if err != nil {
 		return ABIPDBResponse{}, err

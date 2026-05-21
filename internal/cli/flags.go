@@ -7,13 +7,15 @@ import (
 	"os"
 )
 
+// InitFlags acts as the entry for the main ipcheq binary
 func InitFlags() (Config, error) {
-	flag.StringVar(&mode, "mode", "", modeMsg)
-	flag.StringVar(&query, "i", "", queryMsg)
-	flag.BoolVar(&help, "h", false, helpMsg)
-	flag.BoolVar(&help, "help", false, helpMsg)
-	flag.BoolVar(&update, "update", false, helpMsg)
-	flag.BoolVar(&update, "u", false, helpMsg)
+	registerSharedFlags()
+	flag.BoolVar(&update, "update", false, "")
+	flag.BoolVar(&update, "u", false, "")
+	flag.BoolVar(&compact, "compact", false, "")
+	flag.BoolVar(&compact, "c", false, "")
+	flag.IntVar(&port, "port", 8080, "")
+	flag.IntVar(&port, "p", 8080, "")
 
 	flag.Parse()
 
@@ -23,52 +25,45 @@ func InitFlags() (Config, error) {
 		fmt.Println("-----------------------------------------------------------------")
 		fmt.Println("Optional flags:")
 		fmt.Println("  --mode <mode>    Set serving mode: webui | api | headless")
-		fmt.Println("                     webui    - serves the web UI only (default)")
-		fmt.Println("                     api      - serves web UI and exposes API")
-		fmt.Println("                     headless - exposes API only, no web UI")
-		fmt.Println("  --update -u      Update data sources and compact results")
-		fmt.Println("                      note: compression may take a few min")
+		fmt.Println("                   	webui    - serves the web UI only (default)")
+		fmt.Println("                   	api      - serves web UI and exposes API")
+		fmt.Println("                   	headless - exposes API only, no web UI")
+		fmt.Println("  --port -p        Port to serve on. Low ports may require root")
+		fmt.Println("  --update -u      Update data sources")
+		fmt.Println("                   	currently only updates iCloud relays")
+		fmt.Println("  --compact -c     Compress data to minimum spanning subnets")
+		fmt.Println("                   	compression may take a few min")
+		fmt.Println("                   	note: bundled data is already compacted,")
+		fmt.Println("  						 but updates are uncompressed")
 		fmt.Println("  --help -h        Show this help message.")
 		fmt.Println()
 		fmt.Println("-----------------------------------------------------------------")
-		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
 		os.Exit(0)
 	}
 
-	// if user set mode AND query
-	if mode != "" && query != "" {
-		return Config{}, fmt.Errorf("-i and --mode are mutually exclusive")
-	}
-
-	// otherwise if user only set query
-	if query != "" {
-		if _, err := netip.ParseAddr(query); err != nil {
-			return Config{}, fmt.Errorf("invalid IP address %q: %w", query, err)
-		}
-	}
+	var runMode RunMode
 
 	switch {
-	case query != "":
-		return Config{Mode: ModeQuery, QueryIP: query, Update: update}, nil
 	case mode == "api":
-		return Config{Mode: ModeAPI, Update: update}, nil
+		runMode = ModeAPI
 	case mode == "headless":
-		return Config{Mode: ModeHeadless, Update: update}, nil
+		runMode = ModeHeadless
 	case mode == "" || mode == "webui":
-		return Config{Mode: ModeWebUI, Update: update}, nil
+		runMode = ModeWebUI
 	default:
 		return Config{}, fmt.Errorf("unknown mode %q: must be webui, api, or headless", mode)
 	}
+
+	return Config{Mode: runMode, Update: update, Compact: compact, Port: port}, nil
 }
 
-// InitCliFlags parses arguments for the cli mode.
+// InitCliFlags parses arguments for the cli binary
 func InitCliFlags() (CliConfig, error) {
-	flag.StringVar(&mode, "mode", "", "")
-	flag.StringVar(&mode, "m", "", "")
+	registerSharedFlags()
 	flag.StringVar(&query, "a", "127.0.0.1", "")
 	flag.StringVar(&query, "addr", "", "")
-	flag.BoolVar(&help, "h", false, helpMsg)
-	flag.BoolVar(&help, "help", false, helpMsg)
+	flag.BoolVar(&human, "H", false, "")
+	flag.BoolVar(&human, "human", false, "")
 
 	flag.Parse()
 
@@ -77,14 +72,15 @@ func InitCliFlags() (CliConfig, error) {
 		fmt.Println("Usage: ipc2c [OPTIONS] [ADDRESS]")
 		fmt.Println("--------------------------------------------------------------------------------------------")
 		fmt.Println("Optional flags:")
-		fmt.Println("  -m --mode <mode>    		Set query mode: first | third | full")
-		fmt.Println("                     				 	first    - only use local data")
-		fmt.Println("                     				 	third    - only query remote sources")
-		fmt.Println("										full     - query local and remote sources (DEFAULT)")
-		fmt.Println("  -a --addr <ip address>		IP address to query (v4 or v6)")
+		fmt.Println("  -m --mode <mode>             Set query mode: first | third | full")
+		fmt.Println("                                      first    - only use local data")
+		fmt.Println("                                      third    - only query remote sources")
+		fmt.Println("                                      full     - query local and remote sources (DEFAULT)")
+		fmt.Println("  -a --addr <ip address>       IP address to query (v4 or v6)")
+		fmt.Println("  -H --human                   Print human-friendly summary rather than formatted JSON")
+		fmt.Println("  -h --help                    Show this help message.")
 		fmt.Println()
 		fmt.Println("--------------------------------------------------------------------------------------------")
-		//fmt.Println("NOTE: -i and --mode are mutually exclusive.")
 		os.Exit(0)
 	}
 
@@ -96,12 +92,21 @@ func InitCliFlags() (CliConfig, error) {
 
 	switch {
 	case mode == "first":
-		return CliConfig{Mode: ModeFirst, QueryIP: addr}, nil
+		return CliConfig{Mode: ModeFirst, QueryIP: addr, HumanReadable: human}, nil
 	case mode == "third":
-		return CliConfig{Mode: ModeThird, QueryIP: addr}, nil
+		return CliConfig{Mode: ModeThird, QueryIP: addr, HumanReadable: human}, nil
 	case mode == "" || mode == "full":
-		return CliConfig{Mode: ModeFull, QueryIP: addr}, nil
+		return CliConfig{Mode: ModeFull, QueryIP: addr, HumanReadable: human}, nil
 	default:
 		return CliConfig{}, fmt.Errorf("unknown mode %q: must be first, third, or full", mode)
 	}
+}
+
+// registerSharedFlags establishes help and mode flags
+func registerSharedFlags() {
+	// mode maps to iotas for either binary
+	flag.StringVar(&mode, "mode", "", "")
+	flag.StringVar(&mode, "m", "", "")
+	flag.BoolVar(&help, "h", false, "")
+	flag.BoolVar(&help, "help", false, "")
 }

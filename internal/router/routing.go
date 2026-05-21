@@ -1,12 +1,15 @@
 package router
 
 import (
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
 
 	"github.com/tlop503/ipcheq2/v2/internal/web"
 )
+
+var Port int
 
 func RouteWebui() {
 	// Handle routes
@@ -30,8 +33,9 @@ func RouteAPI() {
 }
 
 func StartServing() {
-	log.Println("Starting server on :8080")
-	err := http.ListenAndServe(":8080", nil)
+	log.Printf("Starting server on :%d\n", Port)
+	addr := fmt.Sprintf(":%d", Port)
+	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
