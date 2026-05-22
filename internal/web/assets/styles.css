@@ -312,7 +312,6 @@ a {
     max-width: 60vw;
     min-height: min(580px, 85vh);
     max-height: 90vh;
-    font-size: 32px;
     padding-top: 1.5rem;
     display: flex;
     align-items: center;
@@ -321,11 +320,9 @@ a {
     z-index: 1;
     pointer-events: auto;
     transform: scale(0.85);
-    opacity: 0;
     transition: transform 0.25s ease, opacity 0.25s ease;
     overflow: hidden;
     flex: 1;
-    display: flex;
     flex-direction: column;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: none;
