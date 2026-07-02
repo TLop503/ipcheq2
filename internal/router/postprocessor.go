@@ -65,7 +65,6 @@ func classifyVPN(matches []string) string {
 	if len(matches) == 0 {
 		return VpnClassNone
 	}
-
 	if anyContains(matches, torKeywords) {
 		return VpnClassTor
 	}
