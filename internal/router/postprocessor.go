@@ -43,7 +43,7 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 	}
 
 	if len(data.VPNIDMatches) > 0 {
-		fed.VpnColorClass = classifyVPN(data.VPNIDMatches) // classify BEFORE reordering for display
+		fed.VpnColorClass = classifyVPN(data.VPNIDMatches) // classify before reordering
 		slices.Sort(data.VPNIDMatches)
 		slices.Compact(data.VPNIDMatches)
 		moveToEnd(data.VPNIDMatches, "Generic VPN from ASN Data V4")
