@@ -196,6 +196,7 @@ a {
 }
 
 .ip-card-glow {
+    --glow-rgb: 184, 255, 31; /* default (lime), overridden per vpn-* class below */
     background: var(--card-bg);
     border: 2px solid var(--card-border);
     border-radius: 15px;
@@ -204,9 +205,9 @@ a {
     display: flex;
     flex-direction: column;
     min-height: 300px;
-    -webkit-box-shadow:0 0 62px 0 rgba(184,255,31,0.41);
-    -moz-box-shadow: 0 0 62px 0 rgba(184,255,31,0.41);
-    box-shadow: 0 0 32px 0 rgba(184,255,31,0.41);
+    -webkit-box-shadow: 0 0 62px 0 rgba(var(--glow-rgb), 0.41);
+    -moz-box-shadow: 0 0 62px 0 rgba(var(--glow-rgb), 0.41);
+    box-shadow: 0 0 32px 0 rgba(var(--glow-rgb), 0.41);
     z-index: 0; /* render below other cards */
 }
 
@@ -218,6 +219,11 @@ a {
 .ip-card-glow:hover {
     transform: scale(1.05);
 }
+
+/* VPN-specific glow colors */
+.ip-card-glow.vpn-tor                  { --glow-rgb: 125, 70, 152; } /* #7D4698, Tor Project purple */
+.ip-card-glow.vpn-icloud               { --glow-rgb: 0, 122, 255; }  /* #007AFF, Apple system blue */
+.ip-card-glow.vpn-generic-provider     { --glow-rgb: 184, 255, 31; } /* default lime, "VPN" bucket */
 
 .card-header {
     display: flex;
@@ -329,8 +335,13 @@ a {
 }
 
 .focused.glow {
-    box-shadow: 0 0 32px 0 rgba(184,255,31,0.41);
+    --glow-rgb: 184, 255, 31; /* default green, matches .ip-card-glow */
+    box-shadow: 0 0 32px 0 rgba(var(--glow-rgb), 0.41);
 }
+
+.focused.glow.vpn-tor              { --glow-rgb: 125, 70, 152; }  /* #7D4698 Tor purple */
+.focused.glow.vpn-icloud           { --glow-rgb: 0, 122, 255; }   /* #007AFF Apple blue */
+.focused.glow.vpn-generic-provider { --glow-rgb: 184, 255, 31; }  /* default lime, "VPN" bucket */
 
 .focused > .confidence-bar {
     width: 100%;

@@ -9,6 +9,9 @@ let is_dragging = false;
 let startX = 0;
 let startY = 0;
 
+// Known VPN color classes — keep in sync with existing ip card glow
+const VPN_COLOR_CLASSES = ['vpn-tor', 'vpn-icloud', 'vpn-generic-provider'];
+
 // Open focus card (only if user actually clicked, avoids opening on drag click)
 function applyCardListeners(cards, cardClass) {
     cards.forEach((card) => {
@@ -30,7 +33,7 @@ function applyCardListeners(cards, cardClass) {
             // Clean up old bar from previous open
             const old_confidence_bar = focused_card.querySelector('.confidence-bar');
             if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
-            
+
             const clone = card.cloneNode(true);
             clone.querySelectorAll('.info-hidden').forEach(el => {
                 el.classList.remove('info-hidden');
@@ -45,9 +48,19 @@ function applyCardListeners(cards, cardClass) {
                 focused_card.appendChild(confidence_bar);
             }
             overlay.classList.add('active');
+
+            // Reset any vpn color class left over from a previous open,
+            // so a non-glow card after a glow card doesn't inherit stale color
+            focused_card.classList.remove(...VPN_COLOR_CLASSES);
+
             if (cardClass == 'ip-card-glow') {
                 // make the focus card glow too
                 focused_card.classList.add('glow');
+                // carry over whichever vpn color class this specific card has
+                const matched_class = VPN_COLOR_CLASSES.find(c => card.classList.contains(c));
+                if (matched_class) {
+                    focused_card.classList.add(matched_class);
+                }
             }
             else {
                 focused_card.classList.remove('glow');
@@ -55,18 +68,15 @@ function applyCardListeners(cards, cardClass) {
         });
     });
 }
-
 applyCardListeners(nonglow_cards, 'ip-card');
 applyCardListeners(glow_cards, 'ip-card-glow');
 
 // Close logic
 close_btn.addEventListener('click', () => {
     overlay.classList.remove('active');
-
 });
-
 overlay.addEventListener('click', (e) => {
-if (e.target === overlay) {
-    overlay.classList.remove('active');
-}
+    if (e.target === overlay) {
+        overlay.classList.remove('active');
+    }
 });
