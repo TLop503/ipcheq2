@@ -27,15 +27,19 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse IP to netip.addr after trimming whitespace
-	ip, err := netip.ParseAddr(strings.TrimSpace(r.Form.Get("ip")))
-	if err != nil {
-		log.Printf("ParseAddr error: %v", err)
-		http.Error(w, "Missing or invalid IP addr", 500)
-		return
-	}
+	ips := strings.Split(r.Form.Get("ip"), ",")
 
-	Results.Add(QueryAndStyle(ip))
+	for _, ip_str := range ips {
+		// Parse IP to netip.addr after trimming whitespace
+		ip, err := netip.ParseAddr(strings.TrimSpace(ip_str))
+		if err != nil {
+			log.Printf("ParseAddr error: %v", err)
+			http.Error(w, "Missing or invalid IP addr", 500)
+			return
+		}
+
+		Results.Add(QueryAndStyle(ip))
+	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
