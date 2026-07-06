@@ -21,6 +21,13 @@
         <input type="text" name="ip" placeholder="127.0.0.1" required>
         <input type="submit" value="Go!">
     </form>
+    <form action="/ip-csv" method="POST" class="search-form csv-form" enctype="multipart/form-data">
+        <label class="file-input-label" for="ip-file">
+            <span id="file-name-display">Choose CSV file&hellip;</span>
+        </label>
+        <input type="file" id="ip-file" name="ip-file" accept=".csv" class="file-input-hidden">
+        <input type="submit" value="Upload CSV">
+    </form>
     <label class="switch">
         <input onchange="changeMode(this)" id="modeToggle" type="checkbox">
         <span class="slider">
