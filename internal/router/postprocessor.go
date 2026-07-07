@@ -23,9 +23,7 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 	var fed FrontEndData
 	fed.FQ = data
 
-	if abuseipdb.ABIPKeyPresent {
-		fed.AbKeyPresent = abuseipdb.ABIPKeyPresent
-	}
+	fed.AbKeyPresent = abuseipdb.ABIPKeyPresent
 
 	// populate VT data if present
 	if virustotal.VTKeyPresent {
