@@ -24,7 +24,7 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 	fed.FQ = data
 
 	if abuseipdb.ABIPKeyPresent {
-		fed.AbKeyPresent = true
+		fed.AbKeyPresent = abuseipdb.ABIPKeyPresent
 	}
 
 	// populate VT data if present
@@ -62,17 +62,17 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 // classifyVPN inspects all VPNIDMatches for an IP and returns a single CSS
 // class based on priority: tor > icloud > vpn > generic.
 func classifyVPN(matches []string) string {
-	if len(matches) == 0 {
+	switch {
+	case len(matches) == 0:
 		return VpnClassNone
-	}
-	if anyContains(matches, torKeywords) {
+	case anyContains(matches, torKeywords):
 		return VpnClassTor
-	}
-	if anyContains(matches, icloudKeywords) {
+	case anyContains(matches, icloudKeywords):
 		return VpnClassICloud
+	default:
+		// anything else with matches present is treated as a generic VPN hit
+		return VpnClassVPN
 	}
-	// anything else with matches present is treated as a generic VPN hit
-	return VpnClassVPN
 }
 
 // anyContains reports whether any of "matches" contains any of "keywords"
