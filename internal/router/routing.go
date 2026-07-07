@@ -14,7 +14,10 @@ var Port int
 func RouteWebui() {
 	// Handle routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, "index.html", Results.Slice())
+		renderTemplate(w, "index.html", HistoryData{
+			Results:        Results.Slice(),
+			VpnGlowClasses: AllVpnGlowClasses,
+		})
 	})
 	http.HandleFunc("/ip", handleIPPost)
 

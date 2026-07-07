@@ -1,10 +1,11 @@
 {{ define "history" }}
 <script src="/js/confidence-colors.js"></script>
+<script> window.VPN_COLOR_CLASSES = {{ .VpnGlowClasses }}; </script>
 <script src="/js/focus-card.js" defer></script>
 <script src="/js/wrap-ips.js" defer></script> <!--  "defer" runs the script after the DOM is fully parsed -->
-{{ if . }}
+{{ if .Results  }}
 <div class="results-grid">
-{{ range . }}
+{{ range .Results  }}
 
 <div class="{{if .VPNidHasMatches}}ip-card-glow {{.VpnColorClass}}{{else}}ip-card{{end}}" data-confidence="{{ .FQ.ABIPDBResponse.AbuseConfidenceScore }}">
   <div class="card-header">

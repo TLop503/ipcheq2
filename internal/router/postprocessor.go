@@ -23,9 +23,7 @@ func QueryAndStyle(ip netip.Addr) FrontEndData {
 	var fed FrontEndData
 	fed.FQ = data
 
-	if abuseipdb.ABIPKeyPresent {
-		fed.AbKeyPresent = abuseipdb.ABIPKeyPresent
-	}
+	fed.AbKeyPresent = abuseipdb.ABIPKeyPresent
 
 	// populate VT data if present
 	if virustotal.VTKeyPresent {
@@ -100,11 +98,16 @@ const (
 	VpnClassVPN    = "vpn-generic-provider" // known VPN, green
 )
 
+// AllVpnGlowClasses lists every class that gets glow styling (excludes "none").
+// CSS and JS sync to AllVpnGlowClasses
+var AllVpnGlowClasses = []string{VpnClassTor, VpnClassICloud, VpnClassVPN}
+
 // torKeywords / icloudKeywords are substrings (checked case-insensitively)
 // that identify a match string as belonging to that category.
 var torKeywords = []string{"tor"}
 var icloudKeywords = []string{"icloud", "private relay"}
 
+// Per-card results
 type FrontEndData struct {
 	FQ                 queries.FullQueryResponse
 	VpnidParsedResults string `default:"Not found in VPNID"`
@@ -114,4 +117,12 @@ type FrontEndData struct {
 	VtTotalEngines     int    `default:"0"`
 	ShowAbuseLinks     bool   `default:"false"`
 	AbKeyPresent       bool   `default:"false"`
+}
+
+// HistoryData is the top-level data passed to the index page template.
+// It carries the per-card results (FrontEndData) plus page-global metadata like the
+// full set of possible VPN glow classes (for JS to reference).
+type HistoryData struct {
+	Results        []FrontEndData
+	VpnGlowClasses []string
 }

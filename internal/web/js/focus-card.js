@@ -9,8 +9,8 @@ let is_dragging = false;
 let startX = 0;
 let startY = 0;
 
-// Known VPN color classes — keep in sync with existing ip card glow
-const VPN_COLOR_CLASSES = ['vpn-tor', 'vpn-icloud', 'vpn-generic-provider'];
+// Synced from Go backend AllVpnGlowClasses via the inline <script> in history.html
+const VPN_COLOR_CLASSES = window.VPN_COLOR_CLASSES;
 
 // Open focus card (only if user actually clicked, avoids opening on drag click)
 function applyCardListeners(cards, cardClass) {

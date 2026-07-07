@@ -1,9 +1,8 @@
 {{ define "title" }}
-{{ if . }}
-{{ with $n := index . 0 }}
+{{ if .Results }}
+{{ with $n := index .Results 0 }}
 {{ $n.FQ.IPAddress }}
 {{ end }} |   
-
 {{ end }}
 ipcheq2
 {{ end }}
