@@ -182,6 +182,15 @@ file-input-label:hover,
     color: var(--text-color);
 }
 
+#file-name-display {
+    display: inline-block;
+    min-width: 18ch;        
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
 .logo {
     color: black;
     font-family: 'eightgon', sans-serif;

@@ -2,10 +2,12 @@ package router
 
 import (
 	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"html/template"
 	"io/fs"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/netip"
 	"strings"
@@ -42,6 +44,77 @@ func handleIPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// handleCSVPost parses an uploaded CSV of IPs and queries each one
+func handleCSVPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// 10 MB max in-memory; larger uploads spill to temp disk automatically
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		log.Printf("ParseMultipartForm error: %v", err)
+		http.Error(w, "Bad request", 400)
+		return
+	}
+
+	file, _, err := r.FormFile("ip-file")
+	if err != nil {
+		log.Printf("FormFile error: %v", err)
+		http.Error(w, "Missing CSV file", 400)
+		return
+	}
+	defer file.Close()
+
+	ips, err := extractIPsFromCSV(file)
+	if err != nil {
+		log.Printf("CSV parse error: %v", err)
+		http.Error(w, "Invalid CSV file", 400)
+		return
+	}
+	if len(ips) == 0 {
+		http.Error(w, "No valid IP addresses found in CSV", 400)
+		return
+	}
+
+	// process IPs, tracking seen IPs in the "seen" map to avoid duplication
+	seen := make(map[netip.Addr]bool)
+	for _, ip := range ips {
+		if seen[ip] {
+			continue
+		}
+		seen[ip] = true
+		Results.Add(QueryAndStyle(ip))
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// extractIPsFromCSV reads a CSV and pulls candidate IP strings from every
+// cell in every row. Non-IP cells (headers, extra columns, blank lines)
+// are silently skipped with FieldsPerRecord = -1.
+func extractIPsFromCSV(f multipart.File) ([]netip.Addr, error) {
+	reader := csv.NewReader(f)
+	reader.FieldsPerRecord = -1
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var ips []netip.Addr
+	for _, record := range records {
+		for _, cell := range record {
+			cell = strings.TrimSpace(cell)
+			// check err for invalid IP
+			if ip, err := netip.ParseAddr(cell); err == nil {
+				ips = append(ips, ip)
+			}
+		}
+	}
+	return ips, nil
 }
 
 // renderTemplate executes templates into a single HTML to serve to the client
