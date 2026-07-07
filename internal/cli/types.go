@@ -13,15 +13,20 @@ const (
 
 type Config struct {
 	Mode    RunMode
-	QueryIP string
 	Update  bool
+	Config  bool
+	Compact bool
+	Port    int
 }
 
 var (
-	help   bool
-	mode   string
-	query  string
-	update bool
+	help    bool
+	mode    string
+	query   string
+	update  bool
+	compact bool
+	human   bool
+	port    int
 )
 
 type CliMode int
@@ -33,6 +38,7 @@ const (
 )
 
 type CliConfig struct {
-	Mode    CliMode
-	QueryIP netip.Addr
+	Mode          CliMode
+	QueryIP       netip.Addr
+	HumanReadable bool
 }

@@ -13,6 +13,8 @@ func resetFlags() {
 	mode = ""
 	query = ""
 	help = false
+	update = false
+	compact = false
 }
 
 func TestDefaultMode(t *testing.T) {
@@ -67,55 +69,16 @@ func TestModeHeadless(t *testing.T) {
 	}
 }
 
-func TestQueryFlag(t *testing.T) {
+func TestCompactFlag(t *testing.T) {
 	resetFlags()
-	os.Args = []string{"ipcheq2", "-i", "1.2.3.4"}
+	os.Args = []string{"ipcheq2", "--compact"}
 
 	cfg, err := InitFlags()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if cfg.Mode != ModeQuery {
-		t.Errorf("expected ModeQuery, got %v", cfg.Mode)
-	}
-	if cfg.QueryIP != "1.2.3.4" {
-		t.Errorf("expected QueryIP 1.2.3.4, got %q", cfg.QueryIP)
-	}
-}
-
-func TestQueryIPv6(t *testing.T) {
-	resetFlags()
-	os.Args = []string{"ipcheq2", "-i", "2001:db8::1"}
-
-	cfg, err := InitFlags()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if cfg.Mode != ModeQuery {
-		t.Errorf("expected ModeQuery, got %v", cfg.Mode)
-	}
-	if cfg.QueryIP != "2001:db8::1" {
-		t.Errorf("expected QueryIP 2001:db8::1, got %q", cfg.QueryIP)
-	}
-}
-
-func TestQueryInvalidIP(t *testing.T) {
-	resetFlags()
-	os.Args = []string{"ipcheq2", "-i", "not-an-ip"}
-
-	_, err := InitFlags()
-	if err == nil {
-		t.Error("expected error for invalid IP, got nil")
-	}
-}
-
-func TestMutualExclusion(t *testing.T) {
-	resetFlags()
-	os.Args = []string{"ipcheq2", "-i", "1.2.3.4", "--mode", "api"}
-
-	_, err := InitFlags()
-	if err == nil {
-		t.Error("expected error when both -i and --mode are set, got nil")
+	if !cfg.Compact {
+		t.Error("expected Compact to be true")
 	}
 }
 
@@ -126,18 +89,5 @@ func TestUnknownMode(t *testing.T) {
 	_, err := InitFlags()
 	if err == nil {
 		t.Error("expected error for unknown mode, got nil")
-	}
-}
-
-func TestQueryLoopback(t *testing.T) {
-	resetFlags()
-	os.Args = []string{"ipcheq2", "-i", "127.0.0.1"}
-
-	cfg, err := InitFlags()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if cfg.QueryIP != "127.0.0.1" {
-		t.Errorf("expected 127.0.0.1, got %q", cfg.QueryIP)
 	}
 }

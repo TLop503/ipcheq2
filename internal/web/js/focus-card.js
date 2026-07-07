@@ -1,18 +1,22 @@
 const grid = document.getElementById('results-grid');
 const overlay = document.getElementById('overlay');
-const focusedContent = document.getElementById('focused-content');
-const closeBtn = document.getElementById('close-btn');
+const focused_content = document.getElementById('focused-content');
+const close_btn = document.getElementById('close-btn');
 const nonglow_cards = document.querySelectorAll('.ip-card');
 const glow_cards = document.querySelectorAll('.ip-card-glow');
-let isDragging = false;
+const focused_card = document.getElementById('focused');
+let is_dragging = false;
 let startX = 0;
 let startY = 0;
+
+// Known VPN color classes — keep in sync with existing ip card glow
+const VPN_COLOR_CLASSES = ['vpn-tor', 'vpn-icloud', 'vpn-generic-provider'];
 
 // Open focus card (only if user actually clicked, avoids opening on drag click)
 function applyCardListeners(cards, cardClass) {
     cards.forEach((card) => {
         card.addEventListener('mousedown', (e) => {
-            isDragging = false;
+            is_dragging = false;
             startX = e.clientX;
             startY = e.clientY;
         });
@@ -20,30 +24,59 @@ function applyCardListeners(cards, cardClass) {
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
             if (dx > 5 || dy > 5) {
-                isDragging = true;
+                is_dragging = true;
             }
         });
         card.addEventListener('click', () => {
-            if (isDragging) return;
-            focusedContent.innerHTML = '';
+            if (is_dragging) return;
+            focused_content.innerHTML = '';
+            // Clean up old bar from previous open
+            const old_confidence_bar = focused_card.querySelector('.confidence-bar');
+            if (old_confidence_bar) focused_card.removeChild(old_confidence_bar);
+
             const clone = card.cloneNode(true);
+            clone.querySelectorAll('.info-hidden').forEach(el => {
+                el.classList.remove('info-hidden');
+                el.classList.add('info-row');
+            });
             clone.classList.remove(cardClass);
-            focusedContent.appendChild(clone);
+            clone.classList.add('ip-card-clone');
+            focused_content.appendChild(clone);
+            const confidence_bar = clone.querySelector('.confidence-bar');
+            if (confidence_bar) {
+                clone.removeChild(confidence_bar);
+                focused_card.appendChild(confidence_bar);
+            }
             overlay.classList.add('active');
+
+            // Reset any vpn color class left over from a previous open,
+            // so a non-glow card after a glow card doesn't inherit stale color
+            focused_card.classList.remove(...VPN_COLOR_CLASSES);
+
+            if (cardClass == 'ip-card-glow') {
+                // make the focus card glow too
+                focused_card.classList.add('glow');
+                // carry over whichever vpn color class this specific card has
+                const matched_class = VPN_COLOR_CLASSES.find(c => card.classList.contains(c));
+                if (matched_class) {
+                    focused_card.classList.add(matched_class);
+                }
+            }
+            else {
+                focused_card.classList.remove('glow');
+            }
         });
     });
 }
-
 applyCardListeners(nonglow_cards, 'ip-card');
 applyCardListeners(glow_cards, 'ip-card-glow');
 
 // Close logic
-closeBtn.addEventListener('click', () => {
+close_btn.addEventListener('click', () => {
     overlay.classList.remove('active');
 });
-
 overlay.addEventListener('click', (e) => {
-if (e.target === overlay) {
-    overlay.classList.remove('active');
-}
+    if (e.target === overlay) {
+        overlay.classList.remove('active');
+    }
 });

@@ -132,7 +132,10 @@ type bulkCompactConfig struct {
 	Sources []bulkCompactSource `yaml:"sources"`
 }
 
-func bulk_compact() {
+// Bulk_compact deduplicates and minimizes files of addresses into the minimum spanning subnets
+func Bulk_compact() {
+	log.Println("Attempting to compact data files")
+	log.Println("This will take ~3 minutes if data is not yet minimized")
 	cfg, err := loadBulkCompactConfig()
 	if err != nil {
 		log.Fatal(err)
