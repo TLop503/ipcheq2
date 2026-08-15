@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
 	"log"
 	"net/netip"
 	"slices"
@@ -106,7 +107,6 @@ var icloudKeywords = []string{"icloud", "private relay"}
 type FrontEndData struct {
 	FQ                 queries.FullQueryResponse
 	VpnidParsedResults string `default:"Not found in VPNID"`
-	VpnColorClass      string `default:"vpn-none"`
 	VPNidHasMatches    bool   `default:"false"`
 	VtTotalDetections  int    `default:"0"`
 	VtTotalEngines     int    `default:"0"`
