@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/tlop503/ipcheq2/v2/internal/queries"
-	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
 	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
 )
 
@@ -106,6 +105,7 @@ var icloudKeywords = []string{"icloud", "private relay"}
 type FrontEndData struct {
 	FQ                 queries.FullQueryResponse
 	VpnidParsedResults string `default:"Not found in VPNID"`
+	VpnColorClass      string `default:"vpn-none"`
 	VPNidHasMatches    bool   `default:"false"`
 	VtTotalDetections  int    `default:"0"`
 	VtTotalEngines     int    `default:"0"`
