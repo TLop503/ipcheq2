@@ -7,9 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
-
 	"github.com/tlop503/ipcheq2/v2/internal/queries"
+	"github.com/tlop503/ipcheq2/v2/internal/queries/abuseipdb"
 	"github.com/tlop503/ipcheq2/v2/internal/queries/virustotal"
 )
 
