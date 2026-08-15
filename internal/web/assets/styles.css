@@ -49,6 +49,7 @@ body {
     width: 60px;
     height: 34px;
     border-radius: 34px;
+    flex-shrink: 0; 
 }
 
 .slider:before {
@@ -160,14 +161,23 @@ a {
 .results-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 1.3rem;
     margin: 1rem 0;
     grid-auto-rows: minmax(300px, auto);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1150px) {
     .results-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 655px) {
+    body {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        min-width: 0;
     }
 }
 
@@ -177,7 +187,8 @@ a {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
     min-height: 300px;
@@ -185,26 +196,38 @@ a {
 }
 
 .ip-card-glow {
+    --glow-rgb: 184, 255, 31; /* default (lime), overridden per vpn-* class below */
     background: var(--card-bg);
     border: 2px solid var(--card-border);
     border-radius: 15px;
     overflow: hidden;
-    transition: box-shadow 0.3s ease;
+    transition: transform 0.2s, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
     min-height: 300px;
-    -webkit-box-shadow:0 0 62px 0 rgba(184,255,31,0.41);
-    -moz-box-shadow: 0 0 62px 0 rgba(184,255,31,0.41);
-    box-shadow: 0 0 32px 0 rgba(184,255,31,0.41);
+    -webkit-box-shadow: 0 0 62px 0 rgba(var(--glow-rgb), 0.41);
+    -moz-box-shadow: 0 0 62px 0 rgba(var(--glow-rgb), 0.41);
+    box-shadow: 0 0 32px 0 rgba(var(--glow-rgb), 0.41);
     z-index: 0; /* render below other cards */
 }
 
 .ip-card:hover {
+    transform: scale(1.05);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
+.ip-card-glow:hover {
+    transform: scale(1.05);
+}
+
+/* VPN-specific glow colors */
+.ip-card-glow.vpn-tor                  { --glow-rgb: 125, 70, 152; } /* #7D4698, Tor Project purple */
+.ip-card-glow.vpn-icloud               { --glow-rgb: 0, 122, 255; }  /* #007AFF, Apple system blue */
+.ip-card-glow.vpn-generic-provider     { --glow-rgb: 184, 255, 31; } /* default lime, "VPN" bucket */
+
 .card-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1rem 0.75rem 1rem;
@@ -258,6 +281,125 @@ a {
 
 }
 
+/* Overlay, contains the focus card */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0);
+    opacity: 0;
+    visibility: hidden;
+    transition: background 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+}
+
+.overlay.active {
+    background: rgba(0,0,0,0.5);
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay.active .focused {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Focused card */
+.focused {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 60vw;
+    min-height: min(580px, 85vh);
+    max-height: 90vh;
+    padding-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    transform: scale(0.85);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    overflow: hidden;
+    flex: 1;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+}
+
+.focused.glow {
+    --glow-rgb: 184, 255, 31; /* default green, matches .ip-card-glow */
+    box-shadow: 0 0 32px 0 rgba(var(--glow-rgb), 0.41);
+}
+
+.focused.glow.vpn-tor              { --glow-rgb: 125, 70, 152; }  /* #7D4698 Tor purple */
+.focused.glow.vpn-icloud           { --glow-rgb: 0, 122, 255; }   /* #007AFF Apple blue */
+.focused.glow.vpn-generic-provider { --glow-rgb: 184, 255, 31; }  /* default lime, "VPN" bucket */
+
+.focused > .confidence-bar {
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+/* Focus card content container */
+#focused-content { 
+    flex: 1;
+    min-height: 0;           
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 90vw;     
+}
+
+/* Focus card adjustments for cloned contents */
+#focused-content .ip-card-clone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+#focused-content .ip-card-clone .card-body {
+    flex: 1;          /* absorbs available space */
+    min-height: 0;
+}
+#focused-content .ip-card-clone .confidence-bar {
+    margin-top: auto; 
+    flex-shrink: 0;   
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: black;
+}
+
+/* focus card on small screens */
+@media (max-width: 1150px) {
+    .focused {
+        max-width: 90vw;
+        padding-top: 2.5rem; 
+    }
+    
+    #focused-content {
+        width: 95%;
+    }
+}
+
 /* Confidence badge colors */
 .confidence-badge[data-confidence="0"] {
     background-color: #22c55e;
@@ -274,17 +416,21 @@ a {
     flex-direction: column;
 }
 
+.info-hidden {
+    display: none;
+}
+
 .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.4rem 0;
-    border-bottom: 1px solid var(--card-border);
+    border-top: 1px solid var(--card-border);
     font-size: 1rem;
 }
 
-.info-row:last-child {
-    border-bottom: none;
+.info-row:first-of-type {
+    border-top: none;
 }
 
 .info-row.sub-info {
@@ -309,6 +455,8 @@ a {
     justify-content: flex-end;
     gap: 0.5rem;
     font-size: 1rem;
+    word-break: break-all;
+    min-width: 0;
 }
 
 .risk-level {
