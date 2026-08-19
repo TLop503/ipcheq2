@@ -17,6 +17,7 @@ func RouteWebui() {
 		renderTemplate(w, "index.html", Results.Slice())
 	})
 	http.HandleFunc("/ip", handleIPPost)
+	http.HandleFunc("/ip-csv", handleCSVPost)
 
 	// Serve assets from embedded FS
 	assetsFS, _ := fs.Sub(web.FS, "assets")
