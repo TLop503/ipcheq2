@@ -461,7 +461,7 @@ a {
 }
 
 .card-body {
-    padding: 0 1rem 0.75rem 1rem;
+    padding: 0 1rem 2rem 1rem;
     flex: 1;
     display: flex;
     flex-direction: column;
