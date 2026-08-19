@@ -70,7 +70,7 @@ func FullQuery(addr netip.Addr) ([]byte, error) {
 	if err != nil {
 		log.Printf("FullQueryToStruct error: %v", err)
 	}
-	
+
 	return json.Marshal(result)
 }
 
